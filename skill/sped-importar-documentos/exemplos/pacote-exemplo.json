@@ -1,0 +1,359 @@
+{
+  "formato": "sped-contrib-import",
+  "versao": 1,
+  "cnpj": "11222333000181",
+  "origem": "Exemplo fictício da skill sped-importar-documentos",
+  "documentos": [
+    {
+      "tipo": "nota",
+      "referencia": "exemplo: notas-entrada.xlsx, linhas 2-3",
+      "operacao": "entrada",
+      "emissao": "terceiros",
+      "modelo": "55",
+      "serie": "1",
+      "numero": "12345",
+      "chave": "35250344555666000181550010000123451123456780",
+      "dataDocumento": "2025-03-05",
+      "dataEntradaSaida": "2025-03-06",
+      "participante": {
+        "cnpjCpf": "44555666000181",
+        "nome": "Distribuidora Alfa Ficticia Ltda",
+        "ie": "123456789110",
+        "codMunicipio": "3550308"
+      },
+      "indPagamento": "1",
+      "indFrete": "9",
+      "totais": {
+        "documento": 6250.5,
+        "mercadorias": 6250.5
+      },
+      "itens": [
+        {
+          "codigo": "A001",
+          "descricao": "Parafuso sextavado 10mm (caixa)",
+          "ncm": "73181500",
+          "unidade": "CX",
+          "tipoItem": "00",
+          "quantidade": 100,
+          "valorItem": 5000.0,
+          "cfop": "1102",
+          "icms": {
+            "cst": "000",
+            "base": 5000.0,
+            "aliquota": 18,
+            "valor": 900.0
+          },
+          "pis": {
+            "cst": "50",
+            "base": 5000.0,
+            "aliquota": 1.65,
+            "valor": 82.5
+          },
+          "cofins": {
+            "cst": "50",
+            "base": 5000.0,
+            "aliquota": 7.6,
+            "valor": 380.0
+          }
+        },
+        {
+          "codigo": "B010",
+          "descricao": "Material de limpeza",
+          "ncm": "34022000",
+          "unidade": "UN",
+          "tipoItem": "07",
+          "quantidade": 25,
+          "valorItem": 1250.5,
+          "cfop": "1556",
+          "pis": {
+            "cst": "50",
+            "base": 1250.5,
+            "aliquota": 1.65,
+            "valor": 20.63
+          },
+          "cofins": {
+            "cst": "50",
+            "base": 1250.5,
+            "aliquota": 7.6,
+            "valor": 95.04
+          }
+        }
+      ]
+    },
+    {
+      "tipo": "nota",
+      "referencia": "exemplo: vendas-marco.csv, linha 2",
+      "operacao": "saida",
+      "emissao": "propria",
+      "modelo": "55",
+      "serie": "1",
+      "numero": "980",
+      "chave": "35250311222333000181550010000009801123456780",
+      "dataDocumento": "2025-03-18",
+      "participante": {
+        "cnpjCpf": "77888999000181",
+        "nome": "Comercial Beta Ficticia SA",
+        "codMunicipio": "3304557"
+      },
+      "itens": [
+        {
+          "codigo": "P100",
+          "descricao": "Produto acabado modelo X",
+          "ncm": "84713012",
+          "unidade": "UN",
+          "tipoItem": "04",
+          "quantidade": 10,
+          "valorItem": 1000.0,
+          "cfop": "5102",
+          "icms": {
+            "cst": "000",
+            "base": 1000.0,
+            "aliquota": 18,
+            "valor": 180.0
+          },
+          "pis": {
+            "cst": "01",
+            "base": 1000.0,
+            "aliquota": 1.65,
+            "valor": 16.5
+          },
+          "cofins": {
+            "cst": "01",
+            "base": 1000.0,
+            "aliquota": 7.6,
+            "valor": 76.0
+          }
+        }
+      ]
+    },
+    {
+      "tipo": "itens",
+      "referencia": "exemplo: itens-avulsos.xlsx, linha 5",
+      "periodo": "2025-03",
+      "nota": {
+        "numero": "778",
+        "serie": "1",
+        "cnpjCpfParticipante": "44555666000181"
+      },
+      "itens": [
+        {
+          "codigo": "C200",
+          "descricao": "Embalagem plástica",
+          "ncm": "39232990",
+          "unidade": "UN",
+          "tipoItem": "02",
+          "quantidade": 500,
+          "valorItem": 320.0,
+          "cfop": "1101",
+          "pis": {
+            "cst": "50",
+            "base": 320.0,
+            "aliquota": 1.65,
+            "valor": 5.28
+          },
+          "cofins": {
+            "cst": "50",
+            "base": 320.0,
+            "aliquota": 7.6,
+            "valor": 24.32
+          }
+        }
+      ]
+    },
+    {
+      "tipo": "frete",
+      "referencia": "exemplo: CT-e 5521.xml",
+      "operacao": "entrada",
+      "emissao": "terceiros",
+      "modelo": "57",
+      "serie": "1",
+      "numero": "5521",
+      "chave": "41250333444555000181570010000055211123456784",
+      "dataDocumento": "2025-03-20",
+      "dataEntradaSaida": "2025-03-21",
+      "participante": {
+        "cnpjCpf": "33444555000181",
+        "nome": "Transportes Gama Ficticia Ltda",
+        "codMunicipio": "4106902"
+      },
+      "valorDocumento": 800.0,
+      "indFrete": "1",
+      "valorServico": 800.0,
+      "icms": {
+        "base": 800.0,
+        "valor": 96.0
+      },
+      "natFrete": "0",
+      "creditos": [
+        {
+          "valorItem": 800.0,
+          "cst": "50",
+          "natBcCred": "07",
+          "base": 800.0,
+          "aliquotaPis": 1.65,
+          "aliquotaCofins": 7.6
+        }
+      ]
+    },
+    {
+      "tipo": "energia",
+      "referencia": "exemplo: fatura-energia-mar25.pdf",
+      "modelo": "06",
+      "serie": "B",
+      "numero": "334455",
+      "dataDocumento": "2025-04-02",
+      "dataEntrada": "2025-04-03",
+      "periodo": "2025-04",
+      "participante": {
+        "cnpjCpf": "55666777000181",
+        "nome": "Energia Delta Ficticia SA",
+        "codMunicipio": "3106200"
+      },
+      "valorDocumento": 3200.0,
+      "valorIcms": 576.0,
+      "creditos": [
+        {
+          "valorItem": 3200.0,
+          "cst": "50",
+          "natBcCred": "04",
+          "base": 2624.0,
+          "aliquotaPis": 1.65,
+          "aliquotaCofins": 7.6
+        }
+      ]
+    },
+    {
+      "tipo": "f100",
+      "referencia": "exemplo: despesas.xlsx, linha 8",
+      "indOper": "0",
+      "participante": {
+        "cnpjCpf": "99000111000165",
+        "nome": "Imobiliaria Epsilon Ficticia Ltda"
+      },
+      "data": "2025-03-10",
+      "valor": 4500.0,
+      "pis": {
+        "cst": "50",
+        "base": 4500.0,
+        "aliquota": 1.65,
+        "valor": 74.25
+      },
+      "cofins": {
+        "cst": "50",
+        "base": 4500.0,
+        "aliquota": 7.6,
+        "valor": 342.0
+      },
+      "natBcCred": "05",
+      "indOrigCred": "0",
+      "descricao": "Aluguel do galpao"
+    },
+    {
+      "tipo": "f100",
+      "referencia": "exemplo: receitas.xlsx, linha 3",
+      "indOper": "1",
+      "data": "2025-03-31",
+      "valor": 300.0,
+      "pis": {
+        "cst": "01",
+        "base": 300.0,
+        "aliquota": 1.65,
+        "valor": 4.95
+      },
+      "cofins": {
+        "cst": "01",
+        "base": 300.0,
+        "aliquota": 7.6,
+        "valor": 22.8
+      },
+      "descricao": "Receita financeira de juros"
+    },
+    {
+      "tipo": "servico",
+      "referencia": "exemplo: NFS-e 2025-00417.xml",
+      "operacao": "contratado",
+      "emissao": "terceiros",
+      "numero": "2025/00417",
+      "chave": "A1B2C3D4E5",
+      "dataDocumento": "2025-03-14",
+      "dataExecucao": "2025-03-12",
+      "participante": {
+        "cnpjCpf": "66223344000178",
+        "nome": "Manutencao Industrial Omega Ficticia Ltda",
+        "codMunicipio": "3550308"
+      },
+      "indPagamento": "1",
+      "valorDocumento": 3200.0,
+      "valorIss": 160.0,
+      "itens": [
+        {
+          "codigo": "S014",
+          "descricao": "Manutencao preventiva de maquinas industriais",
+          "codigoServico": "14.01",
+          "unidade": "UN",
+          "valorItem": 3200.0,
+          "natBcCred": "03",
+          "indOrigCred": "0",
+          "pis": {
+            "cst": "50",
+            "base": 3200.0,
+            "aliquota": 1.65,
+            "valor": 52.8
+          },
+          "cofins": {
+            "cst": "50",
+            "base": 3200.0,
+            "aliquota": 7.6,
+            "valor": 243.2
+          }
+        }
+      ]
+    },
+    {
+      "tipo": "imobilizado",
+      "referencia": "exemplo: ativo-fixo.xlsx, linha 4 (depreciacao de marco)",
+      "periodo": "2025-03",
+      "modalidade": "depreciacao",
+      "natBcCred": "09",
+      "identificacaoBem": "04",
+      "indOrigCred": "0",
+      "utilizacao": "1",
+      "valorEncargo": 1500.0,
+      "parcelaSemCredito": 100.0,
+      "pis": {
+        "cst": "50",
+        "aliquota": 1.65,
+        "valor": 23.1
+      },
+      "cofins": {
+        "cst": "50",
+        "aliquota": 7.6,
+        "valor": 106.4
+      },
+      "descricao": "Prensa hidraulica - encargo de depreciacao do mes"
+    },
+    {
+      "tipo": "imobilizado",
+      "referencia": "exemplo: ativo-fixo.xlsx, linha 9 (aquisicao em marco)",
+      "periodo": "2025-03",
+      "modalidade": "aquisicao",
+      "identificacaoBem": "05",
+      "indOrigCred": "0",
+      "utilizacao": "2",
+      "mesAquisicao": "2025-03",
+      "valorAquisicao": 60000.0,
+      "parcelas": "3",
+      "pis": {
+        "cst": "50",
+        "aliquota": 1.65,
+        "valor": 41.25
+      },
+      "cofins": {
+        "cst": "50",
+        "aliquota": 7.6,
+        "valor": 190.0
+      },
+      "descricao": "Servidor de producao - credito em 24 parcelas"
+    }
+  ]
+}

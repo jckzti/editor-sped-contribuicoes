@@ -1,0 +1,290 @@
+/*
+ * Estilos do Manual e do tour guiado. Usam as variáveis de src/ui/estilo.css
+ * (com valor de reserva para funcionar também isolados, nos testes e na demonstração).
+ */
+
+/* ------------------------------------------------------------------ manual */
+
+.manual {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: 260px minmax(0, 1fr);
+  gap: 16px;
+}
+
+.manual-indice {
+  min-height: 0;
+  overflow: auto;
+  padding: 2px 4px 12px 0;
+  border-right: 1px solid var(--borda, #d8dce3);
+}
+
+.manual-indice input[type='search'] {
+  width: 100%;
+  box-sizing: border-box;
+  margin-bottom: 8px;
+}
+
+.manual-contagem {
+  margin: 0 0 8px;
+}
+
+.manual-grupo {
+  margin-bottom: 10px;
+}
+
+.manual-grupo-titulo {
+  font-size: 11px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-fraco, #5c6472);
+  margin: 6px 0 2px;
+}
+
+.manual-grupo ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.manual-grupo a {
+  display: block;
+  padding: 3px 8px;
+  border-radius: 5px;
+  color: var(--texto, #15181d);
+  text-decoration: none;
+}
+
+.manual-grupo a:hover {
+  background: var(--destaque-fraco, #e8f0fd);
+}
+
+.manual-grupo a.ativa {
+  background: var(--destaque-fraco, #e8f0fd);
+  color: var(--destaque, #1f5fbf);
+  font-weight: 600;
+}
+
+.manual-grupo a:focus-visible,
+.manual-conteudo a:focus-visible {
+  outline: 2px solid var(--destaque, #1f5fbf);
+  outline-offset: 1px;
+}
+
+.manual-tour {
+  margin-top: 6px;
+  width: 100%;
+}
+
+.manual-conteudo {
+  min-height: 0;
+  overflow: auto;
+  padding: 0 8px 40vh 0;
+  max-width: 900px;
+  line-height: 1.5;
+  font-size: 14px;
+}
+
+.manual-secao {
+  padding: 4px 0 18px;
+  border-bottom: 1px solid var(--borda, #d8dce3);
+  margin-bottom: 14px;
+  scroll-margin-top: 8px;
+}
+
+.manual-secao h2 {
+  font-size: 19px;
+  margin: 8px 0 2px;
+}
+
+.manual-secao h3 {
+  font-size: 14px;
+  margin: 16px 0 4px;
+}
+
+.manual-resumo {
+  margin: 0 0 10px;
+}
+
+.manual-ancora {
+  margin-left: 8px;
+  color: var(--texto-fraco, #5c6472);
+  text-decoration: none;
+  font-weight: 400;
+  opacity: 0;
+}
+
+.manual-secao h2:hover .manual-ancora,
+.manual-ancora:focus-visible {
+  opacity: 1;
+}
+
+.manual-conteudo ul,
+.manual-conteudo ol {
+  padding-left: 22px;
+  margin: 4px 0 8px;
+}
+
+.manual-conteudo li {
+  margin: 2px 0;
+}
+
+.manual-conteudo code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  background: var(--fundo, #f6f7f9);
+  border: 1px solid var(--borda, #d8dce3);
+  border-radius: 4px;
+  padding: 0 4px;
+}
+
+.manual-conteudo mark,
+.tour mark {
+  background: var(--editado, #fff4d6);
+  color: inherit;
+  border-bottom: 1px solid var(--editado-borda, #e0a800);
+}
+
+.manual-alerta {
+  margin: 8px 0;
+}
+
+.manual-tabela {
+  overflow-x: auto;
+  margin: 6px 0 10px;
+}
+
+.manual-tabela th,
+.manual-tabela td {
+  vertical-align: top;
+  white-space: normal;
+}
+
+.manual-tabela td:first-child {
+  min-width: 140px;
+}
+
+@media (max-width: 760px) {
+  .manual {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+  }
+  .manual-indice {
+    max-height: 30vh;
+    border-right: none;
+    border-bottom: 1px solid var(--borda, #d8dce3);
+  }
+  .manual-conteudo {
+    padding-bottom: 20vh;
+  }
+}
+
+/* ------------------------------------------------------------------ tour */
+
+.tour {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+}
+
+.tour-cortina {
+  position: fixed;
+  inset: 0;
+  background: rgba(21, 24, 29, 0.55);
+}
+
+/* com recorte, quem escurece é a sombra do recorte (o buraco fica claro) */
+.tour-cortina.com-recorte {
+  background: transparent;
+}
+
+.tour-recorte {
+  position: fixed;
+  border-radius: 8px;
+  box-shadow: 0 0 0 9999px rgba(21, 24, 29, 0.55);
+  outline: 2px solid var(--destaque, #1f5fbf);
+  pointer-events: none;
+  transition: top 0.18s ease, left 0.18s ease, width 0.18s ease, height 0.18s ease;
+}
+
+.tour-balao {
+  position: fixed;
+  box-sizing: border-box;
+  width: min(380px, calc(100vw - 24px));
+  max-height: calc(100vh - 24px);
+  overflow: auto;
+  background: var(--painel, #fff);
+  color: var(--texto, #15181d);
+  border: 1px solid var(--borda-forte, #b9c0cc);
+  border-radius: 10px;
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  padding: 12px 14px;
+  font-size: 14px;
+  line-height: 1.45;
+}
+
+.tour-topo,
+.tour-rodape {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tour-rodape {
+  margin-top: 10px;
+}
+
+.tour-contagem {
+  font-size: 12px;
+  color: var(--texto-fraco, #5c6472);
+  font-variant-numeric: tabular-nums;
+}
+
+.tour-demo {
+  font-size: 11px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  background: var(--editado, #fff4d6);
+  border: 1px solid var(--editado-borda, #e0a800);
+}
+
+.tour-titulo {
+  font-size: 16px;
+  margin: 6px 0 4px;
+}
+
+.tour-texto {
+  margin: 0;
+}
+
+.tour-nota {
+  margin: 6px 0 0;
+  font-size: 12px;
+}
+
+.tour-convite {
+  display: inline-flex;
+  align-items: center;
+  border: 1px solid var(--destaque, #1f5fbf);
+  background: var(--destaque-fraco, #e8f0fd);
+  border-radius: 12px;
+  padding: 0 2px 0 4px;
+  font-size: 12px;
+}
+
+.tour-convite button.ligacao {
+  color: var(--destaque, #1f5fbf);
+}
+
+.tour-convite-fechar {
+  font-size: 14px;
+  line-height: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tour-recorte {
+    transition: none;
+  }
+}

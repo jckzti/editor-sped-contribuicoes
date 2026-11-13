@@ -1,0 +1,1288 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://sped-contribuicoes.local/sped-import.schema.json",
+  "title": "Pacote de importação do editor SPED EFD-Contribuições",
+  "description": "Equivalente ao contrato TypeScript src/core/importacao.tipos.ts (PacoteImportacao, versão 1). Datas AAAA-MM-DD; CNPJ/CPF, chave e NCM só com dígitos; alíquotas em percentual (1.65 = 1,65%).",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "formato",
+    "versao",
+    "cnpj",
+    "documentos"
+  ],
+  "properties": {
+    "formato": {
+      "const": "sped-contrib-import"
+    },
+    "versao": {
+      "const": 1
+    },
+    "cnpj": {
+      "$ref": "#/$defs/cnpj",
+      "description": "CNPJ do estabelecimento da escrituração que recebe os documentos."
+    },
+    "origem": {
+      "type": "string",
+      "description": "De onde os dados vieram. Só informativo."
+    },
+    "documentos": {
+      "type": "array",
+      "items": {
+        "oneOf": [
+          {
+            "$ref": "#/$defs/nota"
+          },
+          {
+            "$ref": "#/$defs/itensEmNota"
+          },
+          {
+            "$ref": "#/$defs/frete"
+          },
+          {
+            "$ref": "#/$defs/energia"
+          },
+          {
+            "$ref": "#/$defs/f100"
+          },
+          {
+            "$ref": "#/$defs/servico"
+          },
+          {
+            "$ref": "#/$defs/imobilizado"
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "numero": {
+      "description": "Número (ponto decimal) ou texto \"1234.56\" / \"1234,56\", sem separador de milhar.",
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "string",
+          "pattern": "^-?[0-9]+([.,][0-9]+)?$"
+        }
+      ]
+    },
+    "cnpj": {
+      "type": "string",
+      "pattern": "^[0-9]{14}$"
+    },
+    "data": {
+      "type": "string",
+      "format": "date",
+      "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}$"
+    },
+    "periodo": {
+      "type": "string",
+      "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+    },
+    "chave": {
+      "type": "string",
+      "pattern": "^[0-9]{44}$"
+    },
+    "cst2": {
+      "type": "string",
+      "pattern": "^[0-9]{2}$"
+    },
+    "cstPisCofins": {
+      "type": "string",
+      "enum": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "49",
+        "50",
+        "51",
+        "52",
+        "53",
+        "54",
+        "55",
+        "56",
+        "60",
+        "61",
+        "62",
+        "63",
+        "64",
+        "65",
+        "66",
+        "67",
+        "70",
+        "71",
+        "72",
+        "73",
+        "74",
+        "75",
+        "98",
+        "99"
+      ]
+    },
+    "natBcCred": {
+      "type": "string",
+      "enum": [
+        "01",
+        "02",
+        "03",
+        "04",
+        "05",
+        "06",
+        "07",
+        "08",
+        "09",
+        "10",
+        "11",
+        "12",
+        "13",
+        "14",
+        "15",
+        "16",
+        "17",
+        "18"
+      ]
+    },
+    "indFrt": {
+      "type": "string",
+      "enum": [
+        "0",
+        "1",
+        "2",
+        "3",
+        "4",
+        "9"
+      ]
+    },
+    "naoVazio": {
+      "type": "string",
+      "minLength": 1
+    },
+    "base": {
+      "type": "object",
+      "properties": {
+        "periodo": {
+          "$ref": "#/$defs/periodo",
+          "description": "Mês da escrituração (AAAA-MM). Se ausente, o editor usa a data de entrada/saída ou a do documento."
+        },
+        "referencia": {
+          "type": "string",
+          "description": "Texto livre para rastrear a origem da linha."
+        }
+      }
+    },
+    "participante": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "nome"
+      ],
+      "properties": {
+        "cnpjCpf": {
+          "type": "string",
+          "pattern": "^([0-9]{14}|[0-9]{11})$"
+        },
+        "nome": {
+          "$ref": "#/$defs/naoVazio"
+        },
+        "ie": {
+          "type": "string"
+        },
+        "codMunicipio": {
+          "type": "string",
+          "pattern": "^[0-9]{7}$"
+        },
+        "codPais": {
+          "type": "string",
+          "pattern": "^[0-9]{4}$",
+          "default": "1058"
+        },
+        "endereco": {
+          "type": "string"
+        },
+        "numero": {
+          "type": "string"
+        },
+        "complemento": {
+          "type": "string"
+        },
+        "bairro": {
+          "type": "string"
+        },
+        "suframa": {
+          "type": "string"
+        }
+      }
+    },
+    "tributo": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cst"
+      ],
+      "properties": {
+        "cst": {
+          "$ref": "#/$defs/cstPisCofins"
+        },
+        "base": {
+          "$ref": "#/$defs/numero"
+        },
+        "aliquota": {
+          "$ref": "#/$defs/numero",
+          "description": "Alíquota em percentual. O editor não supõe alíquota: com CST de crédito (50–66) ou 01/02 e sem alíquota, entra zerada e pendente de tributação."
+        },
+        "valor": {
+          "$ref": "#/$defs/numero"
+        }
+      }
+    },
+    "item": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "codigo",
+        "descricao",
+        "unidade",
+        "quantidade",
+        "valorItem",
+        "cfop",
+        "pis",
+        "cofins"
+      ],
+      "properties": {
+        "codigo": {
+          "$ref": "#/$defs/naoVazio"
+        },
+        "descricao": {
+          "$ref": "#/$defs/naoVazio"
+        },
+        "ncm": {
+          "type": "string",
+          "pattern": "^[0-9]{8}$"
+        },
+        "unidade": {
+          "$ref": "#/$defs/naoVazio"
+        },
+        "tipoItem": {
+          "type": "string",
+          "enum": [
+            "00",
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "07",
+            "08",
+            "09",
+            "10",
+            "99"
+          ]
+        },
+        "quantidade": {
+          "$ref": "#/$defs/numero"
+        },
+        "valorItem": {
+          "$ref": "#/$defs/numero"
+        },
+        "valorDesconto": {
+          "$ref": "#/$defs/numero"
+        },
+        "cfop": {
+          "type": "string",
+          "pattern": "^[0-9]{4}$"
+        },
+        "natOperacao": {
+          "type": "object",
+          "additionalProperties": false,
+          "required": [
+            "codigo"
+          ],
+          "properties": {
+            "codigo": {
+              "type": "string"
+            },
+            "descricao": {
+              "type": "string"
+            }
+          }
+        },
+        "icms": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cst": {
+              "type": "string",
+              "pattern": "^[0-9]{2,3}$"
+            },
+            "base": {
+              "$ref": "#/$defs/numero"
+            },
+            "aliquota": {
+              "$ref": "#/$defs/numero"
+            },
+            "valor": {
+              "$ref": "#/$defs/numero"
+            },
+            "baseSt": {
+              "$ref": "#/$defs/numero"
+            },
+            "aliquotaSt": {
+              "$ref": "#/$defs/numero"
+            },
+            "valorSt": {
+              "$ref": "#/$defs/numero"
+            }
+          }
+        },
+        "ipi": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "cst": {
+              "type": "string",
+              "pattern": "^[0-9]{2}$"
+            },
+            "base": {
+              "$ref": "#/$defs/numero"
+            },
+            "aliquota": {
+              "$ref": "#/$defs/numero"
+            },
+            "valor": {
+              "$ref": "#/$defs/numero"
+            }
+          }
+        },
+        "pis": {
+          "$ref": "#/$defs/tributo"
+        },
+        "cofins": {
+          "$ref": "#/$defs/tributo"
+        },
+        "contaContabil": {
+          "type": "string"
+        }
+      }
+    },
+    "credito": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "valorItem",
+        "cst",
+        "natBcCred"
+      ],
+      "properties": {
+        "valorItem": {
+          "$ref": "#/$defs/numero"
+        },
+        "cst": {
+          "$ref": "#/$defs/cstPisCofins"
+        },
+        "natBcCred": {
+          "$ref": "#/$defs/natBcCred"
+        },
+        "base": {
+          "$ref": "#/$defs/numero"
+        },
+        "aliquotaPis": {
+          "$ref": "#/$defs/numero",
+          "description": "Alíquota em percentual. Sem ela (com CST de crédito), entra zerada e pendente: o editor não supõe 1,65/7,6."
+        },
+        "aliquotaCofins": {
+          "$ref": "#/$defs/numero",
+          "description": "Alíquota em percentual. Sem ela (com CST de crédito), entra zerada e pendente: o editor não supõe 1,65/7,6."
+        },
+        "contaContabil": {
+          "type": "string"
+        }
+      }
+    },
+    "nota": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        }
+      ],
+      "type": "object",
+      "unevaluatedProperties": false,
+      "required": [
+        "tipo",
+        "operacao",
+        "emissao",
+        "numero",
+        "dataDocumento",
+        "participante",
+        "itens"
+      ],
+      "properties": {
+        "tipo": {
+          "const": "nota"
+        },
+        "operacao": {
+          "enum": [
+            "entrada",
+            "saida"
+          ]
+        },
+        "emissao": {
+          "enum": [
+            "propria",
+            "terceiros"
+          ]
+        },
+        "modelo": {
+          "type": "string",
+          "default": "55"
+        },
+        "situacao": {
+          "type": "string",
+          "default": "00"
+        },
+        "serie": {
+          "type": "string"
+        },
+        "numero": {
+          "$ref": "#/$defs/naoVazio"
+        },
+        "chave": {
+          "$ref": "#/$defs/chave"
+        },
+        "dataDocumento": {
+          "$ref": "#/$defs/data"
+        },
+        "dataEntradaSaida": {
+          "$ref": "#/$defs/data"
+        },
+        "participante": {
+          "$ref": "#/$defs/participante"
+        },
+        "indPagamento": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1",
+            "9"
+          ],
+          "default": "1"
+        },
+        "indFrete": {
+          "$ref": "#/$defs/indFrt",
+          "default": "9"
+        },
+        "totais": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "documento": {
+              "$ref": "#/$defs/numero"
+            },
+            "mercadorias": {
+              "$ref": "#/$defs/numero"
+            },
+            "desconto": {
+              "$ref": "#/$defs/numero"
+            },
+            "frete": {
+              "$ref": "#/$defs/numero"
+            },
+            "seguro": {
+              "$ref": "#/$defs/numero"
+            },
+            "outrasDespesas": {
+              "$ref": "#/$defs/numero"
+            }
+          }
+        },
+        "itens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        }
+      }
+    },
+    "itensEmNota": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        }
+      ],
+      "type": "object",
+      "unevaluatedProperties": false,
+      "required": [
+        "tipo",
+        "nota",
+        "itens"
+      ],
+      "properties": {
+        "tipo": {
+          "const": "itens"
+        },
+        "nota": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "chave": {
+              "$ref": "#/$defs/chave"
+            },
+            "numero": {
+              "type": "string"
+            },
+            "serie": {
+              "type": "string"
+            },
+            "cnpjCpfParticipante": {
+              "type": "string",
+              "pattern": "^([0-9]{14}|[0-9]{11})$"
+            }
+          }
+        },
+        "itens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/item"
+          }
+        }
+      }
+    },
+    "frete": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        }
+      ],
+      "type": "object",
+      "unevaluatedProperties": false,
+      "required": [
+        "tipo",
+        "operacao",
+        "emissao",
+        "numero",
+        "dataDocumento",
+        "participante",
+        "valorDocumento",
+        "natFrete",
+        "creditos"
+      ],
+      "properties": {
+        "tipo": {
+          "const": "frete"
+        },
+        "operacao": {
+          "enum": [
+            "entrada",
+            "saida"
+          ]
+        },
+        "emissao": {
+          "enum": [
+            "propria",
+            "terceiros"
+          ]
+        },
+        "modelo": {
+          "type": "string",
+          "default": "57"
+        },
+        "situacao": {
+          "type": "string"
+        },
+        "serie": {
+          "type": "string"
+        },
+        "subserie": {
+          "type": "string"
+        },
+        "numero": {
+          "$ref": "#/$defs/naoVazio"
+        },
+        "chave": {
+          "$ref": "#/$defs/chave"
+        },
+        "dataDocumento": {
+          "$ref": "#/$defs/data"
+        },
+        "dataEntradaSaida": {
+          "$ref": "#/$defs/data"
+        },
+        "participante": {
+          "$ref": "#/$defs/participante"
+        },
+        "valorDocumento": {
+          "$ref": "#/$defs/numero"
+        },
+        "valorDesconto": {
+          "$ref": "#/$defs/numero"
+        },
+        "indFrete": {
+          "$ref": "#/$defs/indFrt",
+          "default": "1"
+        },
+        "valorServico": {
+          "$ref": "#/$defs/numero"
+        },
+        "icms": {
+          "type": "object",
+          "additionalProperties": false,
+          "properties": {
+            "base": {
+              "$ref": "#/$defs/numero"
+            },
+            "valor": {
+              "$ref": "#/$defs/numero"
+            },
+            "naoTributado": {
+              "$ref": "#/$defs/numero"
+            }
+          }
+        },
+        "natFrete": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "9"
+          ]
+        },
+        "creditos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/credito"
+          }
+        },
+        "contaContabil": {
+          "type": "string"
+        }
+      }
+    },
+    "energia": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        }
+      ],
+      "type": "object",
+      "unevaluatedProperties": false,
+      "required": [
+        "tipo",
+        "numero",
+        "dataDocumento",
+        "dataEntrada",
+        "participante",
+        "valorDocumento",
+        "creditos"
+      ],
+      "properties": {
+        "tipo": {
+          "const": "energia"
+        },
+        "modelo": {
+          "type": "string",
+          "default": "06"
+        },
+        "situacao": {
+          "type": "string"
+        },
+        "serie": {
+          "type": "string"
+        },
+        "subserie": {
+          "type": "string"
+        },
+        "numero": {
+          "$ref": "#/$defs/naoVazio"
+        },
+        "chave": {
+          "$ref": "#/$defs/chave"
+        },
+        "dataDocumento": {
+          "$ref": "#/$defs/data"
+        },
+        "dataEntrada": {
+          "$ref": "#/$defs/data"
+        },
+        "participante": {
+          "$ref": "#/$defs/participante"
+        },
+        "valorDocumento": {
+          "$ref": "#/$defs/numero"
+        },
+        "valorIcms": {
+          "$ref": "#/$defs/numero"
+        },
+        "creditos": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/credito"
+          }
+        }
+      }
+    },
+    "f100": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        }
+      ],
+      "type": "object",
+      "unevaluatedProperties": false,
+      "required": [
+        "tipo",
+        "indOper",
+        "data",
+        "valor",
+        "pis",
+        "cofins"
+      ],
+      "properties": {
+        "tipo": {
+          "const": "f100"
+        },
+        "indOper": {
+          "enum": [
+            "0",
+            "1",
+            "2"
+          ]
+        },
+        "participante": {
+          "$ref": "#/$defs/participante"
+        },
+        "codItem": {
+          "type": "string"
+        },
+        "data": {
+          "$ref": "#/$defs/data"
+        },
+        "valor": {
+          "$ref": "#/$defs/numero"
+        },
+        "pis": {
+          "$ref": "#/$defs/tributo"
+        },
+        "cofins": {
+          "$ref": "#/$defs/tributo"
+        },
+        "natBcCred": {
+          "$ref": "#/$defs/natBcCred"
+        },
+        "indOrigCred": {
+          "type": "string",
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "contaContabil": {
+          "type": "string"
+        },
+        "centroCusto": {
+          "type": "string"
+        },
+        "descricao": {
+          "type": "string"
+        }
+      },
+      "if": {
+        "properties": {
+          "indOper": {
+            "const": "0"
+          }
+        },
+        "required": [
+          "indOper"
+        ]
+      },
+      "then": {
+        "required": [
+          "natBcCred"
+        ]
+      }
+    },
+    "itemServico": {
+      "type": "object",
+      "additionalProperties": false,
+      "description": "Item de nota de serviço (A170). O código vira 0200 com tipo 09 (serviços) se não existir.",
+      "required": [
+        "codigo",
+        "descricao",
+        "valorItem",
+        "pis",
+        "cofins"
+      ],
+      "properties": {
+        "codigo": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "descricao": {
+          "type": "string"
+        },
+        "codigoServico": {
+          "type": "string",
+          "description": "Código da LC 116/2003 (COD_LST do 0200). Só gravado quando o 0200 é criado; item já cadastrado não é alterado (a importação avisa se o COD_LST for diferente)."
+        },
+        "unidade": {
+          "type": "string",
+          "maxLength": 6
+        },
+        "descricaoComplementar": {
+          "type": "string"
+        },
+        "valorItem": {
+          "$ref": "#/$defs/numero"
+        },
+        "valorDesconto": {
+          "$ref": "#/$defs/numero"
+        },
+        "natBcCred": {
+          "$ref": "#/$defs/natBcCred",
+          "description": "Obrigatório com CST de crédito (50 a 66); só em serviço contratado."
+        },
+        "indOrigCred": {
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "pis": {
+          "$ref": "#/$defs/tributoServico"
+        },
+        "cofins": {
+          "$ref": "#/$defs/tributoServico"
+        },
+        "contaContabil": {
+          "type": "string"
+        },
+        "centroCusto": {
+          "type": "string"
+        }
+      },
+      "allOf": [
+        {
+          "description": "CST de crédito (50 a 66) em PIS ou COFINS exige natBcCred.",
+          "if": {
+            "anyOf": [
+              {
+                "properties": {
+                  "pis": {
+                    "properties": {
+                      "cst": {
+                        "type": "string",
+                        "pattern": "^(5[0-6]|6[0-6])$"
+                      }
+                    },
+                    "required": [
+                      "cst"
+                    ]
+                  }
+                },
+                "required": [
+                  "pis"
+                ]
+              },
+              {
+                "properties": {
+                  "cofins": {
+                    "properties": {
+                      "cst": {
+                        "type": "string",
+                        "pattern": "^(5[0-6]|6[0-6])$"
+                      }
+                    },
+                    "required": [
+                      "cst"
+                    ]
+                  }
+                },
+                "required": [
+                  "cofins"
+                ]
+              }
+            ]
+          },
+          "then": {
+            "required": [
+              "natBcCred"
+            ]
+          }
+        }
+      ]
+    },
+    "servico": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "if": {
+            "properties": {
+              "situacao": {
+                "const": "02"
+              }
+            },
+            "required": [
+              "situacao"
+            ]
+          },
+          "else": {
+            "required": [
+              "itens"
+            ]
+          }
+        },
+        {
+          "description": "Serviço contratado exige o participante (guia, A100 campo 04).",
+          "if": {
+            "properties": {
+              "operacao": {
+                "const": "contratado"
+              }
+            },
+            "required": [
+              "operacao"
+            ]
+          },
+          "then": {
+            "required": [
+              "participante"
+            ]
+          }
+        },
+        {
+          "description": "Serviço prestado: itens sem natBcCred/indOrigCred (guia, A170 campos 07 e 08).",
+          "if": {
+            "properties": {
+              "operacao": {
+                "const": "prestado"
+              }
+            },
+            "required": [
+              "operacao"
+            ]
+          },
+          "then": {
+            "properties": {
+              "itens": {
+                "items": {
+                  "not": {
+                    "anyOf": [
+                      {
+                        "required": [
+                          "natBcCred"
+                        ]
+                      },
+                      {
+                        "required": [
+                          "indOrigCred"
+                        ]
+                      }
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      ],
+      "type": "object",
+      "unevaluatedProperties": false,
+      "description": "Nota fiscal de serviço: gera A100 + A170 (cria A010 se faltar).",
+      "required": [
+        "tipo",
+        "operacao",
+        "emissao",
+        "numero",
+        "dataDocumento"
+      ],
+      "properties": {
+        "tipo": {
+          "const": "servico"
+        },
+        "operacao": {
+          "enum": [
+            "contratado",
+            "prestado"
+          ]
+        },
+        "emissao": {
+          "enum": [
+            "propria",
+            "terceiros"
+          ]
+        },
+        "situacao": {
+          "enum": [
+            "00",
+            "02"
+          ]
+        },
+        "serie": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "subserie": {
+          "type": "string",
+          "maxLength": 20
+        },
+        "numero": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 60
+        },
+        "chave": {
+          "type": "string",
+          "maxLength": 60,
+          "description": "Chave ou código de verificação da NFS-e."
+        },
+        "dataDocumento": {
+          "$ref": "#/$defs/data"
+        },
+        "dataExecucao": {
+          "$ref": "#/$defs/data",
+          "description": "Data de execução/conclusão. Sem periodo, a escrituração é a do mês desta data; se nenhuma carregada a cobre, a do mês da emissão."
+        },
+        "participante": {
+          "$ref": "#/$defs/participante"
+        },
+        "indPagamento": {
+          "enum": [
+            "0",
+            "1",
+            "9"
+          ]
+        },
+        "valorDocumento": {
+          "$ref": "#/$defs/numero"
+        },
+        "valorDesconto": {
+          "$ref": "#/$defs/numero"
+        },
+        "pisRetido": {
+          "$ref": "#/$defs/numero",
+          "description": "PIS retido na fonte (VL_PIS_RET). Aceito no contratado e no prestado; só informativo, não entra na apuração."
+        },
+        "cofinsRetido": {
+          "$ref": "#/$defs/numero",
+          "description": "COFINS retida na fonte (VL_COFINS_RET). Só informativa."
+        },
+        "valorIss": {
+          "$ref": "#/$defs/numero"
+        },
+        "itens": {
+          "type": "array",
+          "items": {
+            "$ref": "#/$defs/itemServico"
+          }
+        }
+      }
+    },
+    "imobilizado": {
+      "allOf": [
+        {
+          "$ref": "#/$defs/base"
+        },
+        {
+          "if": {
+            "properties": {
+              "modalidade": {
+                "const": "aquisicao"
+              }
+            },
+            "required": [
+              "modalidade"
+            ]
+          },
+          "then": {
+            "required": [
+              "valorAquisicao",
+              "parcelas"
+            ],
+            "properties": {
+              "natBcCred": {
+                "const": "10"
+              }
+            }
+          },
+          "else": {
+            "required": [
+              "valorEncargo"
+            ],
+            "properties": {
+              "natBcCred": {
+                "enum": [
+                  "09",
+                  "11"
+                ]
+              }
+            }
+          }
+        },
+        {
+          "description": "Parcelas 9 (outra periodicidade) exige baseMes.",
+          "if": {
+            "properties": {
+              "parcelas": {
+                "const": "9"
+              }
+            },
+            "required": [
+              "parcelas"
+            ]
+          },
+          "then": {
+            "required": [
+              "baseMes"
+            ]
+          }
+        }
+      ],
+      "type": "object",
+      "unevaluatedProperties": false,
+      "description": "Bem do ativo imobilizado: gera F120 (depreciação/amortização) ou F130 (aquisição). Exige periodo.",
+      "required": [
+        "tipo",
+        "periodo",
+        "modalidade",
+        "identificacaoBem",
+        "utilizacao",
+        "pis",
+        "cofins"
+      ],
+      "properties": {
+        "tipo": {
+          "const": "imobilizado"
+        },
+        "modalidade": {
+          "enum": [
+            "depreciacao",
+            "aquisicao"
+          ]
+        },
+        "natBcCred": {
+          "enum": [
+            "09",
+            "10",
+            "11"
+          ],
+          "description": "F120 (depreciacao): 09 depreciação (padrão) ou 11 amortização; F130 (aquisicao): 10."
+        },
+        "identificacaoBem": {
+          "enum": [
+            "01",
+            "02",
+            "03",
+            "04",
+            "05",
+            "06",
+            "99"
+          ]
+        },
+        "indOrigCred": {
+          "enum": [
+            "0",
+            "1"
+          ]
+        },
+        "utilizacao": {
+          "enum": [
+            "1",
+            "2",
+            "3",
+            "9"
+          ]
+        },
+        "valorEncargo": {
+          "$ref": "#/$defs/numero"
+        },
+        "mesAquisicao": {
+          "type": "string",
+          "pattern": "^[0-9]{4}-(0[1-9]|1[0-2])$"
+        },
+        "valorAquisicao": {
+          "$ref": "#/$defs/numero"
+        },
+        "parcelaSemCredito": {
+          "$ref": "#/$defs/numero"
+        },
+        "parcelas": {
+          "enum": [
+            "1",
+            "2",
+            "3",
+            "4",
+            "5",
+            "9"
+          ]
+        },
+        "baseMes": {
+          "$ref": "#/$defs/numero"
+        },
+        "pis": {
+          "$ref": "#/$defs/tributo",
+          "description": "CST e alíquota. A base informada não é usada: vale a regra do guia (a importação avisa se diferir)."
+        },
+        "cofins": {
+          "$ref": "#/$defs/tributo",
+          "description": "Mesma regra do pis."
+        },
+        "contaContabil": {
+          "type": "string"
+        },
+        "centroCusto": {
+          "type": "string"
+        },
+        "descricao": {
+          "type": "string"
+        }
+      }
+    },
+    "tributoServico": {
+      "description": "PIS ou COFINS do item de serviço: como 'tributo', mas a alíquota tem no máximo 2 casas (leiaute do A170).",
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "cst"
+      ],
+      "properties": {
+        "cst": {
+          "$ref": "#/$defs/cstPisCofins"
+        },
+        "base": {
+          "$ref": "#/$defs/numero"
+        },
+        "aliquota": {
+          "description": "Alíquota em percentual, no máximo 2 casas. Sem ela (com CST de crédito ou 01/02), entra zerada e pendente.",
+          "oneOf": [
+            {
+              "type": "number",
+              "multipleOf": 0.01
+            },
+            {
+              "type": "string",
+              "pattern": "^[0-9]+([.,][0-9]{1,2})?$"
+            }
+          ]
+        },
+        "valor": {
+          "$ref": "#/$defs/numero"
+        }
+      }
+    }
+  }
+}

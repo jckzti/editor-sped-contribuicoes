@@ -1,0 +1,10 @@
+node_modules
+dist
+# arquivos SPED de clientes nunca entram no repositório
+/*.TXT
+/*.txt
+/amostras/
+
+# guia da Receita (público, mas não é necessário para o build)
+*.pdf
+.DS_Store

@@ -1,0 +1,325 @@
+{
+ "_fonte": "Guia Prático EFD-Contribuições v1.35 (18/06/2021)",
+ "_notas": {
+  "cst": "Tabelas 4.3.3 (CST-PIS) e 4.3.4 (CST-COFINS) são externas no guia; códigos montados das listas reproduzidas nas orientações dos registros (saídas: pág. 124; entradas: págs. 139-140). Mesmos códigos para PIS e COFINS. O código 67 (Crédito Presumido - Outras Operações), existente na tabela oficial da IN RFB 1.009/2010, não aparece no guia.",
+  "codMod": "Tabela 4.1.1 (págs. 58-59). NFS-e e NF de serviço municipal sem código ('-') não incluídas. Modelos 60 (CF-e-ECF) e 66 (NF3e) não constam da Tabela 4.1.1 do Capítulo III (págs. 58-59), mas constam da tabela de correlação modelo x registro do Capítulo II (págs. 31-32); incluídos a partir dela, assim como o campo 'registros'.",
+  "codDetCprb": "Tabela 5.1.2 - Código de Detalhamento (Registro P110)."
+ },
+ "cst": {
+  "01": "Operação Tributável com Alíquota Básica",
+  "02": "Operação Tributável com Alíquota Diferenciada",
+  "03": "Operação Tributável com Alíquota por Unidade de Medida de Produto",
+  "04": "Operação Tributável Monofásica - Revenda a Alíquota Zero",
+  "05": "Operação Tributável por Substituição Tributária",
+  "06": "Operação Tributável a Alíquota Zero",
+  "07": "Operação Isenta da Contribuição",
+  "08": "Operação sem Incidência da Contribuição",
+  "09": "Operação com Suspensão da Contribuição",
+  "49": "Outras Operações de Saída",
+  "50": "Operação com Direito a Crédito - Vinculada Exclusivamente a Receita Tributada no Mercado Interno",
+  "51": "Operação com Direito a Crédito – Vinculada Exclusivamente a Receita Não Tributada no Mercado Interno",
+  "52": "Operação com Direito a Crédito - Vinculada Exclusivamente a Receita de Exportação",
+  "53": "Operação com Direito a Crédito - Vinculada a Receitas Tributadas e Não-Tributadas no Mercado Interno",
+  "54": "Operação com Direito a Crédito - Vinculada a Receitas Tributadas no Mercado Interno e de Exportação",
+  "55": "Operação com Direito a Crédito - Vinculada a Receitas Não-Tributadas no Mercado Interno e de Exportação",
+  "56": "Operação com Direito a Crédito - Vinculada a Receitas Tributadas e Não-Tributadas no Mercado Interno, e de Exportação",
+  "60": "Crédito Presumido - Operação de Aquisição Vinculada Exclusivamente a Receita Tributada no Mercado Interno",
+  "61": "Crédito Presumido - Operação de Aquisição Vinculada Exclusivamente a Receita Não-Tributada no Mercado Interno",
+  "62": "Crédito Presumido - Operação de Aquisição Vinculada Exclusivamente a Receita de Exportação",
+  "63": "Crédito Presumido - Operação de Aquisição Vinculada a Receitas Tributadas e Não-Tributadas no Mercado Interno",
+  "64": "Crédito Presumido - Operação de Aquisição Vinculada a Receitas Tributadas no Mercado Interno e de Exportação",
+  "65": "Crédito Presumido - Operação de Aquisição Vinculada a Receitas Não-Tributadas no Mercado Interno e de Exportação",
+  "66": "Crédito Presumido - Operação de Aquisição Vinculada a Receitas Tributadas e Não-Tributadas no Mercado Interno, e de Exportação",
+  "70": "Operação de Aquisição sem Direito a Crédito",
+  "71": "Operação de Aquisição com Isenção",
+  "72": "Operação de Aquisição com Suspensão",
+  "73": "Operação de Aquisição a Alíquota Zero",
+  "74": "Operação de Aquisição sem Incidência da Contribuição",
+  "75": "Operação de Aquisição por Substituição Tributária",
+  "98": "Outras Operações de Entrada",
+  "99": "Outras Operações"
+ },
+ "cstPis": "cst",
+ "cstCofins": "cst",
+ "codCont": {
+  "01": "Contribuição não-cumulativa apurada a alíquota básica",
+  "02": "Contribuição não-cumulativa apurada a alíquotas diferenciadas",
+  "03": "Contribuição não-cumulativa apurada a alíquota por unidade de medida de produto",
+  "04": "Contribuição não-cumulativa apurada a alíquota básica – Atividade Imobiliária",
+  "31": "Contribuição apurada por substituição tributária",
+  "32": "Contribuição apurada por substituição tributária – Vendas à Zona Franca de Manaus",
+  "51": "Contribuição cumulativa apurada a alíquota básica",
+  "52": "Contribuição cumulativa apurada a alíquotas diferenciadas",
+  "53": "Contribuição cumulativa apurada a alíquota por unidade de medida de produto",
+  "54": "Contribuição cumulativa apurada a alíquota básica – Atividade Imobiliária",
+  "71": "Contribuição apurada de SCP – Incidência Não Cumulativa",
+  "72": "Contribuição apurada de SCP – Incidência Cumulativa",
+  "99": "Contribuição para o PIS/Pasep – Folha de Salários"
+ },
+ "codCred": {
+  "101": "Crédito vinculado à receita tributada no mercado interno – Alíquota Básica",
+  "102": "Crédito vinculado à receita tributada no mercado interno – Alíquotas Diferenciadas",
+  "103": "Crédito vinculado à receita tributada no mercado interno – Alíquota por Unidade de Produto",
+  "104": "Crédito vinculado à receita tributada no mercado interno – Estoque de Abertura",
+  "105": "Crédito vinculado à receita tributada no mercado interno – Aquisição Embalagens para revenda",
+  "106": "Crédito vinculado à receita tributada no mercado interno – Presumido da Agroindústria",
+  "107": "Crédito vinculado à receita tributada no mercado interno – Outros Créditos Presumidos",
+  "108": "Crédito vinculado à receita tributada no mercado interno – Importação",
+  "109": "Crédito vinculado à receita tributada no mercado interno – Atividade Imobiliária",
+  "199": "Crédito vinculado à receita tributada no mercado interno – Outros",
+  "201": "Crédito vinculado à receita não tributada no mercado interno – Alíquota Básica",
+  "202": "Crédito vinculado à receita não tributada no mercado interno – Alíquotas Diferenciadas",
+  "203": "Crédito vinculado à receita não tributada no mercado interno – Alíquota por Unidade de Produto",
+  "204": "Crédito vinculado à receita não tributada no mercado interno – Estoque de Abertura",
+  "205": "Crédito vinculado à receita não tributada no mercado interno – Aquisição Embalagens para revenda",
+  "206": "Crédito vinculado à receita não tributada no mercado interno – Presumido da Agroindústria",
+  "207": "Crédito vinculado à receita não tributada no mercado interno – Outros Créditos Presumidos",
+  "208": "Crédito vinculado à receita não tributada no mercado interno – Importação",
+  "299": "Crédito vinculado à receita não tributada no mercado interno – Outros",
+  "301": "Crédito vinculado à receita de exportação – Alíquota Básica",
+  "302": "Crédito vinculado à receita de exportação – Alíquotas Diferenciadas",
+  "303": "Crédito vinculado à receita de exportação – Alíquota por Unidade de Produto",
+  "304": "Crédito vinculado à receita de exportação – Estoque de Abertura",
+  "305": "Crédito vinculado à receita de exportação – Aquisição Embalagens para revenda",
+  "306": "Crédito vinculado à receita de exportação – Presumido da Agroindústria",
+  "307": "Crédito vinculado à receita de exportação – Outros Créditos Presumidos",
+  "308": "Crédito vinculado à receita de exportação – Importação",
+  "399": "Crédito vinculado à receita de exportação – Outros"
+ },
+ "natBcCred": {
+  "01": "Aquisição de bens para revenda",
+  "02": "Aquisição de bens utilizados como insumo",
+  "03": "Aquisição de serviços utilizados como insumo",
+  "04": "Energia elétrica e térmica, inclusive sob a forma de vapor",
+  "05": "Aluguéis de prédios",
+  "06": "Aluguéis de máquinas e equipamentos",
+  "07": "Armazenagem de mercadoria e frete na operação de venda",
+  "08": "Contraprestações de arrendamento mercantil",
+  "09": "Máquinas, equipamentos e outros bens incorporados ao ativo imobilizado (crédito sobre encargos de depreciação).",
+  "10": "Máquinas, equipamentos e outros bens incorporados ao ativo imobilizado (crédito com base no valor de aquisição).",
+  "11": "Amortização e Depreciação de edificações e benfeitorias em imóveis",
+  "12": "Devolução de Vendas Sujeitas à Incidência Não-Cumulativa",
+  "13": "Outras Operações com Direito a Crédito",
+  "14": "Atividade de Transporte de Cargas – Subcontratação",
+  "15": "Atividade Imobiliária – Custo Incorrido de Unidade Imobiliária",
+  "16": "Atividade Imobiliária – Custo Orçado de unidade não concluída",
+  "17": "Atividade de Prestação de Serviços de Limpeza, Conservação e Manutenção – vale-transporte, vale- refeição ou vale-alimentação, fardamento ou uniforme.",
+  "18": "Estoque de abertura de bens"
+ },
+ "codAj": {
+  "01": "Ajuste Oriundo de Ação Judicial",
+  "02": "Ajuste Oriundo de Processo Administrativo",
+  "03": "Ajuste Oriundo da Legislação Tributária",
+  "04": "Ajuste Oriundo Especificamente do RTT",
+  "05": "Ajuste Oriundo de Outras Situações",
+  "06": "Estorno",
+  "07": "Ajuste da CPRB: Adoção do Regime de Caixa",
+  "08": "Ajuste da CPRB: Diferimento de Valores a Recolher no Período",
+  "09": "Ajuste da CPRB: Adição de Valores Diferidos em Período(s) Anterior(es)"
+ },
+ "codSit": {
+  "00": "Documento regular",
+  "01": "Escrituração extemporânea de documento regular",
+  "02": "Documento cancelado",
+  "03": "Escrituração extemporânea de documento cancelado",
+  "04": "NF-e ou CT-e – denegado",
+  "05": "NF-e ou CT-e - Numeração inutilizada",
+  "06": "Documento Fiscal Complementar",
+  "07": "Escrituração extemporânea de documento complementar",
+  "08": "Documento Fiscal emitido com base em Regime Especial ou Norma Específica"
+ },
+ "codMod": {
+  "01": {
+   "descricao": "Nota Fiscal",
+   "modelo": "1/1A",
+   "registros": "C100"
+  },
+  "02": {
+   "descricao": "Nota Fiscal de Venda a Consumidor",
+   "modelo": "2",
+   "registros": "C380"
+  },
+  "04": {
+   "descricao": "Nota Fiscal de Produtor",
+   "modelo": "4",
+   "registros": "C100"
+  },
+  "06": {
+   "descricao": "Nota Fiscal/Conta de Energia Elétrica",
+   "modelo": "6",
+   "registros": "Aquisição: C500; Fornecimento: C600"
+  },
+  "07": {
+   "descricao": "Nota Fiscal de Serviço de Transporte",
+   "modelo": "7",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "08": {
+   "descricao": "Conhecimento de Transporte Rodoviário de Cargas",
+   "modelo": "8",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "09": {
+   "descricao": "Conhecimento de Transporte Aquaviário de Cargas",
+   "modelo": "9",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "10": {
+   "descricao": "Conhecimento Aéreo",
+   "modelo": "10",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "11": {
+   "descricao": "Conhecimento de Transporte Ferroviário de Cargas",
+   "modelo": "11",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "13": {
+   "descricao": "Bilhete de Passagem Rodoviário",
+   "modelo": "13",
+   "registros": "D300 e D350"
+  },
+  "14": {
+   "descricao": "Bilhete de Passagem Aquaviário",
+   "modelo": "14",
+   "registros": "D300 e D350"
+  },
+  "15": {
+   "descricao": "Bilhete de Passagem e Nota de Bagagem",
+   "modelo": "15",
+   "registros": "D300 e D350"
+  },
+  "16": {
+   "descricao": "Bilhete de Passagem Ferroviário",
+   "modelo": "16",
+   "registros": "D300 e D350"
+  },
+  "17": {
+   "descricao": "Despacho de Transporte",
+   "modelo": "17",
+   "registros": "-"
+  },
+  "18": {
+   "descricao": "Resumo de Movimento Diário",
+   "modelo": "18",
+   "registros": "D300"
+  },
+  "1B": {
+   "descricao": "Nota Fiscal Avulsa",
+   "modelo": "-",
+   "registros": "C100"
+  },
+  "20": {
+   "descricao": "Ordem de Coleta de Cargas",
+   "modelo": "20",
+   "registros": "-"
+  },
+  "21": {
+   "descricao": "Nota Fiscal de Serviço de Comunicação",
+   "modelo": "21",
+   "registros": "Aquisição: D500; Fornecimento: D600"
+  },
+  "22": {
+   "descricao": "Nota Fiscal de Serviço de Telecomunicação",
+   "modelo": "22",
+   "registros": "Aquisição: D500; Fornecimento: D600"
+  },
+  "23": {
+   "descricao": "GNRE",
+   "modelo": "23",
+   "registros": "-"
+  },
+  "24": {
+   "descricao": "Autorização de Carregamento e Transporte",
+   "modelo": "24",
+   "registros": "-"
+  },
+  "25": {
+   "descricao": "Manifesto de Carga",
+   "modelo": "25",
+   "registros": "-"
+  },
+  "26": {
+   "descricao": "Conhecimento de Transporte Multimodal de Cargas",
+   "modelo": "26",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "27": {
+   "descricao": "Nota Fiscal De Transporte Ferroviário De Carga",
+   "modelo": "27",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "28": {
+   "descricao": "Nota Fiscal/Conta de Fornecimento de Gás Canalizado",
+   "modelo": "28",
+   "registros": "Aquisição: C500; Fornecimento: C600"
+  },
+  "29": {
+   "descricao": "Nota Fiscal/Conta De Fornecimento D'água Canalizada",
+   "modelo": "29",
+   "registros": "Aquisição: C500"
+  },
+  "2D": {
+   "descricao": "Cupom Fiscal",
+   "modelo": "-",
+   "registros": "C400 e C490"
+  },
+  "2E": {
+   "descricao": "Cupom Fiscal Bilhete de Passagem",
+   "modelo": "-",
+   "registros": "D350"
+  },
+  "55": {
+   "descricao": "Nota Fiscal Eletrônica - NF-e",
+   "modelo": "55",
+   "registros": "C100 e C180 | C100 e C190"
+  },
+  "57": {
+   "descricao": "Conhecimento de Transporte Eletrônico – CT-e",
+   "modelo": "57",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "59": {
+   "descricao": "Cupom Fiscal Eletrônico – CF-e-SAT",
+   "modelo": "59",
+   "registros": "C490; C860 (a partir da versão 2.11)"
+  },
+  "60": {
+   "descricao": "Cupom Fiscal Eletrônico - CF-e-ECF",
+   "modelo": "60",
+   "registros": "C490"
+  },
+  "63": {
+   "descricao": "Bilhete de Passagem Eletrônico (BP-e_",
+   "modelo": "63",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "65": {
+   "descricao": "Nota Fiscal Eletrônica ao Consumidor Final – NFC-e",
+   "modelo": "65",
+   "registros": "C180 (até a versão 2.08); C175 (a partir da versão 2.09)"
+  },
+  "66": {
+   "descricao": "Nota Fiscal de Energia Elétrica Eletrônica – NF3e",
+   "modelo": "66",
+   "registros": "Aquisição: C500; Fornecimento: C600"
+  },
+  "67": {
+   "descricao": "Conhecimento de Transporte Eletrônico Para Outros Serviços – CT-e OS",
+   "modelo": "67",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  },
+  "8B": {
+   "descricao": "Conhecimento de Transporte de Cargas Avulso",
+   "modelo": "-",
+   "registros": "Aquisição: D100; Fornecimento: D200"
+  }
+ },
+ "codDetCprb": {
+  "00000001": "Detalhamento por documento fiscal",
+  "00000002": "Detalhamento por item/produto/serviço",
+  "00000003": "Detalhamento por NCM",
+  "00000004": "Detalhamento por Cliente",
+  "00000999": "Detalhamento por outros critérios"
+ }
+}

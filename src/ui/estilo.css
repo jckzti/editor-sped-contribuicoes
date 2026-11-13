@@ -1,0 +1,1116 @@
+/* Aparência do editor: densa, legível, feita para planilha e leitura longa. */
+:root {
+  --fundo: #f6f7f9;
+  --painel: #ffffff;
+  --borda: #d8dce3;
+  --borda-forte: #b9c0cc;
+  --texto: #15181d;
+  --texto-fraco: #5c6472;
+  --destaque: #1f5fbf;
+  --destaque-fraco: #e8f0fd;
+  --editado: #fff4d6;
+  --editado-borda: #e0a800;
+  --novo: #e3f6e8;
+  --novo-borda: #2e9e52;
+  --erro: #fdecec;
+  --erro-borda: #c62828;
+  --sel: #dbe8fb;
+  --altura-barra: 44px;
+  font-synthesis: none;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+  margin: 0;
+}
+
+body {
+  background: var(--fundo);
+  color: var(--texto);
+  font: 13px/1.4 -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+button {
+  background: var(--painel);
+  border: 1px solid var(--borda-forte);
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--destaque-fraco);
+  border-color: var(--destaque);
+}
+
+button:disabled {
+  opacity: 0.45;
+  cursor: default;
+}
+
+button.primario {
+  background: var(--destaque);
+  border-color: var(--destaque);
+  color: #fff;
+}
+
+button.primario:hover:not(:disabled) {
+  background: #1a52a6;
+}
+
+button.perigo:hover:not(:disabled) {
+  background: var(--erro);
+  border-color: var(--erro-borda);
+  color: var(--erro-borda);
+}
+
+input[type='text'],
+input[type='search'],
+input[type='number'],
+select {
+  background: var(--painel);
+  border: 1px solid var(--borda-forte);
+  border-radius: 6px;
+  padding: 4px 8px;
+}
+
+input:focus,
+select:focus,
+button:focus-visible {
+  outline: 2px solid var(--destaque);
+  outline-offset: -1px;
+}
+
+/* ---------- grade ---------- */
+.grade {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-height: 0;
+  overflow: hidden;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+}
+
+.grade-cabecalho,
+.grade-rodape {
+  display: flex;
+  flex: none;
+  background: #eef1f5;
+  border-bottom: 1px solid var(--borda-forte);
+  font-weight: 600;
+  user-select: none;
+}
+
+.grade-rodape {
+  border-bottom: none;
+  border-top: 1px solid var(--borda-forte);
+  background: #f2f5f9;
+}
+
+.grade-corpo {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  position: relative;
+}
+
+.grade-linha {
+  position: absolute;
+  left: 0;
+  display: flex;
+  border-bottom: 1px solid #eef0f3;
+  cursor: default;
+}
+
+.grade-linha:hover {
+  background: #f7f9fc;
+}
+
+.grade-linha.sel {
+  background: var(--sel);
+}
+
+.grade-linha.l-nova {
+  box-shadow: inset 3px 0 0 var(--novo-borda);
+}
+
+.grade-linha.l-editada {
+  box-shadow: inset 3px 0 0 var(--editado-borda);
+}
+
+.grade-celula {
+  flex: none;
+  padding: 0 8px;
+  display: flex;
+  align-items: center;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  border-right: 1px solid #eef0f3;
+  position: relative;
+}
+
+.grade-cabecalho .grade-celula {
+  height: 30px;
+  border-right-color: var(--borda);
+  cursor: pointer;
+  gap: 4px;
+}
+
+.grade-cabecalho .grade-celula span:first-child {
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.grade-celula.t-numero {
+  justify-content: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+
+.grade-celula.t-codigo,
+.grade-celula.t-data {
+  font-variant-numeric: tabular-nums;
+}
+
+.grade-celula.marcador {
+  justify-content: center;
+  padding: 0;
+}
+
+.grade-celula.c-editada {
+  background: var(--editado);
+  box-shadow: inset 0 -2px 0 var(--editado-borda);
+}
+
+.grade-celula.c-nova {
+  background: var(--novo);
+}
+
+.grade-celula.c-erro {
+  background: var(--erro);
+  box-shadow: inset 0 -2px 0 var(--erro-borda);
+}
+
+.grade-celula input {
+  width: 100%;
+  border: 1px solid var(--destaque);
+  border-radius: 3px;
+  padding: 1px 4px;
+  background: #fff;
+}
+
+.grade-celula input.erro {
+  border-color: var(--erro-borda);
+  background: var(--erro);
+}
+
+.grade-celula .seta {
+  color: var(--destaque);
+  font-size: 10px;
+}
+
+.puxador {
+  position: absolute;
+  right: -3px;
+  top: 0;
+  width: 7px;
+  height: 100%;
+  cursor: col-resize;
+  z-index: 2;
+}
+
+.grade-vazio {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--texto-fraco);
+  pointer-events: none;
+  text-align: center;
+  padding: 24px max(24px, calc((100% - 560px) / 2));
+  line-height: 1.5;
+}
+
+/* ---------- estrutura da aplicação ---------- */
+.app {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.barra {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  min-height: var(--altura-barra);
+  padding: 6px 12px;
+  background: var(--painel);
+  border-bottom: 1px solid var(--borda);
+}
+
+.barra > * {
+  white-space: nowrap;
+}
+
+.barra .resumo-carga {
+  min-width: 0;
+  max-width: 460px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.barra .titulo {
+  font-weight: 700;
+  letter-spacing: -0.01em;
+}
+
+.abas {
+  display: flex;
+  gap: 2px;
+  margin-left: 8px;
+}
+
+.abas button {
+  border: none;
+  background: none;
+  border-radius: 6px 6px 0 0;
+  padding: 6px 14px;
+  color: var(--texto-fraco);
+}
+
+.abas button.ativa {
+  background: var(--destaque-fraco);
+  color: var(--destaque);
+  font-weight: 600;
+}
+
+.conteudo {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 12px;
+}
+
+.espaco {
+  flex: 1;
+}
+
+.aviso {
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid;
+}
+
+.aviso.erro {
+  background: var(--erro);
+  border-color: var(--erro-borda);
+}
+
+.aviso.alerta {
+  background: var(--editado);
+  border-color: var(--editado-borda);
+}
+
+.aviso.info {
+  background: var(--destaque-fraco);
+  border-color: var(--destaque);
+}
+
+.fraco {
+  color: var(--texto-fraco);
+}
+
+.num {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- tela de carregar arquivos ---------- */
+.carregar {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 32px;
+  border: 2px dashed var(--borda-forte);
+  border-radius: 12px;
+  background: var(--painel);
+  text-align: center;
+}
+
+.carregar.sobre {
+  border-color: var(--destaque);
+  background: var(--destaque-fraco);
+}
+
+.carregar.compacto {
+  flex: none;
+  padding: 16px;
+  gap: 8px;
+}
+
+.carregar h1 {
+  margin: 0;
+  font-size: 22px;
+  letter-spacing: -0.02em;
+}
+
+.carregar p {
+  margin: 0;
+}
+
+.carregar .privacidade {
+  max-width: 440px;
+  margin-top: 8px;
+  line-height: 1.5;
+}
+
+.carregar .estado {
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- apuração ---------- */
+.apuracao {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.barra-secao {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex: none;
+}
+
+.seletor {
+  display: inline-flex;
+  border: 1px solid var(--borda-forte);
+  border-radius: 7px;
+  overflow: hidden;
+}
+
+.seletor button {
+  border: none;
+  border-radius: 0;
+  background: var(--painel);
+  padding: 5px 14px;
+}
+
+.seletor button + button {
+  border-left: 1px solid var(--borda);
+}
+
+.seletor button.ativa {
+  background: var(--destaque);
+  color: #fff;
+  font-weight: 600;
+}
+
+.cartoes {
+  display: flex;
+  gap: 10px;
+  flex: none;
+  flex-wrap: wrap;
+}
+
+.cartao {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 10px 14px;
+  min-width: 170px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.cartao.destaque {
+  border-color: var(--destaque);
+  background: var(--destaque-fraco);
+}
+
+.cartao .rotulo {
+  color: var(--texto-fraco);
+  font-size: 12px;
+}
+
+.cartao strong {
+  font-size: 19px;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.01em;
+}
+
+.delta {
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.delta.bom {
+  color: #1d7a3c;
+}
+
+.delta.ruim {
+  color: #b3261e;
+}
+
+.tabela-rolagem {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+}
+
+.tabela {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+.tabela th,
+.tabela td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #eef0f3;
+  text-align: left;
+  white-space: nowrap;
+}
+
+.tabela thead th {
+  position: sticky;
+  top: 0;
+  background: #eef1f5;
+  border-bottom: 1px solid var(--borda-forte);
+  z-index: 1;
+}
+
+.tabela .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela .forte {
+  font-weight: 600;
+}
+
+.tabela tr.alterada td:first-child {
+  box-shadow: inset 3px 0 0 var(--editado-borda);
+}
+
+.tabela tr.detalhe > td {
+  background: #fafbfd;
+  padding: 10px 14px;
+}
+
+.tabela.compacta th,
+.tabela.compacta td {
+  padding: 3px 8px;
+  font-size: 12px;
+}
+
+.detalhe-grade {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(380px, 1fr));
+  gap: 16px;
+}
+
+.detalhe-grade h4 {
+  margin: 0 0 6px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-fraco);
+}
+
+.etiqueta {
+  display: inline-block;
+  margin-left: 6px;
+  padding: 1px 6px;
+  border-radius: 10px;
+  font-size: 11px;
+  border: 1px solid;
+}
+
+.etiqueta.alerta {
+  background: var(--editado);
+  border-color: var(--editado-borda);
+  color: #7a5c00;
+}
+
+button.ligacao {
+  border: none;
+  background: none;
+  padding: 2px 4px;
+  color: var(--destaque);
+  text-decoration: underline;
+}
+
+/* ---------- rótulos só para leitor de tela ---------- */
+.oculto {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* ---------- barra de seção que quebra linha ---------- */
+.barra-secao.envolve {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+/* ---------- botão que esconde um input de arquivo ---------- */
+.botao-arquivo {
+  display: inline-flex;
+  align-items: center;
+  background: var(--painel);
+  border: 1px solid var(--borda-forte);
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+}
+
+.botao-arquivo:hover {
+  background: var(--destaque-fraco);
+  border-color: var(--destaque);
+}
+
+.botao-arquivo input[type='file'] {
+  display: none;
+}
+
+.botao-arquivo:focus-within {
+  outline: 2px solid var(--destaque);
+  outline-offset: -1px;
+}
+
+/* ---------- construtor de filtros ---------- */
+.filtros {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.filtro {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.filtro select,
+.filtro input[type='text'],
+.filtro input[type='search'] {
+  max-width: 260px;
+}
+
+.filtro select.largo,
+.filtro input.largo {
+  max-width: 380px;
+  min-width: 220px;
+}
+
+/* ---------- formulários de ação ---------- */
+.campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 10px 14px;
+  align-items: start;
+}
+
+.campo {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.campo.largura-total {
+  grid-column: 1 / -1;
+}
+
+.campo.curto input {
+  max-width: 140px;
+}
+
+.campo > label {
+  font-weight: 600;
+  font-size: 12px;
+}
+
+.campo > span.fraco {
+  font-size: 12px;
+  line-height: 1.35;
+}
+
+.campo textarea {
+  background: var(--painel);
+  border: 1px solid var(--borda-forte);
+  border-radius: 6px;
+  padding: 6px 8px;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+  font-size: 12px;
+  resize: vertical;
+}
+
+.linha-opcao {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 400;
+}
+
+/* ---------- escolha de colunas ---------- */
+.menu-colunas {
+  position: relative;
+}
+
+.menu-colunas > summary {
+  list-style: none;
+  cursor: pointer;
+  border: 1px solid var(--borda-forte);
+  border-radius: 6px;
+  padding: 5px 12px;
+  background: var(--painel);
+}
+
+.menu-colunas > summary::-webkit-details-marker {
+  display: none;
+}
+
+.menu-colunas-lista {
+  position: absolute;
+  right: 0;
+  z-index: 10;
+  margin-top: 4px;
+  max-height: 340px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 10px;
+  background: var(--painel);
+  border: 1px solid var(--borda-forte);
+  border-radius: 8px;
+  box-shadow: 0 8px 24px rgba(20, 24, 31, 0.16);
+  min-width: 320px;
+}
+
+.menu-colunas-lista label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  white-space: nowrap;
+}
+
+/* ---------- diálogo ---------- */
+.cortina {
+  position: fixed;
+  inset: 0;
+  background: rgba(21, 24, 29, 0.38);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 50;
+}
+
+.dialogo {
+  background: var(--fundo);
+  border: 1px solid var(--borda-forte);
+  border-radius: 10px;
+  box-shadow: 0 16px 48px rgba(20, 24, 31, 0.28);
+  display: flex;
+  flex-direction: column;
+  width: min(760px, 100%);
+  max-height: 100%;
+}
+
+.dialogo.largo {
+  width: min(1180px, 100%);
+}
+
+.dialogo-topo,
+.dialogo-rodape {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 14px;
+  background: var(--painel);
+}
+
+.dialogo-topo {
+  border-bottom: 1px solid var(--borda);
+  border-radius: 10px 10px 0 0;
+}
+
+.dialogo-rodape {
+  border-top: 1px solid var(--borda);
+  border-radius: 0 0 10px 10px;
+}
+
+.dialogo-corpo {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 12px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.dialogo-corpo h4,
+.previa h4,
+.cartao-mes-corpo h4 {
+  margin: 4px 0 0;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  color: var(--texto-fraco);
+}
+
+/* ---------- painel de ação em lote ---------- */
+.painel-lote {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: var(--destaque-fraco);
+  border: 1px solid var(--destaque);
+  border-radius: 8px;
+  padding: 8px 10px;
+}
+
+.painel-lote .barra-secao {
+  flex-wrap: wrap;
+  row-gap: 6px;
+}
+
+/* ---------- prévia ---------- */
+.previa {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.tabela-rolagem.baixa {
+  flex: none;
+  max-height: 300px;
+}
+
+.tabela tfoot th {
+  position: sticky;
+  bottom: 0;
+  background: #f2f5f9;
+  border-top: 1px solid var(--borda-forte);
+  text-align: left;
+}
+
+.tabela tfoot th.num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+.tabela tr.amostra-antes td {
+  border-bottom: none;
+  color: var(--texto-fraco);
+}
+
+.tabela tr.amostra-depois td {
+  border-bottom: 1px solid var(--borda);
+}
+
+.tabela td.mudou {
+  background: var(--editado);
+  box-shadow: inset 0 -2px 0 var(--editado-borda);
+  font-weight: 600;
+}
+
+/* ---------- listas de mensagens ---------- */
+.lista-erros {
+  margin: 4px 0 0;
+  padding-left: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.lista-campos {
+  margin: 0;
+  padding-left: 14px;
+  list-style: none;
+}
+
+.lista-campos .antes {
+  text-decoration: line-through;
+  color: var(--texto-fraco);
+}
+
+/* ---------- regras ---------- */
+.resumo-regra {
+  white-space: normal;
+  max-width: 620px;
+  line-height: 1.45;
+}
+
+.bloco-acao {
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--painel);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- opções da apuração ---------- */
+.painel-config {
+  flex: none;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 10px 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+/* ---------- conferência ---------- */
+.cartao-mes {
+  flex: none;
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 8px 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.cartao-mes.alterada {
+  box-shadow: inset 3px 0 0 var(--editado-borda);
+}
+
+.cartao-mes-corpo {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border-top: 1px solid var(--borda);
+  padding-top: 8px;
+}
+
+.cartao-mes-corpo details > summary {
+  cursor: pointer;
+  margin-top: 4px;
+}
+
+.aviso.estado {
+  font-variant-numeric: tabular-nums;
+}
+
+.etiqueta.info {
+  background: var(--destaque-fraco);
+  border-color: var(--destaque);
+  color: var(--destaque);
+}
+
+.etiqueta.erro {
+  background: var(--erro);
+  border-color: var(--erro-borda);
+  color: var(--erro-borda);
+}
+
+/* aviso que não pode passar despercebido (apuração desatualizada / não recalculada) */
+.aviso.forte {
+  border-left-width: 6px;
+}
+
+.aviso p {
+  margin: 4px 0;
+}
+
+.aviso button {
+  margin-top: 6px;
+}
+
+/* aviso da apuração desatualizada na barra superior */
+.etiqueta.desatualizada {
+  background: var(--editado);
+  border-color: var(--editado-borda);
+  color: #7a5a00;
+  cursor: pointer;
+}
+
+/* mensagem de recusa ao editar uma célula da grade */
+.grade-erro-edicao {
+  flex: none;
+  margin: 0;
+  border-radius: 0;
+  border-width: 0 0 1px;
+}
+
+.historico {
+  font-size: 12px;
+}
+
+/* rótulos longos/curtos da barra (os curtos só em tela estreita) */
+.rotulo-curto {
+  display: none;
+}
+
+/* painel estreito: barra compacta (sem título, rótulos curtos, histórico só no title do Desfazer) */
+@media (max-width: 760px) {
+  .barra {
+    gap: 4px 6px;
+    padding: 4px 8px;
+    min-height: 0;
+  }
+  .barra .titulo,
+  .barra .historico,
+  .rotulo-longo {
+    display: none;
+  }
+  .rotulo-curto {
+    display: inline;
+  }
+  .barra .resumo-carga {
+    flex: 1 1 100%;
+    max-width: none;
+    font-size: 12px;
+  }
+  .barra button,
+  .barra .botao-arquivo {
+    padding: 3px 8px;
+    font-size: 12px;
+  }
+  .abas {
+    margin-left: 0;
+  }
+  .abas button {
+    padding: 3px 8px;
+  }
+  .conteudo {
+    padding: 6px 8px;
+  }
+  /* seletor de tipo de linha: uma faixa rolável em vez de botões de três linhas */
+  .seletor {
+    max-width: 100%;
+    overflow-x: auto;
+  }
+  .seletor button {
+    white-space: nowrap;
+  }
+}
+
+/* ---------- critérios da apuração ---------- */
+.criterios-empresa h4 {
+  margin: 12px 0 6px;
+}
+
+fieldset.criterio {
+  border: 1px solid var(--borda);
+  border-radius: 6px;
+  margin: 0 0 10px;
+  padding: 8px 12px 10px;
+}
+
+fieldset.criterio.pendente {
+  border-color: var(--editado-borda);
+}
+
+fieldset.criterio legend {
+  font-weight: 600;
+  padding: 0 4px;
+}
+
+fieldset.criterio p {
+  margin: 2px 0 6px;
+}
+
+.indicio {
+  background: var(--destaque-fraco);
+  border-radius: 4px;
+  padding: 4px 8px;
+}
+
+.opcao-criterio {
+  display: flex;
+  gap: 8px;
+  align-items: flex-start;
+  padding: 4px 0;
+  cursor: pointer;
+}
+
+.opcao-criterio input {
+  margin-top: 3px;
+}
+
+.opcao-criterio.indisponivel {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.criterio-nao-aplica {
+  margin: 0 0 8px;
+}
+
+.resumo-criterios {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 8px 12px;
+}
+
+.lista-criterios {
+  margin: 4px 0;
+  padding-left: 18px;
+}
+
+/* coluna que o sistema recalcula (imobilizado) */
+.grade-cabecalho .grade-celula.calculada {
+  font-style: italic;
+  color: var(--texto-fraco);
+}
+
+/* seletor de tipo de linha: com 8 tipos, uma faixa que rola de lado em vez de botões de várias linhas */
+.barra-secao > .seletor {
+  max-width: 100%;
+  overflow-x: auto;
+}
+
+.barra-secao > .seletor button {
+  white-space: nowrap;
+}
