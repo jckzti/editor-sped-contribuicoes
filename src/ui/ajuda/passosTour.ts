@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 9;
+export const VERSAO_TOUR = 10;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -140,7 +140,7 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'antes-depois',
     titulo: '10. Ler o antes e o depois',
     texto:
-      'Troque entre PIS/Pasep e Cofins para comparar o crédito, a contribuição e os valores a recolher por regime. Se os meses não couberem na tabela, use **Rolar para baixo**. Clique em **Exportar Excel** para baixar o resumo mensal do tributo selecionado.',
+      'Clique no mês na tabela para ver seus valores nos cartões. Troque entre PIS/Pasep e Cofins para comparar o mesmo mês. Se os meses não couberem na tabela, use **Rolar para baixo**. **Exportar Excel** inclui todos os meses do tributo selecionado.',
     tela: 'apuracao',
     ancoras: ['apuracao-quadro'],
     secaoManual: 'apuracao',
@@ -217,6 +217,10 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   },
   9: {
     resumo: 'O Bloco M separa os valores a recolher por regime e permite rolar a tabela de meses com o cabeçalho fixo.',
+    passos: ['antes-depois'],
+  },
+  10: {
+    resumo: 'Os cartões do Bloco M mostram o resumo do mês selecionado na tabela.',
     passos: ['antes-depois'],
   },
 };

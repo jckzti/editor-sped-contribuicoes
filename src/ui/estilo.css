@@ -420,6 +420,15 @@ button:focus-visible {
   scrollbar-color: var(--texto-fraco) var(--fundo);
 }
 
+.resumo-mensal-apuracao {
+  display: grid;
+  gap: 8px;
+}
+
+.tabela tbody tr.mes-apuracao-selecionado > td {
+  background: var(--destaque-fraco);
+}
+
 .subabas-apuracao {
   border-bottom: 1px solid var(--borda);
   padding-bottom: 8px;
