@@ -311,7 +311,10 @@ export function App() {
         <ControleTour
           temDados={escrituracoes.length > 0}
           aoIrPara={(t, passo) => {
-            if (t === 'apuracao') setSubabaApuracao(passo.id === 'criterios' ? 'criterios' : passo.id === 'rateio' ? 'rateio' : 'bloco-m');
+            if (t === 'apuracao') {
+              const destino = passo.id === 'criterios' || passo.id === 'rateio' || passo.id === 'creditos-natureza' ? passo.id : 'bloco-m';
+              setSubabaApuracao(destino);
+            }
             mudarPrefs({ aba: t });
           }}
           aoAbrirManual={(secao) => {

@@ -425,6 +425,27 @@ button:focus-visible {
   gap: 8px;
 }
 
+#apuracao-painel-creditos-natureza caption {
+  padding: 6px 8px;
+  text-align: left;
+}
+
+#apuracao-painel-creditos-natureza select {
+  max-width: min(36rem, 70vw);
+}
+
+.credito-natureza-cst > * {
+  background: var(--fundo);
+}
+
+.credito-natureza-cst > th {
+  padding-left: 24px;
+}
+
+#apuracao-painel-creditos-natureza tfoot {
+  background: var(--destaque-fraco);
+}
+
 .tabela tbody tr.mes-apuracao-selecionado > td {
   background: var(--destaque-fraco);
 }

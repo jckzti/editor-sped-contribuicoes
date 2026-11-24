@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 14;
+export const VERSAO_MANUAL = 15;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -556,6 +556,9 @@ export const SECOES: Secao[] = [
       p('A subaba **Mensagens** reúne erros, avisos, pendências e as ações para resolvê-los. Em **Rateio (0111)**, consulte a receita bruta declarada de cada mês em reais e veja se o registro é original, foi ajustado ou está ausente.'),
       p('No **Bloco M**, os cartões, a tabela mensal e o Excel separam **A recolher não cumulativo** e **A recolher cumulativo**, com a variação de cada regime em relação ao original. Quando a tabela não cabe na tela, use a barra de rolagem ou **Rolar para baixo**. O cabeçalho fica visível e, no fim da lista, o botão permite **Voltar ao início**.'),
       p('Os cartões mostram somente o mês selecionado. Por padrão, aparece o mês mais recente. Clique em outro mês na tabela para trocar o resumo. A seleção continua ao alternar entre PIS/Pasep e Cofins. **Exportar Excel** inclui todos os meses da tabela.'),
+      sub('Créditos por Natureza'),
+      p('Na subaba **Créditos por Natureza**, escolha o mês e o tributo e clique no código da tabela 4.3.7 para abrir o detalhamento por CST. A base exibida é a parcela usada para apurar o crédito no M105 ou M505. Quando um crédito do M100 ou M500 tem vários detalhes, seu valor é distribuído pelas bases escrituradas (ou pelas quantidades, se for crédito por unidade) com arredondamento em centavos.'),
+      p('Os acréscimos e reduções do M110 ou M510 entram com seus sinais. O ajuste é associado à natureza ou ao CST quando o registro de crédito tem um único vínculo correspondente. Ajuste sem CST identificado aparece no detalhe da natureza. Créditos e ajustes sem natureza identificada aparecem em linha separada e entram no total. Crédito ajustado é o crédito apurado mais o ajuste líquido.'),
       sub('O que é refeito'),
       lista(
         'Créditos: M100/M105 (PIS) e M500/M505 (COFINS), a partir dos documentos: itens de nota (C170), energia (C501/C505), fretes (D101/D105 e D501/D505), F100, F120, F130 e A170.',
@@ -1022,6 +1025,7 @@ export const COBERTURA: {
     mensagens: { secao: 'apuracao', termo: 'Mensagens' },
     criterios: { secao: 'apuracao', termo: 'Critérios da apuração' },
     rateio: { secao: 'apuracao', termo: 'Rateio (0111)' },
+    'creditos-natureza': { secao: 'apuracao', termo: 'Créditos por Natureza' },
   },
   tiposLinha: Object.fromEntries(
     (

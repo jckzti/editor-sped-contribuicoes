@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 10;
+export const VERSAO_TOUR = 11;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -154,6 +154,14 @@ export const PASSOS_TOUR: PassoTour[] = [
     secaoManual: 'apuracao-0111',
   },
   {
+    id: 'creditos-natureza',
+    titulo: 'Conferir créditos por natureza',
+    texto: 'Na subaba **Créditos por Natureza**, selecione o mês e o tributo para ver a base, o crédito e os ajustes. Clique no código para abrir o detalhamento por CST.',
+    tela: 'apuracao',
+    ancoras: ['creditos-por-natureza'],
+    secaoManual: 'apuracao',
+  },
+  {
     id: 'conferencia',
     titulo: '11. Conferir',
     texto:
@@ -222,5 +230,9 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   10: {
     resumo: 'Os cartões do Bloco M mostram o resumo do mês selecionado na tabela.',
     passos: ['antes-depois'],
+  },
+  11: {
+    resumo: 'A subaba Créditos por Natureza detalha as bases, créditos e ajustes de PIS/Pasep e Cofins por CST.',
+    passos: ['creditos-natureza'],
   },
 };
