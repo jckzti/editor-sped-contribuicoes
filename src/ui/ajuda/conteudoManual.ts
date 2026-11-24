@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 9;
+export const VERSAO_MANUAL = 10;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -557,7 +557,7 @@ export const SECOES: Secao[] = [
       lista(
         'Créditos: M100/M105 (PIS) e M500/M505 (COFINS), a partir dos documentos: itens de nota (C170), energia (C501/C505), fretes (D101/D105 e D501/D505), F100, F120, F130 e A170.',
         'Ajustes de estorno ligados a notas: M110/M115 e M510/M515 (ver [Estornos automáticos](#apuracao-estornos)).',
-        'Contribuições M210/M610, totais M200/M600 e valor a recolher M205/M605. O cálculo inclui as vendas por NFC-e (C175) e os serviços de transporte do resumo diário (D200, com D201 para PIS e D205 para Cofins), usando as bases e alíquotas percentuais escrituradas.',
+        'Contribuições M210/M610, totais M200/M600 e valor a recolher M205/M605. O cálculo inclui as vendas por NFC-e (C175) e os serviços de transporte do resumo diário (D200, com D201 para PIS e D205 para Cofins), usando as bases e alíquotas percentuais escrituradas. No regime misto com CST 01, o editor identifica a contribuição cumulativa pelas alíquotas básicas de 0,65% e 3% e usa os créditos somente na parcela não cumulativa.',
         'Receitas não tributadas M400/M410 e M800/M810 (ver [Natureza da receita](#apuracao-natureza)).',
         'Saldos de crédito 1100/1500 (ver [Saldo credor](#apuracao-saldo)) e a receita bruta do 0111 (ver [Registro 0111](#apuracao-0111)).',
         'Junto, sempre: totais dos documentos, cadastros (0150, 0190, 0200, 0400, 0500) e contadores (x990 e 9900).',
@@ -734,7 +734,7 @@ export const SECOES: Secao[] = [
       sub('Motivos'),
       lista(
         'Falta escolher algum [critério da apuração](#apuracao-criterios) da empresa.',
-        'Regime cumulativo ou misto (o motor só apura o regime exclusivamente não cumulativo).',
+        'Regime exclusivamente cumulativo. No regime misto, o recálculo também é recusado quando as receitas tributadas usam alíquotas diferenciadas ou quando o M105/M505 indica base de crédito compartilhada com o regime cumulativo.',
         'Rateio proporcional sem o registro 0111, ou arquivo sem o 0110.',
         'Apropriação direta com créditos comuns a mais de um tipo de receita (CST 53 a 56 e 63 a 66).',
         'Registros que o motor não apura: outras vendas e aquisições consolidadas (C180, C190, C380, C395, C400, C490, C600, C800, C860), outros resumos de transporte e comunicação (D300, D350, D600), estoque de abertura, atividade imobiliária, regime de caixa ou competência do lucro presumido, créditos de sucessão (F150, F200, F500, F510, F550, F560, F800), bloco I, cooperativas (M211/M611), contribuição diferida (M300/M700), PIS sobre folha (M350) e controle de retenções (1300/1700). O recálculo também é recusado se a mesma NFC-e tiver C170 e C175 ou se o D200 precisar de detalhes e não tiver D201 nem D205.',
@@ -861,6 +861,8 @@ export const SECOES: Secao[] = [
         ['APURACAO_CREDITO_SUCESSAO', 'Crédito oriundo de sucessão; bloco M mantido.'],
         ['APURACAO_TIPO_CREDITO', 'Tipo de crédito que o motor não gera a partir dos documentos; bloco M mantido.'],
         ['APURACAO_COD_CONT', 'Tipo de contribuição que o motor não gera a partir dos documentos; bloco M mantido.'],
+        ['APURACAO_MISTO_ALIQUOTA', 'Regime misto com receita tributada que o editor não consegue enquadrar com segurança pelas alíquotas básicas do CST 01.'],
+        ['APURACAO_MISTO_BASE_COMPARTILHADA', 'Regime misto com base de crédito vinculada ao regime cumulativo no M105/M505. A separação dessa base precisa ser feita no PVA.'],
         ['APURACAO_CHAVE_REPETIDA', 'Recálculo recusado: o bloco M tem registros que pelo Guia são diferentes, mas que o motor não sabe separar (M410/M810 da mesma natureza com conta ou descrição diferentes; M400/M800 do mesmo CST com contas diferentes; M210/M610 que diferem só na alíquota em reais). O bloco M fica como veio: ajuste no PVA.'],
         ['APURACAO_RATEIO_SEM_RECEITA', 'Crédito comum (CST 53 a 56, 63 a 66) sem receita no 0111 nos tipos a que ele se vincula; o editor não escolhe sozinho e mantém o bloco M. Confira o 0111 ou o CST dos documentos.'],
         ['APURACAO_PRESUMIDO_AMBIGUO', 'O original tem crédito presumido da agroindústria (x06) e de outras hipóteses (x07) e não dá para saber o tipo de um crédito presumido; bloco M mantido.'],
@@ -947,7 +949,7 @@ export const SECOES: Secao[] = [
     blocos: [
       lista(
         '**Memória:** ~9,5 MB por mês; acima de 24 meses o navegador fica lento. Um ano por vez é o recomendado.',
-        '**Perfil:** a apuração é recalculada para o regime não cumulativo com documentos item a item. Os outros perfis carregam e podem ser editados, mas o bloco M fica como veio (ver [recusa](#apuracao-recusa)).',
+        '**Perfil:** a apuração é recalculada para o regime não cumulativo e para o regime misto nas condições suportadas. Outros perfis carregam e podem ser editados com o bloco M original (ver [recusa](#apuracao-recusa)).',
         '**Leiaute:** o editor segue a versão 006 do leiaute (Guia Prático 1.35).',
         '**Caracteres:** o arquivo é gravado em ISO-8859-1; caractere fora disso sai como "?" e o aviso do download conta quantos.',
         '**Histórico:** até 200 ações ou ~150 MB para desfazer.',
@@ -1064,6 +1066,7 @@ export const COBERTURA: {
       'CRITERIOS_PENDENTES', 'APURACAO_REGISTRO_NAO_SUPORTADO', 'APURACAO_REGIME_NAO_SUPORTADO', 'APURACAO_SEM_0110', 'APURACAO_SEM_0111',
       'APURACAO_CFOP_SEM_NAT_BC', 'APURACAO_SEM_NAT_BC', 'APURACAO_QUANTIDADE', 'APURACAO_CST_03', 'APURACAO_CST_05',
       'APURACAO_APROPRIACAO_DIRETA', 'APURACAO_CREDITO_SUCESSAO', 'APURACAO_TIPO_CREDITO', 'APURACAO_COD_CONT', 'APURACAO_RATEIO_SEM_RECEITA', 'APURACAO_PRESUMIDO_AMBIGUO', 'APURACAO_CHAVE_REPETIDA', 'CHAVE_REPETIDA_CONSOLIDADA',
+      'APURACAO_MISTO_ALIQUOTA', 'APURACAO_MISTO_BASE_COMPARTILHADA',
       'APURACAO_ERRO', 'APURACAO_INDISPONIVEL', 'APURACAO_SEM_ORIGINAL', 'APURACAO_NAO_CONFERIDA',
       'ESTORNO_AUSENTE', 'ESTORNO_SEM_CREDITO', 'ESTORNO_AMBIGUO', 'PRESUMIDO_TIPO_SUPOSTO', 'NATUREZA_RECEITA_AMBIGUA', '0111_DESATUALIZADO',
       'SALDO_CREDOR_DIVERGENTE', 'SALDO_CREDOR_NAO_LEVADO', 'CREDITO_RETIDO', 'CREDITO_SO_COM_AJUSTE', 'CREDITO_NEGATIVO', 'CREDITO_ALIQ_DIFERENCIADA_NOVO',

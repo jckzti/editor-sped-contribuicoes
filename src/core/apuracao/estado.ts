@@ -55,7 +55,7 @@ export interface EstadoApuracao {
   resumoOriginal: ResumoApuracao;
   tributos: Record<IdTributo, EstadoTributo>;
   /** Receita por tipo calculada dos documentos originais (para o 0111 "ajustar-pelo-delta"). */
-  receitaOriginal: { trib: number; nt: number; exp: number };
+  receitaOriginal: { trib: number; nt: number; exp: number; cum: number };
   /** Campos do 0111 original (centavos): TRIB, NT, EXP, CUM, TOTAL. */
   original0111: [number, number, number, number, number] | null;
   /** Pendências de natureza da receita do último recálculo. */

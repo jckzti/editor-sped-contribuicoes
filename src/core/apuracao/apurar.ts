@@ -279,11 +279,13 @@ function regraEstorno(ctx: ContextoMes, t: Tributo): (cfop: string) => RegraEsto
 function apurarContribuicoes(ctx: ContextoMes, t: Tributo, f: Fontes): void {
   const { e, m001 } = ctx;
   const s = t.sfx;
+  const r0110 = listar(e, '0110')[0];
+  const misto = !!r0110 && get(r0110, 'COD_INC_TRIB') === '3';
   const desejados = new Map<string, { codCont: string; aliq: bigint; rec: number; base: number }>();
   const avisouAliq = new Set<string>();
   for (const op of f.receitas) {
     if (op.cst !== '01' && op.cst !== '02') continue;
-    const codCont = op.cst;
+    const codCont = misto && op.cst === '01' && op.aliq === t.aliqBasicaCum ? '51' : op.cst;
     if (codCont === '01' && op.aliq !== t.aliqBasica && !avisouAliq.has(fmtAliq(op.aliq))) {
       avisouAliq.add(fmtAliq(op.aliq));
       ctx.avisos.push({

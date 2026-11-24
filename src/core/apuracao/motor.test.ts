@@ -110,7 +110,7 @@ describe('receitas de NFC-e e de transporte', () => {
         r('D201', { CST_PIS: '01', VL_ITEM: '220', VL_BC_PIS: '200', ALIQ_PIS: '1,65' }),
         r('D205', { CST_COFINS: '01', VL_ITEM: '220', VL_BC_COFINS: '180', ALIQ_COFINS: '7,6' }))],
     });
-    expect(receitaPorTipo(e)).toEqual({ trib: 33000, nt: 0, exp: 0 });
+    expect(receitaPorTipo(e)).toEqual({ trib: 33000, nt: 0, exp: 0, cum: 0 });
     expect(recalcularApuracao([e], cfgP())[0].recalculada).toBe(true);
     expect(c(listar(e, 'M210')[0], 'VL_BC_CONT')).toBe(30000);
     expect(c(listar(e, 'M610')[0], 'VL_BC_CONT')).toBe(28000);
@@ -125,6 +125,57 @@ describe('receitas de NFC-e e de transporte', () => {
     expect(resultado.recalculada).toBe(false);
     expect(resultado.avisos.some((a) => a.codigo === 'APURACAO_QUANTIDADE')).toBe(true);
     expect(escreverTexto(e)).toBe(antes);
+  });
+});
+
+describe('regime misto', () => {
+  const vendaCum = (base: string) => item('01', base, '5102', { ALIQ_PIS: '0,65', ALIQ_COFINS: '3' });
+
+  it('separa as contribuições e não usa o excesso de crédito para pagar a parte cumulativa', () => {
+    const e = escrituracao({ incTrib: '3', notas: [
+      nota('1', '1', item('01', '1000', '5102')),
+      nota('1', '2', vendaCum('500')),
+      nota('0', '3', item('50', '2000', '1101')),
+    ] });
+    const [resultado] = recalcularApuracao([e], cfgP());
+    expect(resultado.recalculada).toBe(true);
+    for (const [t, nc, cum] of [[PIS, 1650, 325], [COFINS, 7600, 1500]] as const) {
+      expect(listar(e, t.M210).map((r) => [get(r, 'COD_CONT'), c(r, 'VL_CONT_PER')])).toEqual([['01', nc], ['51', cum]]);
+      const total = listar(e, t.M200)[0];
+      expect(c(total, 'VL_CONT_NC_REC')).toBe(0);
+      expect(c(total, 'VL_CONT_CUM_REC')).toBe(cum);
+      expect(c(total, 'VL_TOT_CONT_REC')).toBe(cum);
+    }
+  });
+
+  it('ajusta a variação da receita cumulativa no 0111 sem alterar os grupos não cumulativos', () => {
+    const venda = vendaCum('500');
+    const e = escrituracao({ incTrib: '3', notas: [nota('1', '1', venda)] });
+    const r0111 = listar(e, '0111')[0];
+    set(r0111, 'REC_BRU_CUM', '500');
+    set(r0111, 'REC_BRU_TOTAL', '10500');
+    registrarOriginal(e);
+    set(venda, 'VL_ITEM', '800');
+    const config = { ...cfgP(), receitaBruta0111: 'ajustar-pelo-delta' as const };
+    expect(recalcularApuracao([e], config)[0].recalculada).toBe(true);
+    expect(c(r0111, 'REC_BRU_CUM')).toBe(80000);
+    expect(c(r0111, 'REC_BRU_NCUM_TRIB_MI')).toBe(500000);
+    expect(c(r0111, 'REC_BRU_TOTAL')).toBe(1080000);
+    expect(recalcularApuracao([e], config)[0].recalculada).toBe(true);
+    expect(c(r0111, 'REC_BRU_CUM')).toBe(80000);
+  });
+
+  it('preserva o bloco M com alíquota diferenciada ou base de crédito compartilhada com o cumulativo', () => {
+    const diferenciada = escrituracao({ incTrib: '3', notas: [nota('1', '1', item('02', '500', '5102'))] });
+    const compartilhada = escrituracao({ incTrib: '3', notas: [nota('1', '1', vendaCum('500'))] });
+    inserirFilho(listar(compartilhada, 'M001')[0], r('M100', { COD_CRED: '101' }, r('M105', { VL_BC_PIS_CUM: '10' })));
+    for (const [e, codigo] of [[diferenciada, 'APURACAO_MISTO_ALIQUOTA'], [compartilhada, 'APURACAO_MISTO_BASE_COMPARTILHADA']] as const) {
+      const antes = escreverTexto(e);
+      const [resultado] = recalcularApuracao([e], cfgP());
+      expect(resultado.recalculada).toBe(false);
+      expect(resultado.avisos.some((a) => a.codigo === codigo)).toBe(true);
+      expect(escreverTexto(e)).toBe(antes);
+    }
   });
 });
 const m100 = (e: Escrituracao, t: Tributo, cc: string) => listar(e, t.M100).find((x) => get(x, 'COD_CRED') === cc)!;

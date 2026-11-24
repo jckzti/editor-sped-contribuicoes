@@ -1,9 +1,9 @@
 // Gerado por `ATUALIZAR_CARIMBO=1 npx vitest run src/ui/ajuda/documentacao.test.ts`. Não edite à mão.
-// Revisão: tour v5, manual v9.
+// Revisão: tour v6, manual v10.
 export const CARIMBO = {
-  versaoTour: 5,
-  versaoManual: 9,
-  roteiro: '7017faea',
+  versaoTour: 6,
+  versaoManual: 10,
+  roteiro: '9f4b6fd2',
   superficie: [
     "aba:apuracao=Apuração",
     "aba:cadastros=Cadastros",
@@ -23,6 +23,8 @@ export const CARIMBO = {
     "aviso:APURACAO_CST_05",
     "aviso:APURACAO_ERRO",
     "aviso:APURACAO_INDISPONIVEL",
+    "aviso:APURACAO_MISTO_ALIQUOTA",
+    "aviso:APURACAO_MISTO_BASE_COMPARTILHADA",
     "aviso:APURACAO_NAO_CONFERIDA",
     "aviso:APURACAO_ORIGINAL",
     "aviso:APURACAO_PRESUMIDO_AMBIGUO",

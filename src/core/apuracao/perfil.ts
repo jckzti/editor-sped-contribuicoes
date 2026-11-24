@@ -8,7 +8,7 @@ import { filhosDe, get, listar, percorrer, type Aviso, type Escrituracao } from 
 import type { Fontes } from './fontes';
 import { cstComum } from './rateio';
 import type { Tributo } from './tributos';
-import { aliqEsc, SITUACOES_FORA } from './util';
+import { aliqEsc, cent, SITUACOES_FORA } from './util';
 
 /** Registros cuja presença impede o recálculo (o motor não sabe apurá-los). */
 const IMPEDITIVOS: Record<string, string> = {
@@ -82,11 +82,11 @@ export function verificarPerfil(e: Escrituracao): Aviso[] {
     return avisos;
   }
   const inc = get(r0110, 'COD_INC_TRIB');
-  if (inc !== '1') {
+  if (inc !== '1' && inc !== '3') {
     avisos.push({
       nivel: 'erro',
       codigo: 'APURACAO_REGIME_NAO_SUPORTADO',
-      mensagem: `Apuração não recalculada: 0110 COD_INC_TRIB = ${inc} (${inc === '2' ? 'regime cumulativo' : 'regimes cumulativo e não cumulativo'}). O motor só apura o regime exclusivamente não cumulativo.`,
+      mensagem: `Apuração não recalculada: 0110 COD_INC_TRIB = ${inc || '(vazio)'}. O motor apura o regime não cumulativo e o regime misto nos casos suportados.`,
     });
   }
   const apro = get(r0110, 'IND_APRO_CRED');
@@ -120,6 +120,14 @@ export function verificarFontes(e: Escrituracao, t: Tributo, f: Fontes): Aviso[]
   const cst05 = f.receitas.filter((r) => r.cst === '05' && r.aliq !== 0n);
   if (cst05.length) erro('APURACAO_CST_05', `${cst05.length} operação(ões) com CST 05 (substituição tributária) com alíquota, que o motor não apura.`);
   const r0110 = listar(e, '0110')[0];
+  const misto = !!r0110 && get(r0110, 'COD_INC_TRIB') === '3';
+  if (misto) {
+    const semRegime = f.receitas.filter((r) => r.cst === '02' || (r.cst === '01' && r.aliq !== t.aliqBasica && r.aliq !== t.aliqBasicaCum));
+    if (semRegime.length) erro('APURACAO_MISTO_ALIQUOTA', `${semRegime.length} receita(s) sem enquadramento seguro no regime misto. O editor separa apenas as receitas tributadas pelas alíquotas básicas escrituradas em CST 01.`);
+    if (listar(e, t.M105).some((r) => cent(r, `VL_BC_${t.sfx}_CUM`) !== 0)) {
+      erro('APURACAO_MISTO_BASE_COMPARTILHADA', `o ${t.M105} tem base de crédito vinculada ao regime cumulativo. O editor ainda não separa aquisições, custos ou despesas compartilhados entre regimes.`);
+    }
+  }
   if (r0110 && get(r0110, 'IND_APRO_CRED') === '1') {
     const comuns = f.creditos.filter((c) => cstComum(c.cst));
     if (comuns.length) {
@@ -137,7 +145,7 @@ export function verificarFontes(e: Escrituracao, t: Tributo, f: Fontes): Aviso[]
   }
   for (const m210 of listar(e, t.M210)) {
     const cc = get(m210, 'COD_CONT');
-    if (!COD_CONT_SUPORTADOS.has(cc)) erro('APURACAO_COD_CONT', `${t.M210} com COD_CONT ${cc}, que o motor não gera a partir dos documentos.`);
+    if (!COD_CONT_SUPORTADOS.has(cc) && !(misto && cc === '51')) erro('APURACAO_COD_CONT', `${t.M210} com COD_CONT ${cc}, que o motor não gera a partir dos documentos.`);
   }
   return avisos;
 }

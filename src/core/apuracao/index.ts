@@ -2,7 +2,7 @@
  * Motor de apuração: recalcula o bloco M (PIS/COFINS) e o bloco 1 (saldo de créditos)
  * a partir dos documentos dos blocos A/C/D/F.
  *
- * Perfil suportado: regime exclusivamente não cumulativo (0110 COD_INC_TRIB = 1), rateio
+ * Perfil suportado: regime não cumulativo ou misto nas alíquotas básicas, rateio
  * proporcional (0111) ou apropriação direta sem créditos comuns. Fontes: C170, C501/C505,
  * D101/D105, D501/D505, F100, F120, F130 e A170. Fora disso o recálculo é recusado
  * (`recalculada: false`) e o bloco M fica como veio. Ver `perfil.ts`.
@@ -380,18 +380,19 @@ function periodoLegivel(aaaamm: string): string {
   return `${aaaamm.slice(4, 6)}/${aaaamm.slice(0, 4)}`;
 }
 
-/** Valores do 0111 (TRIB, NT, EXP, TOTAL) que o recálculo vai gravar, e avisos sobre ele. */
-function planejar0111(e: Escrituracao, config: ConfigApuracao, estado: EstadoApuracao): { novos: [number, number, number, number] | null; avisos: Aviso[] } {
+/** Valores do 0111 (TRIB, NT, EXP, CUM, TOTAL) que o recálculo vai gravar, e avisos sobre ele. */
+function planejar0111(e: Escrituracao, config: ConfigApuracao, estado: EstadoApuracao): { novos: EstadoApuracao['original0111']; avisos: Aviso[] } {
   const r0111 = listar(e, '0111')[0];
   const avisos: Aviso[] = [];
   if (!r0111 || !estado.original0111) return { novos: null, avisos };
   const o = estado.original0111;
   const atual = receitaPorTipo(e);
-  const d = [atual.trib - estado.receitaOriginal.trib, atual.nt - estado.receitaOriginal.nt, atual.exp - estado.receitaOriginal.exp];
-  const ajustado: [number, number, number, number] = [o[0] + d[0], o[1] + d[1], o[2] + d[2], o[4] + d[0] + d[1] + d[2]];
-  const nomes = ['tributada no mercado interno', 'não tributada no mercado interno', 'de exportação'];
+  const d = [atual.trib - estado.receitaOriginal.trib, atual.nt - estado.receitaOriginal.nt, atual.exp - estado.receitaOriginal.exp, atual.cum - estado.receitaOriginal.cum];
+  const ajustado: NonNullable<EstadoApuracao['original0111']> = [o[0] + d[0], o[1] + d[1], o[2] + d[2], o[3] + d[3], o[4] + d.reduce((s, v) => s + v, 0)];
+  const nomes = ['tributada no mercado interno', 'não tributada no mercado interno', 'de exportação', 'cumulativa'];
+  const grupos = [0, 1, 2, 3];
   if (config.receitaBruta0111 === 'ajustar-pelo-delta') {
-    const mudou = [0, 1, 2].filter((i) => ajustado[i] !== o[i]);
+    const mudou = grupos.filter((i) => ajustado[i] !== o[i]);
     if (mudou.length) {
       avisos.push({
         nivel: 'alerta',
@@ -399,25 +400,25 @@ function planejar0111(e: Escrituracao, config: ConfigApuracao, estado: EstadoApu
         mensagem:
           `Receita bruta do 0111 ajustada pela variação da receita dos documentos editados (base do rateio dos créditos comuns): ` +
           mudou.map((i) => `${nomes[i]} R$ ${reais(o[i])} → R$ ${reais(ajustado[i])}`).join('; ') +
-          `; total R$ ${reais(o[4])} → R$ ${reais(ajustado[3])}. Confira se a receita bruta do mês é essa.`,
+          `; total R$ ${reais(o[4])} → R$ ${reais(ajustado[4])}. Confira se a receita bruta do mês é essa.`,
       });
     }
     return { novos: ajustado, avisos };
   }
   // "manter": avisa se a receita por tipo mudou e o 0111 continua com a proporção antiga
-  const noArquivo = [cent(r0111, 'REC_BRU_NCUM_TRIB_MI'), cent(r0111, 'REC_BRU_NCUM_NT_MI'), cent(r0111, 'REC_BRU_NCUM_EXP')];
+  const noArquivo = [cent(r0111, 'REC_BRU_NCUM_TRIB_MI'), cent(r0111, 'REC_BRU_NCUM_NT_MI'), cent(r0111, 'REC_BRU_NCUM_EXP'), cent(r0111, 'REC_BRU_CUM')];
   const mudouReceita = d.some((x) => x !== 0);
-  const acompanhou = [0, 1, 2].every((i) => noArquivo[i] === ajustado[i]);
+  const acompanhou = grupos.every((i) => noArquivo[i] === ajustado[i]);
   if (mudouReceita && !acompanhou) {
     avisos.push({
       nivel: 'alerta',
       codigo: '0111_DESATUALIZADO',
       mensagem:
         `ATENÇÃO: a receita por tipo dos documentos mudou (` +
-        [0, 1, 2].filter((i) => d[i] !== 0).map((i) => `${nomes[i]} ${d[i] > 0 ? '+' : '−'}R$ ${reais(Math.abs(d[i]))}`).join('; ') +
+        grupos.filter((i) => d[i] !== 0).map((i) => `${nomes[i]} ${d[i] > 0 ? '+' : '−'}R$ ${reais(Math.abs(d[i]))}`).join('; ') +
         `), mas o 0111 foi mantido como estava. O rateio dos créditos comuns (CST 53–56/63–66) entre 101/201/301 está usando a proporção ANTIGA ` +
         `e o 0111 declarado não corresponde aos documentos. Pela variação, seria: ` +
-        [0, 1, 2].map((i) => `${nomes[i]} R$ ${reais(ajustado[i])}`).join('; ') +
+        grupos.map((i) => `${nomes[i]} R$ ${reais(ajustado[i])}`).join('; ') +
         `. Use a opção "ajustar pela variação da receita editada" ou corrija o 0111.`,
     });
   }
@@ -524,7 +525,8 @@ function recalcularUma(
     setCent(r0111, 'REC_BRU_NCUM_TRIB_MI', plano0111.novos[0]);
     setCent(r0111, 'REC_BRU_NCUM_NT_MI', plano0111.novos[1]);
     setCent(r0111, 'REC_BRU_NCUM_EXP', plano0111.novos[2]);
-    setCent(r0111, 'REC_BRU_TOTAL', plano0111.novos[3]);
+    if (cent(r0111, 'REC_BRU_CUM') !== plano0111.novos[3]) setCent(r0111, 'REC_BRU_CUM', plano0111.novos[3]);
+    setCent(r0111, 'REC_BRU_TOTAL', plano0111.novos[4]);
   }
   avisos.push(...plano0111.avisos);
 
