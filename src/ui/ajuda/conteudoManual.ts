@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 8;
+export const VERSAO_MANUAL = 9;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -557,7 +557,7 @@ export const SECOES: Secao[] = [
       lista(
         'Créditos: M100/M105 (PIS) e M500/M505 (COFINS), a partir dos documentos: itens de nota (C170), energia (C501/C505), fretes (D101/D105 e D501/D505), F100, F120, F130 e A170.',
         'Ajustes de estorno ligados a notas: M110/M115 e M510/M515 (ver [Estornos automáticos](#apuracao-estornos)).',
-        'Contribuições M210/M610, totais M200/M600 e valor a recolher M205/M605.',
+        'Contribuições M210/M610, totais M200/M600 e valor a recolher M205/M605. O cálculo inclui as vendas por NFC-e (C175) e os serviços de transporte do resumo diário (D200, com D201 para PIS e D205 para Cofins), usando as bases e alíquotas percentuais escrituradas.',
         'Receitas não tributadas M400/M410 e M800/M810 (ver [Natureza da receita](#apuracao-natureza)).',
         'Saldos de crédito 1100/1500 (ver [Saldo credor](#apuracao-saldo)) e a receita bruta do 0111 (ver [Registro 0111](#apuracao-0111)).',
         'Junto, sempre: totais dos documentos, cadastros (0150, 0190, 0200, 0400, 0500) e contadores (x990 e 9900).',
@@ -737,7 +737,7 @@ export const SECOES: Secao[] = [
         'Regime cumulativo ou misto (o motor só apura o regime exclusivamente não cumulativo).',
         'Rateio proporcional sem o registro 0111, ou arquivo sem o 0110.',
         'Apropriação direta com créditos comuns a mais de um tipo de receita (CST 53 a 56 e 63 a 66).',
-        'Registros que o motor não apura: vendas e aquisições consolidadas (C175, C180, C190, C380, C395, C400, C490, C600, C800, C860), transporte e comunicação (D200, D300, D350, D600), estoque de abertura, atividade imobiliária, regime de caixa ou competência do lucro presumido, créditos de sucessão (F150, F200, F500, F510, F550, F560, F800), bloco I, cooperativas (M211/M611), contribuição diferida (M300/M700), PIS sobre folha (M350) e controle de retenções (1300/1700).',
+        'Registros que o motor não apura: outras vendas e aquisições consolidadas (C180, C190, C380, C395, C400, C490, C600, C800, C860), outros resumos de transporte e comunicação (D300, D350, D600), estoque de abertura, atividade imobiliária, regime de caixa ou competência do lucro presumido, créditos de sucessão (F150, F200, F500, F510, F550, F560, F800), bloco I, cooperativas (M211/M611), contribuição diferida (M300/M700), PIS sobre folha (M350) e controle de retenções (1300/1700). O recálculo também é recusado se a mesma NFC-e tiver C170 e C175 ou se o D200 precisar de detalhes e não tiver D201 nem D205.',
         'Item com CST de crédito num CFOP que não está na tabela de base do crédito; crédito de frete, energia, serviço, imobilizado ou F100 sem a natureza da base do crédito.',
         'Operações por quantidade (alíquota em reais), CST 03, ou CST 05 com alíquota.',
         'Registros do bloco M com a mesma chave que o motor não sabe separar (por exemplo, receita não tributada do mesmo CST em contas contábeis diferentes). Chave repetida que dá para juntar é consolidada, com aviso.',

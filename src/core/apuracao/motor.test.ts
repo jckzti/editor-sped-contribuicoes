@@ -9,6 +9,7 @@ import { aprenderConfig, configPadrao, criteriosExigidos, indiciosCriterios, rec
 import { aprenderNatureza, contarParticoes, limparMemoriaNaturezas, particionar } from './natureza';
 import { gruposDoCst, ratearPorGrupos } from './rateio';
 import { COFINS, PIS, type Tributo } from './tributos';
+import { receitaPorTipo } from './fontes';
 
 beforeEach(() => limparMemoriaNaturezas());
 
@@ -94,6 +95,38 @@ function escrituracao(o: Opcoes): Escrituracao {
 }
 
 const c = (r: Registro, campo: string) => centavos(get(r, campo));
+
+describe('receitas de NFC-e e de transporte', () => {
+  const analitico = (extra: Record<string, string> = {}) => r('C175', {
+    CFOP: '5102', VL_OPR: '110', VL_DESC: '10', CST_PIS: '01', VL_BC_PIS: '100', ALIQ_PIS: '1,65',
+    CST_COFINS: '01', VL_BC_COFINS: '100', ALIQ_COFINS: '7,6', ...extra,
+  });
+  const nfce = (situacao: string, ...filhos: Registro[]) => r('C100', { COD_MOD: '65', COD_SIT: situacao, IND_OPER: '1' }, ...filhos);
+
+  it('soma as bases analíticas de cada tributo, sem repetir o total do documento ou contar NFC-e cancelada', () => {
+    const e = escrituracao({
+      notas: [nfce('00', analitico()), nfce('02', analitico())],
+      blocoD: [r('D200', { COD_MOD: '57', COD_SIT: '00', CFOP: '6352', VL_DOC: '220' },
+        r('D201', { CST_PIS: '01', VL_ITEM: '220', VL_BC_PIS: '200', ALIQ_PIS: '1,65' }),
+        r('D205', { CST_COFINS: '01', VL_ITEM: '220', VL_BC_COFINS: '180', ALIQ_COFINS: '7,6' }))],
+    });
+    expect(receitaPorTipo(e)).toEqual({ trib: 33000, nt: 0, exp: 0 });
+    expect(recalcularApuracao([e], cfgP())[0].recalculada).toBe(true);
+    expect(c(listar(e, 'M210')[0], 'VL_BC_CONT')).toBe(30000);
+    expect(c(listar(e, 'M610')[0], 'VL_BC_CONT')).toBe(28000);
+    expect(c(listar(e, 'M200')[0], 'VL_TOT_CONT_REC')).toBe(495);
+    expect(c(listar(e, 'M600')[0], 'VL_TOT_CONT_REC')).toBe(2128);
+  });
+
+  it('preserva o bloco M se a NFC-e usar tributação por quantidade', () => {
+    const e = escrituracao({ notas: [nfce('00', analitico({ CST_PIS: '03', QUANT_BC_PIS: '10', ALIQ_PIS_QUANT: '1' }))] });
+    const antes = escreverTexto(e);
+    const [resultado] = recalcularApuracao([e], cfgP());
+    expect(resultado.recalculada).toBe(false);
+    expect(resultado.avisos.some((a) => a.codigo === 'APURACAO_QUANTIDADE')).toBe(true);
+    expect(escreverTexto(e)).toBe(antes);
+  });
+});
 const m100 = (e: Escrituracao, t: Tributo, cc: string) => listar(e, t.M100).find((x) => get(x, 'COD_CRED') === cc)!;
 const m105 = (e: Escrituracao, t: Tributo, cc: string) =>
   Object.fromEntries(filhosDe(m100(e, t, cc), t.M105).map((x) => [get(x, `CST_${t.sfx}`), c(x, `VL_BC_${t.sfx}`)]));

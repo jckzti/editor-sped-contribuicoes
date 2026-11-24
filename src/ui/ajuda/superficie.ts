@@ -7,7 +7,7 @@
  * Mudou a superfície → o carimbo (`carimbo.ts`) deixa de bater e o teste pede revisão.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TIPOS_LINHA_TODOS } from '../../core/linhas';
 import { ROTULO_TIPO } from '../formato';
@@ -38,7 +38,7 @@ const ehTeste = (c: string) => /\.test\.tsx?$/.test(c);
  */
 export function fontesDaInterface(): { arquivo: string; texto: string }[] {
   return arquivos(join(RAIZ_SRC, 'ui'), (c) => c.endsWith('.tsx') && !ehTeste(c) && !c.endsWith('Demonstracao.tsx')).map((c) => ({
-    arquivo: relative(RAIZ_SRC, c),
+    arquivo: relative(RAIZ_SRC, c).split(sep).join('/'),
     texto: readFileSync(c, 'utf-8'),
   }));
 }

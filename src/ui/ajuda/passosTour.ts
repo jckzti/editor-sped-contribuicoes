@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 4;
+export const VERSAO_TOUR = 5;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -131,7 +131,7 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'recalcular',
     titulo: '9. Recalcular a apuração',
     texto:
-      'O bloco M só muda quando você clica em **Recalcular apuração** (o botão de baixar recalcula antes, se precisar); até lá, a barra mostra "apuração desatualizada". Enquanto faltar critério, o botão abre a rotina dos critérios.',
+      'O bloco M só muda quando você clica em **Recalcular apuração** (o botão de baixar recalcula antes, se precisar); até lá, a barra mostra "apuração desatualizada". O cálculo inclui vendas por NFC-e (C175) e o resumo diário de serviços de transporte (D200). Enquanto faltar critério, o botão abre a rotina dos critérios.',
     tela: 'apuracao',
     ancoras: ['recalcular-apuracao'],
     secaoManual: 'apuracao',
@@ -190,5 +190,9 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   4: {
     resumo: 'O sistema passou a se chamar Editor SPED Contribuições. Nada mudou no jeito de usar.',
     passos: ['boas-vindas'],
+  },
+  5: {
+    resumo: 'A apuração passou a incluir vendas por NFC-e e o resumo diário de serviços de transporte.',
+    passos: ['recalcular'],
   },
 };

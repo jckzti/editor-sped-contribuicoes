@@ -5,7 +5,7 @@
  */
 import { paraEscala } from '../dec';
 import { get, listar, type Escrituracao, type Registro } from '../modelo';
-import type { Tributo } from './tributos';
+import { PIS, type Tributo } from './tributos';
 import { aliqEsc, cent, SITUACOES_FORA } from './util';
 
 export interface OpCredito {
@@ -93,6 +93,23 @@ function docValido(doc: Registro | null): boolean {
   return !!doc && !SITUACOES_FORA.has(get(doc, 'COD_SIT'));
 }
 
+/** Receitas analíticas de NFC-e e do resumo diário de transporte, por tributo. */
+function* receitasAnaliticas(e: Escrituracao, t: Tributo) {
+  for (const doc of listar(e, 'C100')) {
+    if (!docValido(doc) || get(doc, 'COD_MOD') !== '65') continue;
+    for (const reg of doc.filhos) {
+      if (reg.reg === 'C175') yield { doc, reg, valor: cent(reg, 'VL_OPR'), cfop: get(reg, 'CFOP'), quantidade: temQuantidade(reg, t, true) };
+    }
+  }
+  const filho = t.id === 'pis' ? 'D201' : 'D205';
+  for (const doc of listar(e, 'D200')) {
+    if (!docValido(doc)) continue;
+    for (const reg of doc.filhos) {
+      if (reg.reg === filho) yield { doc, reg, valor: cent(reg, 'VL_ITEM'), cfop: get(doc, 'CFOP'), quantidade: false };
+    }
+  }
+}
+
 export function extrairFontes(e: Escrituracao, t: Tributo, cfopNatBc: Record<string, string>): Fontes {
   const f: Fontes = { creditos: [], receitas: [], estornos: [], cfopsSemNatureza: new Set(), origens: new Set() };
   const s = t.sfx;
@@ -174,6 +191,11 @@ export function extrairFontes(e: Escrituracao, t: Tributo, cfopNatBc: Record<str
     if (estorno) f.estornos.push(estorno);
   }
 
+  for (const { doc, reg, valor, cfop, quantidade } of receitasAnaliticas(e, t)) {
+    const cst = get(reg, `CST_${s}`);
+    if (CST_RECEITA.has(cst) || quantidade) receita(reg.reg, reg, doc, valor, { cfop }, quantidade);
+  }
+
   // C500/C501 (C505) — energia, água, gás, comunicação (aquisições)
   // D100/D101 (D105) — conhecimentos de transporte (aquisições)
   // D500/D501 (D505) — serviços de comunicação (aquisições)
@@ -226,7 +248,7 @@ export function extrairFontes(e: Escrituracao, t: Tributo, cfopNatBc: Record<str
 }
 
 /**
- * Receita bruta por tipo (para o ajuste do 0111 pelo delta), a partir dos itens C170:
+ * Receita bruta por tipo (para o ajuste do 0111 pelo delta), a partir das operações de venda e prestação:
  * tributada MI = CST 01/02/03/05 em CFOP 5/6; não tributada MI = CST 04/06/07/08/09 em CFOP 5/6;
  * exportação = CFOP 7. Serviço prestado (A170 de A100 com IND_OPER 1) entra como mercado
  * interno (o A170 não tem CFOP para identificar exportação de serviço).
@@ -255,6 +277,14 @@ export function receitaPorTipo(e: Escrituracao): { trib: number; nt: number; exp
       const v = cent(it, 'VL_ITEM');
       if (['01', '02', '03', '05'].includes(cst)) out.trib += v;
       else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += v;
+    }
+  }
+  for (const { reg, valor, cfop } of receitasAnaliticas(e, PIS)) {
+    const cst = get(reg, 'CST_PIS');
+    if (cfop.startsWith('7')) out.exp += valor;
+    else if (/^[56]/.test(cfop)) {
+      if (['01', '02', '03', '05'].includes(cst)) out.trib += valor;
+      else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += valor;
     }
   }
   return out;

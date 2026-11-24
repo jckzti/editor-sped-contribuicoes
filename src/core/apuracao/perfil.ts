@@ -8,11 +8,10 @@ import { filhosDe, get, listar, percorrer, type Aviso, type Escrituracao } from 
 import type { Fontes } from './fontes';
 import { cstComum } from './rateio';
 import type { Tributo } from './tributos';
-import { aliqEsc } from './util';
+import { aliqEsc, SITUACOES_FORA } from './util';
 
 /** Registros cuja presença impede o recálculo (o motor não sabe apurá-los). */
 const IMPEDITIVOS: Record<string, string> = {
-  C175: 'vendas consolidadas por NFC-e (C175)',
   C180: 'consolidação de vendas por item (C180/C181/C185)',
   C190: 'consolidação de aquisições/devoluções por item (C190/C191/C195)',
   C380: 'notas de venda a consumidor consolidadas (C380)',
@@ -22,7 +21,6 @@ const IMPEDITIVOS: Record<string, string> = {
   C600: 'consolidação de documentos de energia/água/gás emitidos (C600)',
   C800: 'cupons fiscais eletrônicos CF-e SAT (C800)',
   C860: 'cupons fiscais eletrônicos CF-e SAT consolidados (C860)',
-  D200: 'prestação de serviços de transporte (D200)',
   D300: 'bilhetes de passagem (D300)',
   D350: 'ECF de transporte de passageiros (D350)',
   D600: 'serviços de comunicação prestados (D600)',
@@ -50,7 +48,26 @@ const COD_CONT_SUPORTADOS = new Set(['01', '02']);
 export function verificarPerfil(e: Escrituracao): Aviso[] {
   const avisos: Aviso[] = [];
   const presentes = new Set<string>();
-  for (const r of percorrer(e.raiz)) presentes.add(r.reg);
+  for (const r of percorrer(e.raiz)) {
+    presentes.add(r.reg);
+    if (r.reg === 'C175' && (r.pai?.reg !== 'C100' || get(r.pai, 'COD_MOD') !== '65')) {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: 'Apuração não recalculada: há C175 sem uma NFC-e (C100 modelo 65) correspondente.' });
+      break;
+    }
+    if (r.reg === 'C100' && get(r, 'COD_MOD') === '65' && !SITUACOES_FORA.has(get(r, 'COD_SIT')) &&
+      r.filhos.some((f) => f.reg === 'C175') && r.filhos.some((f) => f.reg === 'C170')) {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: 'Apuração não recalculada: há NFC-e com C175 e C170 no mesmo documento, com risco de contar a receita em duplicidade.' });
+      break;
+    }
+    if ((r.reg === 'D201' || r.reg === 'D205') && r.pai?.reg !== 'D200') {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: `Apuração não recalculada: há ${r.reg} sem o resumo diário D200 correspondente.` });
+      break;
+    }
+    if (r.reg === 'D200' && !SITUACOES_FORA.has(get(r, 'COD_SIT')) && !r.filhos.some((f) => f.reg === 'D201' || f.reg === 'D205')) {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: 'Apuração não recalculada: há resumo diário D200 sem os detalhes D201/D205.' });
+      break;
+    }
+  }
   const impedem = Object.entries(IMPEDITIVOS).filter(([reg]) => presentes.has(reg));
   for (const [reg, desc] of impedem) {
     avisos.push({

@@ -68,8 +68,9 @@ simples (`npx serve dist`).
   Sessenta meses chegam a ~570 MB, o que funciona em um computador com folga de memória,
   mas deixa o navegador lento. O recomendado é trabalhar um ano por vez.
 - **Perfil de arquivo suportado**: escrituração do regime não cumulativo com documentos
-  informados item a item (C100/C170), fretes (D100), energia (C500) e outras operações
-  (F100). Arquivos com escrituração consolidada ou outros blocos que afetam a apuração são
+  informados item a item (C100/C170), vendas por NFC-e (C175), fretes (D100), serviços de transporte
+  do resumo diário (D200/D201/D205), energia (C500) e outras operações (F100).
+  Arquivos com outros registros que afetam a apuração e ainda não são suportados são
   carregados e podem ser editados, mas a apuração do bloco M não é recalculada: o editor
   avisa e mantém o bloco como veio.
 - **O PVA é quem valida.** O editor faz conferências próprias para evitar erro óbvio, mas
