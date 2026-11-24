@@ -1,9 +1,9 @@
 // Gerado por `ATUALIZAR_CARIMBO=1 npx vitest run src/ui/ajuda/documentacao.test.ts`. Não edite à mão.
-// Revisão: tour v7, manual v11.
+// Revisão: tour v8, manual v12.
 export const CARIMBO = {
-  versaoTour: 7,
-  versaoManual: 11,
-  roteiro: 'f2d36cde',
+  versaoTour: 8,
+  versaoManual: 12,
+  roteiro: '27a99285',
   superficie: [
     "aba:apuracao=Apuração",
     "aba:cadastros=Cadastros",
@@ -127,6 +127,10 @@ export const CARIMBO = {
     "opcao:FormulariosAcao.tsx:sempre=recalcular sempre (base × alíquota)",
     "opcao:ImportarDocumentos.tsx:insumo=insumo (industrialização ou prestação de serviço)",
     "opcao:ImportarDocumentos.tsx:revenda=revenda (comercialização)",
+    "subabaApuracao:bloco-m=Bloco M",
+    "subabaApuracao:criterios=Critérios da apuração",
+    "subabaApuracao:mensagens=Mensagens",
+    "subabaApuracao:rateio=Rateio (0111)",
     "tipoLinha:energia=Energia, água e gás",
     "tipoLinha:f100=Outras operações (F100)",
     "tipoLinha:frete=Fretes (CT-e)",

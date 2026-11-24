@@ -6,6 +6,7 @@
 import { Fragment, useMemo, useState } from 'react';
 import type { ResumoApuracao, ResumoTributo } from '../core/apuracao/contrato';
 import type { Escrituracao } from '../core/modelo';
+import { exportarExcel } from './exportarExcel';
 
 export interface MesApuracao {
   escrituracao: Escrituracao;
@@ -19,6 +20,7 @@ export interface MesApuracao {
 
 export interface TelaApuracaoProps {
   meses: MesApuracao[];
+  desatualizada: boolean;
 }
 
 const brl = (centavos: number) =>
@@ -43,7 +45,7 @@ function creditoTotal(t: ResumoTributo): number {
   return t.creditos.reduce((s, c) => s + c.disponivel, 0);
 }
 
-export function TelaApuracao({ meses }: TelaApuracaoProps) {
+export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
   const [tributo, setTributo] = useState<'pis' | 'cofins'>('pis');
   const [aberto, setAberto] = useState<string | null>(null);
 
@@ -69,6 +71,34 @@ export function TelaApuracao({ meses }: TelaApuracaoProps) {
 
   if (!meses.length) return <p className="fraco">Nenhum mês carregado.</p>;
 
+  const aoExportarExcel = () => {
+    const cabecalhos = [
+      'Mês', 'CNPJ', 'Crédito original', 'Crédito atual', 'Variação do crédito',
+      'Contribuição original', 'Contribuição atual', 'Variação da contribuição',
+      'A recolher original', 'A recolher atual', 'Variação a recolher', 'Saldo credor atual', 'Situação',
+    ];
+    const linhas = ordenados.map((m) => {
+      const atual = m.atual[tributo];
+      const original = m.original?.[tributo] ?? atual;
+      const creditoAntes = creditoTotal(original);
+      const creditoDepois = creditoTotal(atual);
+      const contribuicaoAntes = original.contribuicaoNaoCumulativa + original.contribuicaoCumulativa;
+      const contribuicaoDepois = atual.contribuicaoNaoCumulativa + atual.contribuicaoCumulativa;
+      const valores = [
+        creditoAntes, creditoDepois, creditoDepois - creditoAntes,
+        contribuicaoAntes, contribuicaoDepois, contribuicaoDepois - contribuicaoAntes,
+        original.aRecolher, atual.aRecolher, atual.aRecolher - original.aRecolher, atual.saldoCredor,
+      ];
+      const situacao = [
+        m.naoRecalculada ? 'Não recalculado' : '',
+        desatualizada ? 'Apuração desatualizada' : '',
+        m.original ? '' : 'Original indisponível; comparação usa o valor atual',
+      ].filter(Boolean).join(' · ');
+      return [mesLegivel(m.escrituracao.periodo), m.escrituracao.cnpj, ...valores.map((v) => v / 100), situacao];
+    });
+    exportarExcel(`apuracao-${tributo}`, tributo === 'pis' ? 'PIS-Pasep' : 'COFINS', cabecalhos, linhas);
+  };
+
   return (
     <div className="apuracao">
       <div className="barra-secao">
@@ -80,6 +110,7 @@ export function TelaApuracao({ meses }: TelaApuracaoProps) {
             COFINS
           </button>
         </div>
+        <button onClick={aoExportarExcel}>Exportar Excel ({ordenados.length})</button>
         <span className="espaco" />
         <span className="fraco">
           {ordenados.length} {ordenados.length === 1 ? 'mês' : 'meses'}

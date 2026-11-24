@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 7;
+export const VERSAO_TOUR = 8;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -122,16 +122,16 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'criterios',
     titulo: '8. Responder os critérios da apuração',
     texto:
-      'Antes de recalcular, responda os **Critérios da apuração** de cada empresa: saldo credor, ordem de uso dos créditos, 0111 e, se for o caso, o crédito guardado no original. Não há padrão: a tela mostra a consequência de cada resposta e o que o arquivo original indica, e quem decide é você.',
+      'Abra a subaba **Critérios da apuração** para confirmar as escolhas de cada empresa. A tela mostra a consequência das opções e o que o arquivo original indica. Se você tentar recalcular com critérios pendentes, o editor abre esta subaba.',
     tela: 'apuracao',
-    ancoras: ['criterios-apuracao'],
+    ancoras: ['criterios-formulario'],
     secaoManual: 'apuracao-criterios',
   },
   {
     id: 'recalcular',
     titulo: '9. Recalcular a apuração',
     texto:
-      'Use **Recalcular apuração** para atualizar o bloco M. No regime misto, o editor pode usar o enquadramento da alíquota e manter a divisão de crédito do arquivo original nas condições do manual. O botão de baixar recalcula antes, se precisar.',
+      'Em **Bloco M**, use **Recalcular apuração** para atualizar os valores de PIS/Pasep e Cofins. Os avisos e as pendências ficam na subaba **Mensagens**.',
     tela: 'apuracao',
     ancoras: ['recalcular-apuracao'],
     secaoManual: 'apuracao',
@@ -140,10 +140,18 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'antes-depois',
     titulo: '10. Ler o antes e o depois',
     texto:
-      'Crédito, contribuição e valor a recolher, comparados com o arquivo original. Verde é bom para a empresa, vermelho é o contrário. Troque entre PIS e COFINS e use "detalhar" em cada mês.',
+      'Crédito, contribuição e valor a recolher, comparados com o arquivo original. Verde é bom para a empresa, vermelho é o contrário. Troque entre PIS e COFINS e use "detalhar" em cada mês. Use **Exportar Excel** para baixar o resumo mensal do tributo selecionado.',
     tela: 'apuracao',
     ancoras: ['apuracao-quadro'],
     secaoManual: 'apuracao',
+  },
+  {
+    id: 'rateio',
+    titulo: 'Consultar a receita do rateio',
+    texto: 'A subaba **Rateio (0111)** mostra a receita bruta declarada em cada mês. A coluna Situação indica quando o registro foi ajustado ou está ausente.',
+    tela: 'apuracao',
+    ancoras: ['rateio-0111'],
+    secaoManual: 'apuracao-0111',
   },
   {
     id: 'conferencia',
@@ -202,5 +210,9 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   7: {
     resumo: 'A apuração do regime misto pode usar alíquotas diferenciadas e a divisão de crédito do arquivo original.',
     passos: ['recalcular'],
+  },
+  8: {
+    resumo: 'Apuração agora tem quatro subabas: Bloco M, Mensagens, Critérios da apuração e Rateio (0111).',
+    passos: ['criterios', 'recalcular', 'rateio'],
   },
 };

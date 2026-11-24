@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 11;
+export const VERSAO_MANUAL = 12;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -551,8 +551,9 @@ export const SECOES: Secao[] = [
     resumo: 'Recalcular apuração refaz o bloco M e o bloco 1; quadro do antes e depois por mês, PIS e COFINS.',
     blocos: [
       p(
-        'Na aba **Apuração**, o botão **Recalcular apuração** refaz o bloco M com as edições. Antes do primeiro recálculo de cada empresa, o editor pede os [critérios da apuração](#apuracao-criterios). O bloco M **só muda quando você recalcula**; o botão de baixar recalcula sozinho antes de gerar, se precisar. Enquanto houver edição sem recálculo, a barra de cima mostra **apuração desatualizada** (clique nela para vir a esta aba).',
+        'Em **Apuração**, o botão **Recalcular apuração** fica na subaba **Bloco M**, junto do seletor PIS/Pasep e Cofins, dos resultados por mês e da exportação para Excel. Se faltar alguma escolha, o botão abre **Critérios da apuração**. O botão de baixar recalcula antes de gerar o arquivo, se precisar.',
       ),
+      p('A subaba **Mensagens** reúne erros, avisos, pendências e as ações para resolvê-los. Em **Rateio (0111)**, consulte a receita bruta declarada de cada mês em reais e veja se o registro é original, foi ajustado ou está ausente.'),
       sub('O que é refeito'),
       lista(
         'Créditos: M100/M105 (PIS) e M500/M505 (COFINS), a partir dos documentos: itens de nota (C170), energia (C501/C505), fretes (D101/D105 e D501/D505), F100, F120, F130 e A170.',
@@ -651,7 +652,7 @@ export const SECOES: Secao[] = [
       sub('Quando a rotina aparece'),
       lista(
         'Enquanto faltar escolha, **Recalcular apuração** e **Recalcular e baixar** abrem a rotina no lugar de recalcular. Mês não alterado baixa como veio, sem precisar dos critérios.',
-        'A barra de cima mostra o selo **critérios da apuração pendentes** (clique para abrir a rotina). Na aba Apuração aparece o quadro "Critérios da apuração pendentes" com o botão **Responder os critérios**; depois de respondidos, o resumo "Critérios da apuração" com o botão **alterar**.',
+        'O selo **critérios da apuração pendentes** na barra superior e o botão **Responder os critérios** em **Mensagens** levam à subaba **Critérios da apuração**. Confirme as escolhas nessa subaba para continuar o recálculo ou download que ficou pendente.',
         'Critério que não se aplica à empresa aparece como "não se aplica", com o motivo: o do 0111 quando nenhum mês tem o registro 0111; o do crédito guardado quando o arquivo original não guardou crédito havendo contribuição a recolher.',
         '**Confirmar critérios** só fica ativo com todas as perguntas que se aplicam respondidas; só ele grava as escolhas.',
         'Com várias empresas carregadas, as escolhas são por CNPJ; a caixa **Usar as mesmas escolhas para todas as N empresas carregadas** repete as mesmas respostas.',
@@ -1015,6 +1016,10 @@ export const COBERTURA: {
     apuracao: { secao: 'apuracao', termo: 'Apuração' },
     conferencia: { secao: 'conferencia', termo: 'Conferência' },
     manual: { secao: 'sobre-ajuda', termo: 'Manual' },
+    'bloco-m': { secao: 'apuracao', termo: 'Bloco M' },
+    mensagens: { secao: 'apuracao', termo: 'Mensagens' },
+    criterios: { secao: 'apuracao', termo: 'Critérios da apuração' },
+    rateio: { secao: 'apuracao', termo: 'Rateio (0111)' },
   },
   tiposLinha: Object.fromEntries(
     (

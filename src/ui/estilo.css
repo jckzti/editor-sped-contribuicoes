@@ -401,6 +401,21 @@ button:focus-visible {
   flex: 1;
 }
 
+.apuracao[hidden] {
+  display: none;
+}
+
+.subabas-apuracao {
+  border-bottom: 1px solid var(--borda);
+  padding-bottom: 8px;
+}
+
+#apuracao-painel-rateio caption {
+  padding: 6px 8px;
+  text-align: left;
+  color: var(--texto-fraco);
+}
+
 .barra-secao {
   display: flex;
   align-items: center;

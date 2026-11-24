@@ -68,6 +68,13 @@ export function abasDoApp(): { id: string; rotulo: string }[] {
   return [...bloco.matchAll(/id:\s*'([^']+)',\s*rotulo:\s*'([^']+)'/g)].map((m) => ({ id: m[1], rotulo: m[2] }));
 }
 
+export function subabasDaApuracao(): { id: string; rotulo: string }[] {
+  const texto = readFileSync(join(RAIZ_SRC, 'ui/TelaApuracaoAba.tsx'), 'utf-8');
+  const bloco = /const SUBABAS\s*=\s*\[([\s\S]*?)\]\s*as const/.exec(texto)?.[1];
+  if (!bloco) throw new Error('Não achei a lista de subabas em TelaApuracaoAba.tsx.');
+  return [...bloco.matchAll(/id:\s*'([^']+)',\s*rotulo:\s*'([^']+)'/g)].map((m) => ({ id: m[1], rotulo: m[2] }));
+}
+
 /** Chaves da interface `ConfigApuracao` (lidas de `contrato.ts`). */
 export function chavesConfigApuracao(): string[] {
   const texto = readFileSync(join(RAIZ_SRC, 'core/apuracao/contrato.ts'), 'utf-8');
@@ -105,6 +112,7 @@ export function opcoesDasTelas(fontes = fontesDaInterface()): { arquivo: string;
 /** A superfície inteira, em linhas ordenadas (o que vai no carimbo). */
 export function superficie(): string[] {
   const linhas = [
+    ...subabasDaApuracao().map((a) => 'subabaApuracao:' + a.id + '=' + a.rotulo),
     ...abasDoApp().map((a) => `aba:${a.id}=${a.rotulo}`),
     ...TIPOS_LINHA_TODOS.map((t) => `tipoLinha:${t}=${ROTULO_TIPO[t]}`),
     ...MODOS_BASE.map((m) => `modoBase:${m.valor}=${m.rotulo}`),

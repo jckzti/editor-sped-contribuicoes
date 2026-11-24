@@ -18,7 +18,7 @@ export interface TourProps {
   /** `concluiu` = chegou ao fim (false = pulou ou fechou). */
   aoFechar: (concluiu: boolean) => void;
   /** Troca de aba antes de mostrar o passo (o App passa a função que muda a aba). */
-  aoIrPara?: (tela: TelaTour) => void;
+  aoIrPara?: (tela: TelaTour, passo: PassoTour) => void;
   /** Há arquivo carregado? Sem dados, o tour roda em modo demonstrativo. */
   temDados: boolean;
   /** "Ler no manual": abre a seção do manual (o tour fecha). */
@@ -121,7 +121,7 @@ export function Tour({ passos, aoFechar, aoIrPara, temDados, aoAbrirManual, inic
   // troca de passo: muda de aba, espera a tela desenhar e procura a âncora
   useEffect(() => {
     if (!passo) return;
-    if (passo.tela && temDados && aoIrPara) aoIrPara(passo.tela);
+    if (passo.tela && temDados && aoIrPara) aoIrPara(passo.tela, passo);
     elemento.current = null;
     setAlvo(null);
     // procura em intervalos curtos (não em quadros de animação, que o navegador segura
