@@ -169,7 +169,7 @@ export const SECOES: Secao[] = [
       passos(
         'Na tela inicial, arraste os arquivos .txt da escrituração (um por mês; pode ser vários de uma vez) ou clique em **Escolher arquivos**.',
         'Espere a leitura ("Lendo 3 de 12: ..."). A barra de cima passa a mostrar quantos meses, o intervalo e a empresa (ou "N empresas").',
-        'Para somar mais meses depois, use **Acrescentar arquivos** na barra de cima.',
+        'Para somar mais meses depois, use **Acrescentar itens** na barra de cima.',
       ),
       sub('O que é aceito e o que é recusado'),
       lista(

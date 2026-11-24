@@ -247,7 +247,7 @@ export function App() {
   return (
     <div className="app">
       <div className="barra">
-        <span className="titulo">Editor EFD-Contribuições</span>
+        <span className="titulo">Editor SPED Contribuições</span>
         {resumo ? (
           <span className="fraco resumo-carga" title={`${plural(resumo.meses, 'mês', 'meses')} · ${resumo.intervalo} · ${resumo.empresa}`}>
             {plural(resumo.meses, 'mês', 'meses')} · {resumo.intervalo} · {resumo.empresa}
@@ -257,7 +257,7 @@ export function App() {
         )}
 
         <label className="botao-arquivo" data-tour="acrescentar-arquivos">
-          <span className="rotulo-longo">Acrescentar arquivos</span>
+          <span className="rotulo-longo">Acrescentar itens</span>
           <span className="rotulo-curto">+ Arquivos</span>
           <input
             ref={entrada}

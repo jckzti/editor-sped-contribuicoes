@@ -28,7 +28,7 @@ Estado, junto dos outros `useState` do `App`:
 
 Âncoras na barra:
 
-- `<label className="botao-arquivo" data-tour="acrescentar-arquivos">` (Acrescentar arquivos)
+- `<label className="botao-arquivo" data-tour="acrescentar-arquivos">` (Acrescentar itens)
 - no `map` de `ABAS`: `<button key={a.id} data-tour={`aba-${a.id}`} role="tab" ...>` (cobre `aba-regras` e `aba-manual`)
 - `<button className="primario" data-tour="baixar-arquivos" ...>` (Baixar arquivos)
 

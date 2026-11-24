@@ -46,7 +46,7 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'carregar',
     titulo: '1. Carregar os arquivos',
     texto:
-      'Arraste os .txt da EFD-Contribuições, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Para somar meses depois, use **Acrescentar arquivos**. O recomendado é um ano por vez.',
+      'Arraste os .txt da EFD-Contribuições, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Para somar meses depois, use **Acrescentar itens**. O recomendado é um ano por vez.',
     textoSemDados:
       'Comece arrastando os .txt da EFD-Contribuições para a tela inicial, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Enquanto isso, o tour segue em modo demonstrativo.',
     tela: null,

@@ -53,7 +53,7 @@ export function Carregar({ aoEscolher, carregando, compacto }: CarregarProps) {
         <p className="estado">{carregando}</p>
       ) : (
         <>
-          {!compacto && <h1>Editor SPED EFD-Contribuições</h1>}
+          {!compacto && <h1>Editor SPED Contribuições</h1>}
           <p>
             {compacto ? 'Acrescentar mais meses' : 'Arraste aqui os arquivos .txt da escrituração'}
             {!compacto && <span className="fraco"> (um por mês, pode ser vários de uma vez)</span>}
