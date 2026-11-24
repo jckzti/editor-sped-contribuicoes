@@ -1,4 +1,4 @@
-# Editor SPED EFD-Contribuições
+# Editor SPED Contribuições
 
 Editor de arquivos da EFD-Contribuições (SPED PIS/COFINS) que roda inteiro no navegador.
 Serve para fazer, em lote e em vários meses de uma vez, a edição que hoje é feita documento
@@ -26,7 +26,7 @@ Os dois ficam em `src/ui/ajuda/`.
 
 **Regra do projeto:** toda mudança de tela, rótulo, fluxo, opção ou comportamento fiscal atualiza
 o tour (`passosTour.ts`, subindo a versão) e o manual (`conteudoManual.ts`) na mesma alteração.
-O `npm test` falha quando eles ficam para trás. Detalhes e checklist em [`CLAUDE.md`](CLAUDE.md).
+O `npm test` falha quando eles ficam para trás. Detalhes e checklist em [`AGENTS.md`](AGENTS.md).
 
 ### Incluir documentos que não estão no arquivo
 

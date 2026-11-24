@@ -1,7 +1,7 @@
 /**
  * Roteiro do tour guiado de primeiro uso.
  *
- * REGRA DO PROJETO (CLAUDE.md): mudou tela, rótulo, fluxo ou opção que um passo cita?
+ * REGRA DO PROJETO (AGENTS.md): mudou tela, rótulo, fluxo ou opção que um passo cita?
  * Atualize o passo aqui, suba `VERSAO_TOUR` e escreva em `NOVIDADES` o que mudou.
  * Quem já viu o tour recebe o convite "O sistema mudou: ver o que há de novo".
  * `documentacao.test.ts` falha se o roteiro mudar sem subir a versão.
@@ -30,12 +30,12 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 3;
+export const VERSAO_TOUR = 4;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
     id: 'boas-vindas',
-    titulo: 'Bem-vindo ao Editor EFD-Contribuições',
+    titulo: 'Bem-vindo ao Editor SPED Contribuições',
     texto:
       'Aqui você corrige PIS/COFINS em lote, em vários meses de uma vez, e baixa os arquivos para o PVA, que continua validando e transmitindo. Nada sai deste computador. O tour leva uns 2 minutos: use → e ← ou os botões, e Esc para sair.',
     tela: null,
@@ -46,7 +46,7 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'carregar',
     titulo: '1. Carregar os arquivos',
     texto:
-      'Arraste os .txt da EFD-Contribuições, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Para somar meses depois, use **Acrescentar itens**. O recomendado é um ano por vez.',
+      'Arraste os .txt da EFD-Contribuições, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Para somar meses depois, use **Acrescentar arquivos**. O recomendado é um ano por vez.',
     textoSemDados:
       'Comece arrastando os .txt da EFD-Contribuições para a tela inicial, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Enquanto isso, o tour segue em modo demonstrativo.',
     tela: null,
@@ -186,5 +186,9 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   3: {
     resumo: 'Na grade, cada clique numa linha (na caixa ou em qualquer ponto dela) soma ou tira a linha da seleção, sem Ctrl/Cmd. Shift + clique marca um intervalo.',
     passos: ['selecionar-tudo'],
+  },
+  4: {
+    resumo: 'O sistema passou a se chamar Editor SPED Contribuições. Nada mudou no jeito de usar.',
+    passos: ['boas-vindas'],
   },
 };

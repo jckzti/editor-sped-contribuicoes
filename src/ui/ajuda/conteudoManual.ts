@@ -4,7 +4,7 @@
  * Marcação dentro dos textos (ver `TextoRico.tsx`): **negrito**, `código` e
  * [texto](#id-da-secao) para ligar a outra seção.
  *
- * REGRA DO PROJETO (CLAUDE.md): toda mudança de tela, rótulo, fluxo, opção ou
+ * REGRA DO PROJETO (AGENTS.md): toda mudança de tela, rótulo, fluxo, opção ou
  * comportamento fiscal atualiza, na mesma alteração, a seção que fala dela aqui,
  * sobe `VERSAO_MANUAL` e, se o roteiro do tour mudou, `VERSAO_TOUR` em `passosTour.ts`.
  * Os testes de `documentacao.test.ts` falham quando isso fica para trás.
@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 7;
+export const VERSAO_MANUAL = 8;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -113,7 +113,7 @@ export const SECOES: Secao[] = [
     resumo: 'Edição em lote de vários meses da EFD-Contribuições; o PVA continua validando e transmitindo.',
     blocos: [
       p(
-        'O Editor EFD-Contribuições faz, em lote e em vários meses de uma vez, a edição que no PVA é feita documento a documento e mês a mês: alterar a tributação de PIS/COFINS, definir campos, excluir e incluir documentos, e recalcular a apuração (bloco M e saldos de crédito do bloco 1).',
+        'O Editor SPED Contribuições faz, em lote e em vários meses de uma vez, a edição que no PVA é feita documento a documento e mês a mês: alterar a tributação de PIS/COFINS, definir campos, excluir e incluir documentos, e recalcular a apuração (bloco M e saldos de crédito do bloco 1).',
       ),
       alerta(
         '**O PVA continua sendo o programa oficial.** O editor gera os arquivos .txt corrigidos; você importa no PVA para validar, assinar e transmitir. As conferências do editor pegam erros comuns, mas a palavra final sobre o arquivo é sempre do PVA.',
@@ -169,7 +169,7 @@ export const SECOES: Secao[] = [
       passos(
         'Na tela inicial, arraste os arquivos .txt da escrituração (um por mês; pode ser vários de uma vez) ou clique em **Escolher arquivos**.',
         'Espere a leitura ("Lendo 3 de 12: ..."). A barra de cima passa a mostrar quantos meses, o intervalo e a empresa (ou "N empresas").',
-        'Para somar mais meses depois, use **Acrescentar itens** na barra de cima.',
+        'Para somar mais meses depois, use **Acrescentar arquivos** na barra de cima.',
       ),
       sub('O que é aceito e o que é recusado'),
       lista(

@@ -141,7 +141,7 @@ export function textoCriteriosUsados(config: ConfigApuracao, escrituracoes: Escr
   const l: string[] = [];
   const data = agora.toLocaleString('pt-BR', { dateStyle: 'short', timeStyle: 'short' });
   l.push('CRITÉRIOS DA APURAÇÃO USADOS NESTE TRABALHO');
-  l.push(`Gerado pelo Editor EFD-Contribuições em ${data}.`);
+  l.push(`Gerado pelo Editor SPED Contribuições em ${data}.`);
   l.push('Escolhas feitas pela pessoa que fez o trabalho; o editor não aplica padrão para estes critérios.');
   for (const [cnpj, meses] of porCnpj(escrituracoes)) {
     const e = criteriosDe(config, cnpj) as Record<IdCriterio, ValorCriterio | undefined>;

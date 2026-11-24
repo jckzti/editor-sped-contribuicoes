@@ -26,6 +26,8 @@ jobs:
           node-version: 22
           cache: npm
       - run: npm ci
+      # sem isto, alteração que quebra teste iria para o ar
+      - run: npm test
       - run: npm run build
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

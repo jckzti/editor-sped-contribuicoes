@@ -257,7 +257,7 @@ export function App() {
         )}
 
         <label className="botao-arquivo" data-tour="acrescentar-arquivos">
-          <span className="rotulo-longo">Acrescentar itens</span>
+          <span className="rotulo-longo">Acrescentar arquivos</span>
           <span className="rotulo-curto">+ Arquivos</span>
           <input
             ref={entrada}

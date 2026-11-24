@@ -1,6 +1,6 @@
 /**
  * Testes que FALHAM quando o tour ou o manual ficam para trás do sistema.
- * Cada falha diz o que fazer. Regra completa em CLAUDE.md (raiz do projeto).
+ * Cada falha diz o que fazer. Regra completa em AGENTS.md (raiz do projeto).
  *
  * Para regravar o carimbo depois de revisar tour e manual:
  *   ATUALIZAR_CARIMBO=1 npx vitest run src/ui/ajuda/documentacao.test.ts
