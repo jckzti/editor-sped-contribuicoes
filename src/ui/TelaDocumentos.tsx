@@ -19,6 +19,7 @@ import { ConstrutorFiltros } from './ConstrutorFiltros';
 import { explicacaoTipoVazio, inteiro, ROTULO_TIPO, totalDaColuna } from './formato';
 import { montarFiltros, type FormFiltro } from './filtros';
 import { Grade, type ColunaGrade } from './Grade';
+import { exportarExcel } from './exportarExcel';
 import { indicesSelecionados, mesmoConjunto, selecaoVazia, tamanhoSelecao, type SelecaoLinhas } from './selecao';
 import { ImportarDocumentos } from './ImportarDocumentos';
 import { PainelLote } from './PainelLote';
@@ -153,7 +154,26 @@ export function TelaDocumentos({ estado, aoMudarEstado, escrituracoes, versao, m
   const colunasPorId = useMemo(() => new Map(todasColunas.map((c) => [c.id, c])), [todasColunas]);
 
   const quantidadeSelecionada = tamanhoSelecao(selecao, linhas.length);
+const aoExportarExcel = () => {
+  const cabecalhos = visiveis.map((c) => c.rotulo);
 
+  const dados = linhas.map((linha) =>
+    visiveis.map((c) =>
+      textoDaCelula(linha, c.id, alvos.get(c.id))
+    )
+  );
+
+  const periodo = escrituracoes.length === 1
+    ? escrituracoes[0].periodo
+    : 'multiplos-periodos';
+
+  exportarExcel(
+    `documentos-${tipo}-${periodo}`,
+    'Documentos',
+    cabecalhos,
+    dados
+  );
+};
   const totaisSelecao = useMemo(() => {
     if (!quantidadeSelecionada || quantidadeSelecionada > LIMITE_SOMA_SELECAO) return null;
     const idx = indicesSelecionados(selecao, linhas.length);
@@ -218,7 +238,11 @@ export function TelaDocumentos({ estado, aoMudarEstado, escrituracoes, versao, m
             </button>
           </div>
         </details>
-        {!cadastro && <button onClick={() => setImportando(true)}>Importar documentos</button>}
+        {!cadastro && (
+  <button onClick={aoExportarExcel} disabled={linhas.length === 0}>
+    Exportar Excel ({inteiro(linhas.length)})
+  </button>
+)}
       </div>
 
       <ConstrutorFiltros
