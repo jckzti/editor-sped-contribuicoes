@@ -1,9 +1,9 @@
 // Gerado por `ATUALIZAR_CARIMBO=1 npx vitest run src/ui/ajuda/documentacao.test.ts`. Não edite à mão.
-// Revisão: tour v11, manual v15.
+// Revisão: tour v12, manual v16.
 export const CARIMBO = {
-  versaoTour: 11,
-  versaoManual: 15,
-  roteiro: 'd6c63ff5',
+  versaoTour: 12,
+  versaoManual: 16,
+  roteiro: '15dbf87d',
   superficie: [
     "aba:apuracao=Apuração",
     "aba:cadastros=Cadastros",
@@ -11,6 +11,7 @@ export const CARIMBO = {
     "aba:documentos=Documentos",
     "aba:manual=Manual",
     "aba:regras=Regras",
+    "aba:saldos-credores=Saldos Credores",
     "aviso:0111_AJUSTADO",
     "aviso:0111_DESATUALIZADO",
     "aviso:ALIQ_UNIDADE",
@@ -33,6 +34,7 @@ export const CARIMBO = {
     "aviso:APURACAO_RATEIO_SEM_RECEITA",
     "aviso:APURACAO_REGIME_NAO_SUPORTADO",
     "aviso:APURACAO_REGISTRO_NAO_SUPORTADO",
+    "aviso:APURACAO_SALDO_EDITADO",
     "aviso:APURACAO_SEM_0110",
     "aviso:APURACAO_SEM_0111",
     "aviso:APURACAO_SEM_NAT_BC",
@@ -129,6 +131,8 @@ export const CARIMBO = {
     "opcao:ImportarDocumentos.tsx:revenda=revenda (comercialização)",
     "opcao:TelaCreditosNatureza.tsx:cofins=Cofins",
     "opcao:TelaCreditosNatureza.tsx:pis=PIS/Pasep",
+    "opcao:TelaSaldosCredores.tsx:1100=PIS/Pasep (1100)",
+    "opcao:TelaSaldosCredores.tsx:1500=Cofins (1500)",
     "subabaApuracao:bloco-m=Bloco M",
     "subabaApuracao:creditos-natureza=Créditos por Natureza",
     "subabaApuracao:criterios=Critérios da apuração",

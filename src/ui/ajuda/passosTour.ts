@@ -12,7 +12,7 @@
  */
 
 /** Telas do App onde um passo acontece (o tour troca de aba antes de mostrar o passo). */
-export type TelaTour = 'documentos' | 'regras' | 'apuracao' | 'conferencia' | 'manual';
+export type TelaTour = 'documentos' | 'regras' | 'apuracao' | 'saldos-credores' | 'conferencia' | 'manual';
 
 export interface PassoTour {
   id: string;
@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 11;
+export const VERSAO_TOUR = 12;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -162,6 +162,14 @@ export const PASSOS_TOUR: PassoTour[] = [
     secaoManual: 'apuracao',
   },
   {
+    id: 'saldos-credores',
+    titulo: 'Consultar e editar saldos credores',
+    texto: 'Em **Saldos Credores**, escolha o mês e o tributo para ver os registros 1100 ou 1500. Use **Editar** para conferir os saldos antes de aplicar. Meses com edição manual devem ser conferidos no PVA.',
+    tela: 'saldos-credores',
+    ancoras: ['saldos-credores', 'aba-saldos-credores'],
+    secaoManual: 'apuracao-saldo',
+  },
+  {
     id: 'conferencia',
     titulo: '11. Conferir',
     texto:
@@ -234,5 +242,9 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   11: {
     resumo: 'A subaba Créditos por Natureza detalha as bases, créditos e ajustes de PIS/Pasep e Cofins por CST.',
     passos: ['creditos-natureza'],
+  },
+  12: {
+    resumo: 'A aba Saldos Credores consulta e edita os registros 1100 e 1500 por mês e tributo.',
+    passos: ['saldos-credores'],
   },
 };
