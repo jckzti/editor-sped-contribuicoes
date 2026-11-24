@@ -9,6 +9,66 @@ Editor web estático (Vite + React + TypeScript, sem servidor) dos arquivos da E
 em português do Brasil, sem jargão de programação na tela. O PVA continua validando e transmitindo;
 não prometa na tela o que só o PVA faz.
 
+## Como trabalhar: a IA faz tudo
+
+Quem pede as alterações são **pessoas iniciantes, não técnicas**: não sabem usar git, terminal nem
+programação. Você (a IA) executa tudo do começo ao fim. Não peça para a pessoa rodar comando, editar
+arquivo, resolver conflito ou entender mensagem de erro. Só peça o que só ela pode fazer (entrar na
+conta do GitHub, aprovar uma instalação), com um passo a passo simples.
+
+### 1. Antes de alterar: garantir que está atualizado (sempre, a cada pedido novo)
+
+```bash
+git status
+git fetch origin
+git status -sb       # "atrás"/"behind" = está desatualizado
+```
+
+- **Atrás, sem alteração local:** `git pull --ff-only` e só então comece.
+- **Com alteração local não salva:** não descarte. Veja o que é; `git stash -u`, atualize,
+  `git stash pop` e confira que voltou. Não sabe de quem é? Pergunte em linguagem simples.
+- **À frente e atrás ao mesmo tempo:** `git pull --rebase`. Conflito: resolva mantendo o trabalho dos
+  dois lados; se um exigir desistir do outro, explique a diferença sem jargão e pergunte qual vale.
+- **O `package-lock.json` mudou ou não existe `node_modules`:** `npm ci`.
+- **Não conseguiu atualizar** (sem internet, sem acesso): pare e avise. Não altere versão antiga.
+
+### 2. Fazer a alteração
+
+- Entenda o pedido pelo que a pessoa quer conseguir. Se houver dúvida que muda o resultado, faça
+  **uma** pergunta curta, com opções e a sua recomendação. O resto, decida.
+- Mude só o que foi pedido, mais o que as regras deste arquivo exigem (tour, manual, versões, carimbo).
+- **Pedido que muda número fiscal** (base, alíquota, CST, crédito, apuração, saldo): antes de fazer,
+  explique em uma frase o que muda no arquivo que vai para a Receita e espere um "sim". Não invente
+  regra fiscal: sem fonte (Guia Prático ou a pessoa responsável), não faça.
+- Se a ideia for ruim ou confundir quem usa, diga antes, com o motivo e uma alternativa.
+
+### 3. Conferir, enviar e confirmar
+
+1. Rode os comandos de "Antes de todo commit" e corrija o que falhar.
+2. Rode `git fetch origin` de novo: se alguém enviou algo nesse meio-tempo, atualize e rode os testes outra vez.
+3. Adicione os arquivos **pelo nome** (não use `git add -A` nem `git add .`) e confira a lista: nenhum
+   `.txt`, `.zip`, planilha, XML ou PDF de cliente. O repositório é **público**.
+4. Faça o commit com mensagem clara em português e envie.
+   - Tela, texto, tour, manual, skill: pode ir direto na `main`.
+   - **`src/core` (cálculo):** só vai direto na `main` se os testes rodaram **com o arquivo real** de
+     cliente na máquina (nenhum teste "skipped"). Sem ele, envie numa branch, abra um pull request e
+     avise que Jonathan precisa conferir.
+5. Acompanhe a publicação no GitHub Actions até terminar. Falhou? Corrija e envie de novo.
+6. Diga à pessoa, em poucas linhas e sem jargão: o que mudou, se já está no ar, o link
+   (https://jckzti.github.io/editor-sped-contribuicoes/) e o que ela deve olhar para conferir.
+   Se a página parecer antiga, peça para recarregar com Ctrl+F5 (Cmd+Shift+R no Mac).
+
+### Nunca
+
+- `git push --force`, `git reset --hard`, apagar branch ou descartar trabalho de outra pessoa.
+- Pular, apagar ou afrouxar teste, ou tirar o `npm test` da publicação.
+- Dizer que está pronto sem ter rodado os testes e visto a publicação terminar.
+
+### Se a sua ferramenta não roda comandos (ex.: ChatGPT no navegador)
+
+Você não consegue cumprir os passos acima. Diga isso logo no começo e oriente a usar uma ferramenta
+que trabalhe na pasta do projeto (Codex ou Claude Code). Não entregue código para a pessoa colar.
+
 ## Antes de todo commit (obrigatório)
 
 Push na `main` **publica o site** para os usuários. Antes de commitar, rode e confira que passaram:
@@ -21,8 +81,7 @@ npm run build
 ```
 
 - Teste falhou: leia a mensagem (ela diz o que fazer) e corrija a causa. Não apague, pule nem afrouxe teste.
-- Não conseguiu rodar os comandos no seu ambiente: diga isso claramente a quem pediu, não faça push
-  na `main` e entregue a alteração para alguém rodar antes.
+- Não conseguiu rodar os comandos no seu ambiente: diga isso claramente a quem pediu e não envie para a `main`.
 - A publicação roda os testes e é barrada se algum falhar. Ela não tem o arquivo real de cliente,
   então a prova byte a byte do motor só roda em máquina que o tenha: mudança em `src/core` exige isso.
 - Trocar um **texto** da tela também conta como mudança de rótulo. Procure o texto antigo no projeto

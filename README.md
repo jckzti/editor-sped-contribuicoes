@@ -35,6 +35,13 @@ O editor importa um JSON no formato "pacote de importação"
 Para transformar o que o cliente mandou (planilha, XML de NF-e, PDF) nesse formato, use a skill
 `skill/sped-importar-documentos` dentro do Claude Code, na máquina de quem vai fazer o trabalho.
 
+## Pedir uma alteração no sistema
+
+Não é preciso saber programar. Abra a pasta do projeto no Codex ou no Claude Code e escreva o que
+você quer, com as suas palavras. A IA atualiza o projeto, faz a alteração, testa, envia e avisa
+quando estiver no ar; as regras que ela segue estão no [`AGENTS.md`](AGENTS.md). Nunca coloque
+arquivos de cliente nas mensagens nem peça para enviá-los: o repositório é público.
+
 ## Rodar localmente
 
 ```bash
