@@ -405,6 +405,21 @@ button:focus-visible {
   display: none;
 }
 
+#apuracao-painel-bloco-m {
+  overflow: auto;
+}
+
+.apuracao-lista-cabecalho {
+  justify-content: space-between;
+  min-height: 30px;
+}
+
+.apuracao-lista-meses {
+  min-height: 8rem;
+  scrollbar-gutter: stable;
+  scrollbar-color: var(--texto-fraco) var(--fundo);
+}
+
 .subabas-apuracao {
   border-bottom: 1px solid var(--borda);
   padding-bottom: 8px;

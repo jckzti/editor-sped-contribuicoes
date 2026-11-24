@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 12;
+export const VERSAO_MANUAL = 13;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -554,6 +554,7 @@ export const SECOES: Secao[] = [
         'Em **Apuração**, o botão **Recalcular apuração** fica na subaba **Bloco M**, junto do seletor PIS/Pasep e Cofins, dos resultados por mês e da exportação para Excel. Se faltar alguma escolha, o botão abre **Critérios da apuração**. O botão de baixar recalcula antes de gerar o arquivo, se precisar.',
       ),
       p('A subaba **Mensagens** reúne erros, avisos, pendências e as ações para resolvê-los. Em **Rateio (0111)**, consulte a receita bruta declarada de cada mês em reais e veja se o registro é original, foi ajustado ou está ausente.'),
+      p('No **Bloco M**, os cartões, a tabela mensal e o Excel separam **A recolher não cumulativo** e **A recolher cumulativo**, com a variação de cada regime em relação ao original. Quando a tabela não cabe na tela, use a barra de rolagem ou **Rolar para baixo**. O cabeçalho fica visível e, no fim da lista, o botão permite **Voltar ao início**.'),
       sub('O que é refeito'),
       lista(
         'Créditos: M100/M105 (PIS) e M500/M505 (COFINS), a partir dos documentos: itens de nota (C170), energia (C501/C505), fretes (D101/D105 e D501/D505), F100, F120, F130 e A170.',

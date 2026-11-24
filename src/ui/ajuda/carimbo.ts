@@ -1,9 +1,9 @@
 // Gerado por `ATUALIZAR_CARIMBO=1 npx vitest run src/ui/ajuda/documentacao.test.ts`. Não edite à mão.
-// Revisão: tour v8, manual v12.
+// Revisão: tour v9, manual v13.
 export const CARIMBO = {
-  versaoTour: 8,
-  versaoManual: 12,
-  roteiro: '27a99285',
+  versaoTour: 9,
+  versaoManual: 13,
+  roteiro: '95f31ac8',
   superficie: [
     "aba:apuracao=Apuração",
     "aba:cadastros=Cadastros",
