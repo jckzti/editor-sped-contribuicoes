@@ -30,6 +30,8 @@ O `npm test` falha quando eles ficam para trás. Detalhes e checklist em [`AGENT
 
 ### Incluir documentos que não estão no arquivo
 
+Nas abas **Documentos** e **Cadastros**, use **Exportar Excel** e **Importar de Excel** para editar a planilha e aplicar as mudanças com prévia. O arquivo de Documentos traz abas para incluir notas e itens. O de Cadastros traz uma aba para novos participantes ou produtos, conforme o tipo selecionado. Para editar linhas existentes, mantenha a sessão aberta entre a exportação e a importação.
+
 O editor importa um JSON no formato "pacote de importação"
 (contrato em `src/core/importacao.tipos.ts`, JSON Schema em `public/sped-import.schema.json`).
 Para transformar o que o cliente mandou (planilha, XML de NF-e, PDF) nesse formato, use a skill

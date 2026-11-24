@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 12;
+export const VERSAO_TOUR = 14;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -113,7 +113,7 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'cadastros',
     titulo: 'À parte: cadastros',
     texto:
-      'Participantes (0150) e produtos (0200) ficam na aba **Cadastros**, com a mesma grade: filtrar, editar campos com duplo clique, definir campo em lote e excluir o que não está em uso. O código do cadastro não muda.',
+      'Participantes (0150) e produtos (0200) ficam na aba **Cadastros**. Em Documentos e Cadastros, use **Exportar Excel** para baixar as linhas filtradas. Depois de editar a planilha ou preencher as abas de inclusão, use **Importar de Excel** para revisar e aplicar as mudanças.',
     tela: null,
     ancoras: ['aba-cadastros'],
     secaoManual: 'cadastros',
@@ -216,34 +216,42 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
     passos: ['boas-vindas'],
   },
   5: {
+    resumo: 'As abas Cadastros e Apuração agora exportam para Excel.',
+    passos: ['cadastros', 'antes-depois'],
+  },
+  6: {
+    resumo: 'Documentos e Cadastros agora importam planilhas Excel para alterar e incluir registros.',
+    passos: ['cadastros'],
+  },
+  7: {
     resumo: 'A apuração passou a incluir vendas por NFC-e e o resumo diário de serviços de transporte.',
     passos: ['recalcular'],
   },
-  6: {
+  8: {
     resumo: 'A apuração passou a separar as contribuições do regime misto nas alíquotas básicas do CST 01.',
     passos: ['recalcular'],
   },
-  7: {
+  9: {
     resumo: 'A apuração do regime misto pode usar alíquotas diferenciadas e a divisão de crédito do arquivo original.',
     passos: ['recalcular'],
   },
-  8: {
+  10: {
     resumo: 'Apuração agora tem quatro subabas: Bloco M, Mensagens, Critérios da apuração e Rateio (0111).',
     passos: ['criterios', 'recalcular', 'rateio'],
   },
-  9: {
+  11: {
     resumo: 'O Bloco M separa os valores a recolher por regime e permite rolar a tabela de meses com o cabeçalho fixo.',
     passos: ['antes-depois'],
   },
-  10: {
+  12: {
     resumo: 'Os cartões do Bloco M mostram o resumo do mês selecionado na tabela.',
     passos: ['antes-depois'],
   },
-  11: {
+  13: {
     resumo: 'A subaba Créditos por Natureza detalha as bases, créditos e ajustes de PIS/Pasep e Cofins por CST.',
     passos: ['creditos-natureza'],
   },
-  12: {
+  14: {
     resumo: 'A aba Saldos Credores consulta e edita os registros 1100 e 1500 por mês e tributo.',
     passos: ['saldos-credores'],
   },
