@@ -9,6 +9,10 @@ import type { MapaPresumido } from './presumido';
 import type { IdTributo } from './tributos';
 
 export interface EstadoTributo {
+  /** Enquadramentos de alíquota diferenciada do bloco M original. */
+  aliquotasDiferenciadas: ReadonlyMap<bigint, string>;
+  /** Insumos dos créditos originais, quando o bloco M tem divisão entre regimes. */
+  dadosCreditoCompartilhado: readonly string[] | null;
   /** Notas (chave completa, `chaveNotaCompleta`) cujo ajuste M110/M510 é derivado da nota e recalculado. */
   docsVinculados: Set<string>;
   /** Número+data (`chaveNota`) das notas vinculadas: é por ele que se acha o M110 da nota. */

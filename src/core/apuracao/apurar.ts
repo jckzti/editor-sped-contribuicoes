@@ -22,6 +22,7 @@ import {
   type MapaNatureza,
 } from './natureza';
 import { tipoPresumidoDe } from './presumido';
+import { codigoReceitaMista, regimeMisto } from './misto';
 import { gruposDoCst, ratearPorGrupos, tipoCredito, type Receitas0111 } from './rateio';
 import type { Tributo } from './tributos';
 import { agrupar, aliqEsc, cent, criar, fmtAliq, inserirOrdenado, setCent, somar } from './util';
@@ -65,7 +66,7 @@ interface GrupoCredito {
 
 /** Recalcula M100/M105/M110/M115, M210, M200 (contribuições) e M400/M410 de um tributo. */
 export function apurarTributo(ctx: ContextoMes, t: Tributo, f: Fontes): PendenciaNaturezaReceita[] {
-  apurarCreditos(ctx, t, f);
+  if (!ctx.estado.tributos[t.id].dadosCreditoCompartilhado) apurarCreditos(ctx, t, f);
   apurarContribuicoes(ctx, t, f);
   return apurarReceitasNaoTributadas(ctx, t, f);
 }
@@ -279,13 +280,12 @@ function regraEstorno(ctx: ContextoMes, t: Tributo): (cfop: string) => RegraEsto
 function apurarContribuicoes(ctx: ContextoMes, t: Tributo, f: Fontes): void {
   const { e, m001 } = ctx;
   const s = t.sfx;
-  const r0110 = listar(e, '0110')[0];
-  const misto = !!r0110 && get(r0110, 'COD_INC_TRIB') === '3';
+  const misto = regimeMisto(e);
   const desejados = new Map<string, { codCont: string; aliq: bigint; rec: number; base: number }>();
   const avisouAliq = new Set<string>();
   for (const op of f.receitas) {
     if (op.cst !== '01' && op.cst !== '02') continue;
-    const codCont = misto && op.cst === '01' && op.aliq === t.aliqBasicaCum ? '51' : op.cst;
+    const codCont = misto ? codigoReceitaMista(op, t, ctx.estado.tributos[t.id].aliquotasDiferenciadas)! : op.cst;
     if (codCont === '01' && op.aliq !== t.aliqBasica && !avisouAliq.has(fmtAliq(op.aliq))) {
       avisouAliq.add(fmtAliq(op.aliq));
       ctx.avisos.push({

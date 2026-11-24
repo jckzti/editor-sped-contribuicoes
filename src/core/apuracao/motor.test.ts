@@ -177,6 +177,33 @@ describe('regime misto', () => {
       expect(escreverTexto(e)).toBe(antes);
     }
   });
+
+  it('reaproveita o código 52 original e preserva a divisão de crédito enquanto seus insumos não mudam', () => {
+    const venda = item('02', '500', '5102', { ALIQ_PIS: '1,25', ALIQ_COFINS: '4' });
+    const compra = item('50', '1000', '1101');
+    const e = escrituracao({ incTrib: '3', notas: [nota('1', '1', venda), nota('0', '2', compra)] });
+    for (const [t, aliq, aliqCred] of [[PIS, '1,25', '1,65'], [COFINS, '4', '7,6']] as const) {
+      const s = t.sfx;
+      inserirFilho(listar(e, t.M200)[0], r(t.M210, { COD_CONT: '52', [`ALIQ_${s}`]: aliq }));
+      inserirFilho(listar(e, 'M001')[0], r(t.M100, { COD_CRED: '101', [`ALIQ_${s}`]: aliqCred, [`VL_BC_${s}`]: '600' }));
+      inserirFilho(listar(e, t.M100)[0], r(t.M105, { NAT_BC_CRED: '01', [`CST_${s}`]: '50', [`VL_BC_${s}_TOT`]: '1000', [`VL_BC_${s}_CUM`]: '400', [`VL_BC_${s}_NC`]: '600', [`VL_BC_${s}`]: '600' }));
+    }
+    registrarOriginal(e);
+    set(venda, 'VL_BC_PIS', '600');
+    const [resultado] = recalcularApuracao([e], cfgP());
+    expect(resultado.recalculada).toBe(true);
+    expect(resultado.avisos.some((a) => a.codigo === 'APURACAO_MISTO_BASE_PRESERVADA')).toBe(true);
+    expect(c(listar(e, 'M210')[0], 'VL_CONT_PER')).toBe(750);
+    expect(c(listar(e, 'M610')[0], 'VL_CONT_PER')).toBe(2000);
+    expect(c(listar(e, 'M105')[0], 'VL_BC_PIS_CUM')).toBe(40000);
+    expect(c(listar(e, 'M505')[0], 'VL_BC_COFINS_NC')).toBe(60000);
+    set(compra, 'VL_BC_PIS', '1200');
+    const antes = escreverTexto(e);
+    const [recusa] = recalcularApuracao([e], cfgP());
+    expect(recusa.recalculada).toBe(false);
+    expect(recusa.avisos.some((a) => a.codigo === 'APURACAO_MISTO_BASE_COMPARTILHADA')).toBe(true);
+    expect(escreverTexto(e)).toBe(antes);
+  });
 });
 const m100 = (e: Escrituracao, t: Tributo, cc: string) => listar(e, t.M100).find((x) => get(x, 'COD_CRED') === cc)!;
 const m105 = (e: Escrituracao, t: Tributo, cc: string) =>

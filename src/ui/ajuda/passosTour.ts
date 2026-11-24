@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 6;
+export const VERSAO_TOUR = 7;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -131,7 +131,7 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'recalcular',
     titulo: '9. Recalcular a apuração',
     texto:
-      'Use **Recalcular apuração** para atualizar o bloco M. O cálculo inclui NFC-e (C175), o resumo diário de transporte (D200) e o regime misto nas condições indicadas no manual. O botão de baixar recalcula antes, se precisar. Enquanto faltar critério, o botão abre a rotina dos critérios.',
+      'Use **Recalcular apuração** para atualizar o bloco M. No regime misto, o editor pode usar o enquadramento da alíquota e manter a divisão de crédito do arquivo original nas condições do manual. O botão de baixar recalcula antes, se precisar.',
     tela: 'apuracao',
     ancoras: ['recalcular-apuracao'],
     secaoManual: 'apuracao',
@@ -197,6 +197,10 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   },
   6: {
     resumo: 'A apuração passou a separar as contribuições do regime misto nas alíquotas básicas do CST 01.',
+    passos: ['recalcular'],
+  },
+  7: {
+    resumo: 'A apuração do regime misto pode usar alíquotas diferenciadas e a divisão de crédito do arquivo original.',
     passos: ['recalcular'],
   },
 };
