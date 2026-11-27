@@ -50,9 +50,7 @@ git status -sb       # "atrás"/"behind" = está desatualizado
    `.txt`, `.zip`, planilha, XML ou PDF de cliente. O repositório é **público**.
 4. Faça o commit com mensagem clara em português e envie.
    - Tela, texto, tour, manual, skill: pode ir direto na `main`.
-   - **`src/core` (cálculo):** só vai direto na `main` se os testes rodaram **com o arquivo real** de
-     cliente na máquina (nenhum teste "skipped"). Sem ele, envie numa branch, abra um pull request e
-     avise que Jonathan precisa conferir.
+   - **`src/core` (cálculo):** sem teste com arquivo real de cliente, abra um pull request e informe a pendência ao Jonathan. O merge na `main` pode seguir sem essa amostra mediante autorização explícita do responsável, desde que o build, a checagem de tipos e todos os testes disponíveis passem. Registre no PR os testes que ficaram pendentes e o motivo.
 5. Acompanhe a publicação no GitHub Actions até terminar. Falhou? Corrija e envie de novo.
 6. Diga à pessoa, em poucas linhas e sem jargão: o que mudou, se já está no ar, o link
    (https://jckzti.github.io/editor-sped-contribuicoes/) e o que ela deve olhar para conferir.
@@ -83,7 +81,7 @@ npm run build
 - Teste falhou: leia a mensagem (ela diz o que fazer) e corrija a causa. Não apague, pule nem afrouxe teste.
 - Não conseguiu rodar os comandos no seu ambiente: diga isso claramente a quem pediu e não envie para a `main`.
 - A publicação roda os testes e é barrada se algum falhar. Ela não tem o arquivo real de cliente,
-  então a prova byte a byte do motor só roda em máquina que o tenha: mudança em `src/core` exige isso.
+  então a prova byte a byte do motor só roda em máquina que tenha a amostra. Se a amostra faltar, siga a regra de autorização explícita acima.
 - Trocar um **texto** da tela também conta como mudança de rótulo. Procure o texto antigo no projeto
   inteiro (`git grep`), inclusive versões curtas do mesmo rótulo, e troque em todos os lugares.
 
