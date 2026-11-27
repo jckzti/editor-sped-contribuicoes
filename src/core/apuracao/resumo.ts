@@ -33,6 +33,8 @@ function resumoTributo(e: Escrituracao, t: Tributo): ResumoTributo {
     creditoDescontadoAnteriores: v('VL_TOT_CRED_DESC_ANT'),
     contribuicaoCumulativa: v('VL_TOT_CONT_CUM_PER'),
     aRecolher: v('VL_TOT_CONT_REC'),
+    aRecolherNaoCumulativo: v('VL_CONT_NC_REC'),
+    aRecolherCumulativo: v('VL_CONT_CUM_REC'),
     saldoCredor: creditos.reduce((s, c) => s + c.saldo, 0),
   };
 }

@@ -7,7 +7,7 @@
  * Mudou a superfície → o carimbo (`carimbo.ts`) deixa de bater e o teste pede revisão.
  */
 import { readdirSync, readFileSync, statSync } from 'node:fs';
-import { join, relative, resolve } from 'node:path';
+import { join, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { TIPOS_LINHA_TODOS } from '../../core/linhas';
 import { ROTULO_TIPO } from '../formato';
@@ -38,7 +38,7 @@ const ehTeste = (c: string) => /\.test\.tsx?$/.test(c);
  */
 export function fontesDaInterface(): { arquivo: string; texto: string }[] {
   return arquivos(join(RAIZ_SRC, 'ui'), (c) => c.endsWith('.tsx') && !ehTeste(c) && !c.endsWith('Demonstracao.tsx')).map((c) => ({
-    arquivo: relative(RAIZ_SRC, c),
+    arquivo: relative(RAIZ_SRC, c).split(sep).join('/'),
     texto: readFileSync(c, 'utf-8'),
   }));
 }
@@ -65,6 +65,13 @@ export function abasDoApp(): { id: string; rotulo: string }[] {
   const texto = readFileSync(join(RAIZ_SRC, 'ui/App.tsx'), 'utf-8');
   const bloco = /const ABAS\s*=\s*\[([\s\S]*?)\]\s*as const/.exec(texto)?.[1];
   if (!bloco) throw new Error('Não achei a constante ABAS em src/ui/App.tsx: atualize abasDoApp() em src/ui/ajuda/superficie.ts.');
+  return [...bloco.matchAll(/id:\s*'([^']+)',\s*rotulo:\s*'([^']+)'/g)].map((m) => ({ id: m[1], rotulo: m[2] }));
+}
+
+export function subabasDaApuracao(): { id: string; rotulo: string }[] {
+  const texto = readFileSync(join(RAIZ_SRC, 'ui/TelaApuracaoAba.tsx'), 'utf-8');
+  const bloco = /const SUBABAS\s*=\s*\[([\s\S]*?)\]\s*as const/.exec(texto)?.[1];
+  if (!bloco) throw new Error('Não achei a lista de subabas em TelaApuracaoAba.tsx.');
   return [...bloco.matchAll(/id:\s*'([^']+)',\s*rotulo:\s*'([^']+)'/g)].map((m) => ({ id: m[1], rotulo: m[2] }));
 }
 
@@ -105,6 +112,7 @@ export function opcoesDasTelas(fontes = fontesDaInterface()): { arquivo: string;
 /** A superfície inteira, em linhas ordenadas (o que vai no carimbo). */
 export function superficie(): string[] {
   const linhas = [
+    ...subabasDaApuracao().map((a) => 'subabaApuracao:' + a.id + '=' + a.rotulo),
     ...abasDoApp().map((a) => `aba:${a.id}=${a.rotulo}`),
     ...TIPOS_LINHA_TODOS.map((t) => `tipoLinha:${t}=${ROTULO_TIPO[t]}`),
     ...MODOS_BASE.map((m) => `modoBase:${m.valor}=${m.rotulo}`),

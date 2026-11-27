@@ -8,11 +8,13 @@ import { filhosDe, get, listar, percorrer, type Aviso, type Escrituracao } from 
 import type { Fontes } from './fontes';
 import { cstComum } from './rateio';
 import type { Tributo } from './tributos';
-import { aliqEsc } from './util';
+import { aliqEsc, fmtAliq, SITUACOES_FORA } from './util';
+import { codigoReceitaMista, regimeMisto } from './misto';
+import type { EstadoTributo } from './estado';
+import { saldoCredorEditado } from '../saldosCredores';
 
 /** Registros cuja presença impede o recálculo (o motor não sabe apurá-los). */
 const IMPEDITIVOS: Record<string, string> = {
-  C175: 'vendas consolidadas por NFC-e (C175)',
   C180: 'consolidação de vendas por item (C180/C181/C185)',
   C190: 'consolidação de aquisições/devoluções por item (C190/C191/C195)',
   C380: 'notas de venda a consumidor consolidadas (C380)',
@@ -22,7 +24,6 @@ const IMPEDITIVOS: Record<string, string> = {
   C600: 'consolidação de documentos de energia/água/gás emitidos (C600)',
   C800: 'cupons fiscais eletrônicos CF-e SAT (C800)',
   C860: 'cupons fiscais eletrônicos CF-e SAT consolidados (C860)',
-  D200: 'prestação de serviços de transporte (D200)',
   D300: 'bilhetes de passagem (D300)',
   D350: 'ECF de transporte de passageiros (D350)',
   D600: 'serviços de comunicação prestados (D600)',
@@ -48,9 +49,33 @@ const COD_CONT_SUPORTADOS = new Set(['01', '02']);
 
 /** Verificação estrutural (independe do tributo). Erros = recusa. */
 export function verificarPerfil(e: Escrituracao): Aviso[] {
+  if (saldoCredorEditado(e)) return [{
+    nivel: 'erro',
+    codigo: 'APURACAO_SALDO_EDITADO',
+    mensagem: 'Apuração não recalculada para preservar a edição manual do 1100 ou 1500. No PVA, confira a consistência do bloco M e dos saldos dos meses seguintes.',
+  }];
   const avisos: Aviso[] = [];
   const presentes = new Set<string>();
-  for (const r of percorrer(e.raiz)) presentes.add(r.reg);
+  for (const r of percorrer(e.raiz)) {
+    presentes.add(r.reg);
+    if (r.reg === 'C175' && (r.pai?.reg !== 'C100' || get(r.pai, 'COD_MOD') !== '65')) {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: 'Apuração não recalculada: há C175 sem uma NFC-e (C100 modelo 65) correspondente.' });
+      break;
+    }
+    if (r.reg === 'C100' && get(r, 'COD_MOD') === '65' && !SITUACOES_FORA.has(get(r, 'COD_SIT')) &&
+      r.filhos.some((f) => f.reg === 'C175') && r.filhos.some((f) => f.reg === 'C170')) {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: 'Apuração não recalculada: há NFC-e com C175 e C170 no mesmo documento, com risco de contar a receita em duplicidade.' });
+      break;
+    }
+    if ((r.reg === 'D201' || r.reg === 'D205') && r.pai?.reg !== 'D200') {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: `Apuração não recalculada: há ${r.reg} sem o resumo diário D200 correspondente.` });
+      break;
+    }
+    if (r.reg === 'D200' && !SITUACOES_FORA.has(get(r, 'COD_SIT')) && !r.filhos.some((f) => f.reg === 'D201' || f.reg === 'D205')) {
+      avisos.push({ nivel: 'erro', codigo: 'APURACAO_REGISTRO_NAO_SUPORTADO', mensagem: 'Apuração não recalculada: há resumo diário D200 sem os detalhes D201/D205.' });
+      break;
+    }
+  }
   const impedem = Object.entries(IMPEDITIVOS).filter(([reg]) => presentes.has(reg));
   for (const [reg, desc] of impedem) {
     avisos.push({
@@ -65,11 +90,11 @@ export function verificarPerfil(e: Escrituracao): Aviso[] {
     return avisos;
   }
   const inc = get(r0110, 'COD_INC_TRIB');
-  if (inc !== '1') {
+  if (inc !== '1' && inc !== '3') {
     avisos.push({
       nivel: 'erro',
       codigo: 'APURACAO_REGIME_NAO_SUPORTADO',
-      mensagem: `Apuração não recalculada: 0110 COD_INC_TRIB = ${inc} (${inc === '2' ? 'regime cumulativo' : 'regimes cumulativo e não cumulativo'}). O motor só apura o regime exclusivamente não cumulativo.`,
+      mensagem: `Apuração não recalculada: 0110 COD_INC_TRIB = ${inc || '(vazio)'}. O motor apura o regime não cumulativo e o regime misto nos casos suportados.`,
     });
   }
   const apro = get(r0110, 'IND_APRO_CRED');
@@ -84,7 +109,7 @@ export function verificarPerfil(e: Escrituracao): Aviso[] {
 }
 
 /** Verificação por tributo, com as operações já extraídas. */
-export function verificarFontes(e: Escrituracao, t: Tributo, f: Fontes): Aviso[] {
+export function verificarFontes(e: Escrituracao, t: Tributo, f: Fontes, original: EstadoTributo): Aviso[] {
   const avisos: Aviso[] = [];
   const erro = (codigo: string, mensagem: string) => avisos.push({ nivel: 'erro', codigo, mensagem: `Apuração não recalculada (${t.nome}): ${mensagem}` });
   if (f.cfopsSemNatureza.size) {
@@ -103,7 +128,13 @@ export function verificarFontes(e: Escrituracao, t: Tributo, f: Fontes): Aviso[]
   const cst05 = f.receitas.filter((r) => r.cst === '05' && r.aliq !== 0n);
   if (cst05.length) erro('APURACAO_CST_05', `${cst05.length} operação(ões) com CST 05 (substituição tributária) com alíquota, que o motor não apura.`);
   const r0110 = listar(e, '0110')[0];
-  if (r0110 && get(r0110, 'IND_APRO_CRED') === '1') {
+  const misto = regimeMisto(e);
+  if (misto) {
+    const semRegime = f.receitas.filter((r) => (r.cst === '01' || r.cst === '02') && !codigoReceitaMista(r, t, original.aliquotasDiferenciadas));
+    const detalhes = [...new Set(semRegime.map((r) => `${r.origem}, CST ${r.cst}, alíquota ${fmtAliq(r.aliq)}%`))];
+    if (detalhes.length) erro('APURACAO_MISTO_ALIQUOTA', `receita sem enquadramento seguro no regime misto (${detalhes.join(' / ')}). Confira o CST e a alíquota ou o código de contribuição original no ${t.M210}.`);
+  }
+  if (r0110 && get(r0110, 'IND_APRO_CRED') === '1' && !original.dadosCreditoCompartilhado) {
     const comuns = f.creditos.filter((c) => cstComum(c.cst));
     if (comuns.length) {
       erro(
@@ -120,7 +151,7 @@ export function verificarFontes(e: Escrituracao, t: Tributo, f: Fontes): Aviso[]
   }
   for (const m210 of listar(e, t.M210)) {
     const cc = get(m210, 'COD_CONT');
-    if (!COD_CONT_SUPORTADOS.has(cc)) erro('APURACAO_COD_CONT', `${t.M210} com COD_CONT ${cc}, que o motor não gera a partir dos documentos.`);
+    if (!COD_CONT_SUPORTADOS.has(cc) && !(misto && (cc === '51' || cc === '52'))) erro('APURACAO_COD_CONT', `${t.M210} com COD_CONT ${cc}, que o motor não gera a partir dos documentos.`);
   }
   return avisos;
 }

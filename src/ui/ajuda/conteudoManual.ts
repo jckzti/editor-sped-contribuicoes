@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 8;
+export const VERSAO_MANUAL = 16;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -551,13 +551,19 @@ export const SECOES: Secao[] = [
     resumo: 'Recalcular apuração refaz o bloco M e o bloco 1; quadro do antes e depois por mês, PIS e COFINS.',
     blocos: [
       p(
-        'Na aba **Apuração**, o botão **Recalcular apuração** refaz o bloco M com as edições. Antes do primeiro recálculo de cada empresa, o editor pede os [critérios da apuração](#apuracao-criterios). O bloco M **só muda quando você recalcula**; o botão de baixar recalcula sozinho antes de gerar, se precisar. Enquanto houver edição sem recálculo, a barra de cima mostra **apuração desatualizada** (clique nela para vir a esta aba).',
+        'Em **Apuração**, o botão **Recalcular apuração** fica na subaba **Bloco M**, junto do seletor PIS/Pasep e Cofins, dos resultados por mês e da exportação para Excel. Se faltar alguma escolha, o botão abre **Critérios da apuração**. O botão de baixar recalcula antes de gerar o arquivo, se precisar.',
       ),
+      p('A subaba **Mensagens** reúne erros, avisos, pendências e as ações para resolvê-los. Em **Rateio (0111)**, consulte a receita bruta declarada de cada mês em reais e veja se o registro é original, foi ajustado ou está ausente.'),
+      p('No **Bloco M**, os cartões, a tabela mensal e o Excel separam **A recolher não cumulativo** e **A recolher cumulativo**, com a variação de cada regime em relação ao original. Quando a tabela não cabe na tela, use a barra de rolagem ou **Rolar para baixo**. O cabeçalho fica visível e, no fim da lista, o botão permite **Voltar ao início**.'),
+      p('Os cartões mostram somente o mês selecionado. Por padrão, aparece o mês mais recente. Clique em outro mês na tabela para trocar o resumo. A seleção continua ao alternar entre PIS/Pasep e Cofins. **Exportar Excel** inclui todos os meses da tabela.'),
+      sub('Créditos por Natureza'),
+      p('Na subaba **Créditos por Natureza**, escolha o mês e o tributo e clique no código da tabela 4.3.7 para abrir o detalhamento por CST. A base exibida é a parcela usada para apurar o crédito no M105 ou M505. Quando um crédito do M100 ou M500 tem vários detalhes, seu valor é distribuído pelas bases escrituradas (ou pelas quantidades, se for crédito por unidade) com arredondamento em centavos.'),
+      p('Os acréscimos e reduções do M110 ou M510 entram com seus sinais. O ajuste é associado à natureza ou ao CST quando o registro de crédito tem um único vínculo correspondente. Ajuste sem CST identificado aparece no detalhe da natureza. Créditos e ajustes sem natureza identificada aparecem em linha separada e entram no total. Crédito ajustado é o crédito apurado mais o ajuste líquido.'),
       sub('O que é refeito'),
       lista(
         'Créditos: M100/M105 (PIS) e M500/M505 (COFINS), a partir dos documentos: itens de nota (C170), energia (C501/C505), fretes (D101/D105 e D501/D505), F100, F120, F130 e A170.',
         'Ajustes de estorno ligados a notas: M110/M115 e M510/M515 (ver [Estornos automáticos](#apuracao-estornos)).',
-        'Contribuições M210/M610, totais M200/M600 e valor a recolher M205/M605.',
+        'Contribuições M210/M610, totais M200/M600 e valor a recolher M205/M605. O cálculo inclui as vendas por NFC-e (C175) e os serviços de transporte do resumo diário (D200, com D201 para PIS e D205 para Cofins), usando as bases e alíquotas percentuais escrituradas. No regime misto com CST 01, o editor identifica a contribuição cumulativa pelas alíquotas básicas de 0,65% e 3% e usa os créditos somente na parcela não cumulativa.',
         'Receitas não tributadas M400/M410 e M800/M810 (ver [Natureza da receita](#apuracao-natureza)).',
         'Saldos de crédito 1100/1500 (ver [Saldo credor](#apuracao-saldo)) e a receita bruta do 0111 (ver [Registro 0111](#apuracao-0111)).',
         'Junto, sempre: totais dos documentos, cadastros (0150, 0190, 0200, 0400, 0500) e contadores (x990 e 9900).',
@@ -651,7 +657,7 @@ export const SECOES: Secao[] = [
       sub('Quando a rotina aparece'),
       lista(
         'Enquanto faltar escolha, **Recalcular apuração** e **Recalcular e baixar** abrem a rotina no lugar de recalcular. Mês não alterado baixa como veio, sem precisar dos critérios.',
-        'A barra de cima mostra o selo **critérios da apuração pendentes** (clique para abrir a rotina). Na aba Apuração aparece o quadro "Critérios da apuração pendentes" com o botão **Responder os critérios**; depois de respondidos, o resumo "Critérios da apuração" com o botão **alterar**.',
+        'O selo **critérios da apuração pendentes** na barra superior e o botão **Responder os critérios** em **Mensagens** levam à subaba **Critérios da apuração**. Confirme as escolhas nessa subaba para continuar o recálculo ou download que ficou pendente.',
         'Critério que não se aplica à empresa aparece como "não se aplica", com o motivo: o do 0111 quando nenhum mês tem o registro 0111; o do crédito guardado quando o arquivo original não guardou crédito havendo contribuição a recolher.',
         '**Confirmar critérios** só fica ativo com todas as perguntas que se aplicam respondidas; só ele grava as escolhas.',
         'Com várias empresas carregadas, as escolhas são por CNPJ; a caixa **Usar as mesmas escolhas para todas as N empresas carregadas** repete as mesmas respostas.',
@@ -703,6 +709,9 @@ export const SECOES: Secao[] = [
     grupo: 'apuracao',
     resumo: 'Levar o saldo credor adiante ou não, que crédito usar primeiro e o crédito que o original guardava: critérios da apuração.',
     blocos: [
+      sub('Consultar e editar em Saldos Credores'),
+      p('Na aba **Saldos Credores**, escolha o mês da escrituração e o tributo **PIS/Pasep (1100)** ou **Cofins (1500)**. **Saldo Anterior** é o valor do crédito menos o utilizado em meses anteriores. Quando o crédito é do próprio mês, o desconto no período de origem aparece em **Utilizado no mês**.'),
+      p('Use **Editar** para mudar o período, o tipo, o valor do crédito, os valores utilizados e o pedido de ressarcimento. O formulário mostra os saldos antes de aplicar, preserva outras utilizações escrituradas e impede um saldo negativo. A edição pode ser desfeita. Durante a sessão, o editor preserva a edição manual ao recusar o recálculo automático desse mês. Confira o bloco M e os saldos seguintes no PVA.'),
       p(
         'Quando o crédito do mês é maior que a contribuição, sobra **saldo credor**, controlado nos registros 1100 (PIS) e 1500 (COFINS). Três [critérios da apuração](#apuracao-criterios) tratam disso:',
       ),
@@ -734,10 +743,10 @@ export const SECOES: Secao[] = [
       sub('Motivos'),
       lista(
         'Falta escolher algum [critério da apuração](#apuracao-criterios) da empresa.',
-        'Regime cumulativo ou misto (o motor só apura o regime exclusivamente não cumulativo).',
+        'Regime exclusivamente cumulativo. No regime misto, o CST 02 é apurado quando a mesma alíquota tem um único enquadramento (02 ou 52) no M210/M610 original. A divisão original da base no M105/M505 pode ser mantida quando os dados de crédito e estorno estão iguais e, no rateio proporcional, os valores do 0111 continuam os mesmos.',
         'Rateio proporcional sem o registro 0111, ou arquivo sem o 0110.',
         'Apropriação direta com créditos comuns a mais de um tipo de receita (CST 53 a 56 e 63 a 66).',
-        'Registros que o motor não apura: vendas e aquisições consolidadas (C175, C180, C190, C380, C395, C400, C490, C600, C800, C860), transporte e comunicação (D200, D300, D350, D600), estoque de abertura, atividade imobiliária, regime de caixa ou competência do lucro presumido, créditos de sucessão (F150, F200, F500, F510, F550, F560, F800), bloco I, cooperativas (M211/M611), contribuição diferida (M300/M700), PIS sobre folha (M350) e controle de retenções (1300/1700).',
+        'Registros que o motor não apura: outras vendas e aquisições consolidadas (C180, C190, C380, C395, C400, C490, C600, C800, C860), outros resumos de transporte e comunicação (D300, D350, D600), estoque de abertura, atividade imobiliária, regime de caixa ou competência do lucro presumido, créditos de sucessão (F150, F200, F500, F510, F550, F560, F800), bloco I, cooperativas (M211/M611), contribuição diferida (M300/M700), PIS sobre folha (M350) e controle de retenções (1300/1700). O recálculo também é recusado se a mesma NFC-e tiver C170 e C175 ou se o D200 precisar de detalhes e não tiver D201 nem D205.',
         'Item com CST de crédito num CFOP que não está na tabela de base do crédito; crédito de frete, energia, serviço, imobilizado ou F100 sem a natureza da base do crédito.',
         'Operações por quantidade (alíquota em reais), CST 03, ou CST 05 com alíquota.',
         'Registros do bloco M com a mesma chave que o motor não sabe separar (por exemplo, receita não tributada do mesmo CST em contas contábeis diferentes). Chave repetida que dá para juntar é consolidada, com aviso.',
@@ -861,6 +870,10 @@ export const SECOES: Secao[] = [
         ['APURACAO_CREDITO_SUCESSAO', 'Crédito oriundo de sucessão; bloco M mantido.'],
         ['APURACAO_TIPO_CREDITO', 'Tipo de crédito que o motor não gera a partir dos documentos; bloco M mantido.'],
         ['APURACAO_COD_CONT', 'Tipo de contribuição que o motor não gera a partir dos documentos; bloco M mantido.'],
+        ['APURACAO_MISTO_ALIQUOTA', 'Regime misto com receita tributada sem enquadramento seguro. O aviso informa o registro, o CST e a alíquota que precisam ser conferidos.'],
+        ['APURACAO_MISTO_BASE_COMPARTILHADA', 'A divisão original da base no M105/M505 não pode ser reaproveitada após a mudança dos dados de crédito, estorno ou rateio. Confira a divisão no PVA.'],
+        ['APURACAO_MISTO_BASE_PRESERVADA', 'A divisão original da base entre regimes foi mantida. O uso do crédito acompanha a contribuição não cumulativa recalculada.'],
+        ['APURACAO_SALDO_EDITADO', 'O recálculo automático do mês foi recusado para preservar uma edição manual do 1100 ou 1500. Confira o bloco M e os saldos seguintes no PVA.'],
         ['APURACAO_CHAVE_REPETIDA', 'Recálculo recusado: o bloco M tem registros que pelo Guia são diferentes, mas que o motor não sabe separar (M410/M810 da mesma natureza com conta ou descrição diferentes; M400/M800 do mesmo CST com contas diferentes; M210/M610 que diferem só na alíquota em reais). O bloco M fica como veio: ajuste no PVA.'],
         ['APURACAO_RATEIO_SEM_RECEITA', 'Crédito comum (CST 53 a 56, 63 a 66) sem receita no 0111 nos tipos a que ele se vincula; o editor não escolhe sozinho e mantém o bloco M. Confira o 0111 ou o CST dos documentos.'],
         ['APURACAO_PRESUMIDO_AMBIGUO', 'O original tem crédito presumido da agroindústria (x06) e de outras hipóteses (x07) e não dá para saber o tipo de um crédito presumido; bloco M mantido.'],
@@ -947,7 +960,7 @@ export const SECOES: Secao[] = [
     blocos: [
       lista(
         '**Memória:** ~9,5 MB por mês; acima de 24 meses o navegador fica lento. Um ano por vez é o recomendado.',
-        '**Perfil:** a apuração é recalculada para o regime não cumulativo com documentos item a item. Os outros perfis carregam e podem ser editados, mas o bloco M fica como veio (ver [recusa](#apuracao-recusa)).',
+        '**Perfil:** a apuração é recalculada para o regime não cumulativo e para o regime misto nas condições suportadas. Outros perfis carregam e podem ser editados com o bloco M original (ver [recusa](#apuracao-recusa)).',
         '**Leiaute:** o editor segue a versão 006 do leiaute (Guia Prático 1.35).',
         '**Caracteres:** o arquivo é gravado em ISO-8859-1; caractere fora disso sai como "?" e o aviso do download conta quantos.',
         '**Histórico:** até 200 ações ou ~150 MB para desfazer.',
@@ -1010,8 +1023,14 @@ export const COBERTURA: {
     cadastros: { secao: 'cadastros', termo: 'Cadastros' },
     regras: { secao: 'regras', termo: 'Regras' },
     apuracao: { secao: 'apuracao', termo: 'Apuração' },
+    'saldos-credores': { secao: 'apuracao-saldo', termo: 'Saldos Credores' },
     conferencia: { secao: 'conferencia', termo: 'Conferência' },
     manual: { secao: 'sobre-ajuda', termo: 'Manual' },
+    'bloco-m': { secao: 'apuracao', termo: 'Bloco M' },
+    mensagens: { secao: 'apuracao', termo: 'Mensagens' },
+    criterios: { secao: 'apuracao', termo: 'Critérios da apuração' },
+    rateio: { secao: 'apuracao', termo: 'Rateio (0111)' },
+    'creditos-natureza': { secao: 'apuracao', termo: 'Créditos por Natureza' },
   },
   tiposLinha: Object.fromEntries(
     (
@@ -1064,6 +1083,8 @@ export const COBERTURA: {
       'CRITERIOS_PENDENTES', 'APURACAO_REGISTRO_NAO_SUPORTADO', 'APURACAO_REGIME_NAO_SUPORTADO', 'APURACAO_SEM_0110', 'APURACAO_SEM_0111',
       'APURACAO_CFOP_SEM_NAT_BC', 'APURACAO_SEM_NAT_BC', 'APURACAO_QUANTIDADE', 'APURACAO_CST_03', 'APURACAO_CST_05',
       'APURACAO_APROPRIACAO_DIRETA', 'APURACAO_CREDITO_SUCESSAO', 'APURACAO_TIPO_CREDITO', 'APURACAO_COD_CONT', 'APURACAO_RATEIO_SEM_RECEITA', 'APURACAO_PRESUMIDO_AMBIGUO', 'APURACAO_CHAVE_REPETIDA', 'CHAVE_REPETIDA_CONSOLIDADA',
+      'APURACAO_MISTO_ALIQUOTA', 'APURACAO_MISTO_BASE_COMPARTILHADA', 'APURACAO_MISTO_BASE_PRESERVADA',
+      'APURACAO_SALDO_EDITADO',
       'APURACAO_ERRO', 'APURACAO_INDISPONIVEL', 'APURACAO_SEM_ORIGINAL', 'APURACAO_NAO_CONFERIDA',
       'ESTORNO_AUSENTE', 'ESTORNO_SEM_CREDITO', 'ESTORNO_AMBIGUO', 'PRESUMIDO_TIPO_SUPOSTO', 'NATUREZA_RECEITA_AMBIGUA', '0111_DESATUALIZADO',
       'SALDO_CREDOR_DIVERGENTE', 'SALDO_CREDOR_NAO_LEVADO', 'CREDITO_RETIDO', 'CREDITO_SO_COM_AJUSTE', 'CREDITO_NEGATIVO', 'CREDITO_ALIQ_DIFERENCIADA_NOVO',

@@ -5,7 +5,8 @@
  */
 import { paraEscala } from '../dec';
 import { get, listar, type Escrituracao, type Registro } from '../modelo';
-import type { Tributo } from './tributos';
+import { PIS, type Tributo } from './tributos';
+import { codigoReceitaMista, regimeMisto } from './misto';
 import { aliqEsc, cent, SITUACOES_FORA } from './util';
 
 export interface OpCredito {
@@ -93,6 +94,23 @@ function docValido(doc: Registro | null): boolean {
   return !!doc && !SITUACOES_FORA.has(get(doc, 'COD_SIT'));
 }
 
+/** Receitas analíticas de NFC-e e do resumo diário de transporte, por tributo. */
+function* receitasAnaliticas(e: Escrituracao, t: Tributo) {
+  for (const doc of listar(e, 'C100')) {
+    if (!docValido(doc) || get(doc, 'COD_MOD') !== '65') continue;
+    for (const reg of doc.filhos) {
+      if (reg.reg === 'C175') yield { doc, reg, valor: cent(reg, 'VL_OPR'), cfop: get(reg, 'CFOP'), quantidade: temQuantidade(reg, t, true) };
+    }
+  }
+  const filho = t.id === 'pis' ? 'D201' : 'D205';
+  for (const doc of listar(e, 'D200')) {
+    if (!docValido(doc)) continue;
+    for (const reg of doc.filhos) {
+      if (reg.reg === filho) yield { doc, reg, valor: cent(reg, 'VL_ITEM'), cfop: get(doc, 'CFOP'), quantidade: false };
+    }
+  }
+}
+
 export function extrairFontes(e: Escrituracao, t: Tributo, cfopNatBc: Record<string, string>): Fontes {
   const f: Fontes = { creditos: [], receitas: [], estornos: [], cfopsSemNatureza: new Set(), origens: new Set() };
   const s = t.sfx;
@@ -174,6 +192,11 @@ export function extrairFontes(e: Escrituracao, t: Tributo, cfopNatBc: Record<str
     if (estorno) f.estornos.push(estorno);
   }
 
+  for (const { doc, reg, valor, cfop, quantidade } of receitasAnaliticas(e, t)) {
+    const cst = get(reg, `CST_${s}`);
+    if (CST_RECEITA.has(cst) || quantidade) receita(reg.reg, reg, doc, valor, { cfop }, quantidade);
+  }
+
   // C500/C501 (C505) — energia, água, gás, comunicação (aquisições)
   // D100/D101 (D105) — conhecimentos de transporte (aquisições)
   // D500/D501 (D505) — serviços de comunicação (aquisições)
@@ -226,36 +249,44 @@ export function extrairFontes(e: Escrituracao, t: Tributo, cfopNatBc: Record<str
 }
 
 /**
- * Receita bruta por tipo (para o ajuste do 0111 pelo delta), a partir dos itens C170:
+ * Receita bruta por tipo (para o ajuste do 0111 pelo delta), a partir das operações de venda e prestação:
  * tributada MI = CST 01/02/03/05 em CFOP 5/6; não tributada MI = CST 04/06/07/08/09 em CFOP 5/6;
  * exportação = CFOP 7. Serviço prestado (A170 de A100 com IND_OPER 1) entra como mercado
  * interno (o A170 não tem CFOP para identificar exportação de serviço).
  */
-export function receitaPorTipo(e: Escrituracao): { trib: number; nt: number; exp: number } {
-  const out = { trib: 0, nt: 0, exp: 0 };
+export function receitaPorTipo(e: Escrituracao, diferenciadas: ReadonlyMap<bigint, string> = new Map()): { trib: number; nt: number; exp: number; cum: number } {
+  const out = { trib: 0, nt: 0, exp: 0, cum: 0 };
+  const misto = regimeMisto(e);
+  const somar = (r: Registro, v: number, cfop: string) => {
+    const cst = get(r, 'CST_PIS');
+    const codigo = misto ? codigoReceitaMista({ cst, aliq: aliqEsc(get(r, 'ALIQ_PIS')) }, PIS, diferenciadas) : undefined;
+    if (codigo === '51' || codigo === '52') out.cum += v;
+    else if (cfop.startsWith('7')) out.exp += v;
+    else if (!cfop || /^[56]/.test(cfop)) {
+      if (['01', '02', '03', '05'].includes(cst)) out.trib += v;
+      else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += v;
+    }
+  };
   for (const doc of listar(e, 'C100')) {
     if (!docValido(doc)) continue;
     for (const it of doc.filhos) {
       if (it.reg !== 'C170') continue;
       const cfop = get(it, 'CFOP');
-      const cst = get(it, 'CST_PIS');
-      const v = cent(it, 'VL_ITEM');
-      if (cfop.startsWith('7')) out.exp += v;
-      else if (cfop.startsWith('5') || cfop.startsWith('6')) {
-        if (['01', '02', '03', '05'].includes(cst)) out.trib += v;
-        else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += v;
-      }
+      if (/^[567]/.test(cfop)) somar(it, cent(it, 'VL_ITEM'), cfop);
     }
   }
   for (const doc of listar(e, 'A100')) {
     if (!docValido(doc) || get(doc, 'IND_OPER') !== '1') continue;
     for (const it of doc.filhos) {
       if (it.reg !== 'A170') continue;
-      const cst = get(it, 'CST_PIS');
-      const v = cent(it, 'VL_ITEM');
-      if (['01', '02', '03', '05'].includes(cst)) out.trib += v;
-      else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += v;
+      somar(it, cent(it, 'VL_ITEM'), '');
     }
+  }
+  for (const { reg, valor, cfop } of receitasAnaliticas(e, PIS)) {
+    if (/^[567]/.test(cfop)) somar(reg, valor, cfop);
+  }
+  if (misto) for (const r of listar(e, 'F100')) {
+    if (['01', '02'].includes(get(r, 'CST_PIS'))) somar(r, cent(r, 'VL_OPER'), '');
   }
   return out;
 }

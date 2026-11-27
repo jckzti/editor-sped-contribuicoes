@@ -9,6 +9,10 @@ import type { MapaPresumido } from './presumido';
 import type { IdTributo } from './tributos';
 
 export interface EstadoTributo {
+  /** Enquadramentos de alíquota diferenciada do bloco M original. */
+  aliquotasDiferenciadas: ReadonlyMap<bigint, string>;
+  /** Insumos dos créditos originais, quando o bloco M tem divisão entre regimes. */
+  dadosCreditoCompartilhado: readonly string[] | null;
   /** Notas (chave completa, `chaveNotaCompleta`) cujo ajuste M110/M510 é derivado da nota e recalculado. */
   docsVinculados: Set<string>;
   /** Número+data (`chaveNota`) das notas vinculadas: é por ele que se acha o M110 da nota. */
@@ -55,7 +59,7 @@ export interface EstadoApuracao {
   resumoOriginal: ResumoApuracao;
   tributos: Record<IdTributo, EstadoTributo>;
   /** Receita por tipo calculada dos documentos originais (para o 0111 "ajustar-pelo-delta"). */
-  receitaOriginal: { trib: number; nt: number; exp: number };
+  receitaOriginal: { trib: number; nt: number; exp: number; cum: number };
   /** Campos do 0111 original (centavos): TRIB, NT, EXP, CUM, TOTAL. */
   original0111: [number, number, number, number, number] | null;
   /** Pendências de natureza da receita do último recálculo. */

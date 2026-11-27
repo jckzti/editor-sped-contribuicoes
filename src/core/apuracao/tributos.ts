@@ -33,6 +33,8 @@ export interface Tributo {
   campoCredDif: string;
   /** Alíquota básica não cumulativa em escala 10^4 (1,65% → 16500). */
   aliqBasica: bigint;
+  /** Alíquota básica cumulativa na mesma escala. */
+  aliqBasicaCum: bigint;
   /** Código de receita padrão (DCTF) da contribuição não cumulativa. */
   codRecNC: string;
 }
@@ -59,6 +61,7 @@ export const PIS: Tributo = {
   D501: 'D501',
   campoCredDif: 'VL_CRED_DIF',
   aliqBasica: 16500n,
+  aliqBasicaCum: 6500n,
   codRecNC: '691201',
 };
 
@@ -84,6 +87,7 @@ export const COFINS: Tributo = {
   D501: 'D505',
   campoCredDif: 'VL_CRED_DIFER',
   aliqBasica: 76000n,
+  aliqBasicaCum: 30000n,
   codRecNC: '585601',
 };
 

@@ -21,6 +21,7 @@ const ROTULO_ABA: Record<Exclude<TelaTour, 'manual'>, string> = {
   documentos: 'Documentos',
   regras: 'Regras',
   apuracao: 'Apuração',
+  'saldos-credores': 'Saldos Credores',
   conferencia: 'Conferência',
 };
 
