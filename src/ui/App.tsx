@@ -14,6 +14,7 @@ import { CriteriosApuracao } from './CriteriosApuracao';
 import { criteriosDe, criteriosPendentes, type EscolhasCriterios } from '../core/apuracao';
 import { cnpjsAlterados, textoCriteriosUsados } from './criterios';
 import { Carregar } from './Carregar';
+import { Biblioteca } from './Biblioteca';
 import { cnpjLegivel, inteiro, intervaloPeriodos, periodoLegivel, plural } from './formato';
 import type { FormFiltro } from './filtros';
 import {
@@ -253,6 +254,23 @@ export function App() {
     }
   };
 
+  if (!s.empresaAtiva) {
+    return (
+      <div className="app">
+        <Biblioteca
+          catalogo={s.catalogo}
+          carregando={s.carregando}
+          restaurando={s.restaurando}
+          erro={s.erroPersistencia}
+          errosArquivo={s.errosArquivo}
+          aoImportar={(arquivos) => void s.importarNaBiblioteca(arquivos)}
+          aoAbrir={(ids) => void s.abrirPeriodos(ids)}
+          aoLimparErro={s.limparErrosArquivo}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="app">
       <div className="barra">
@@ -264,6 +282,10 @@ export function App() {
         ) : (
           <span className="fraco">nenhum arquivo carregado</span>
         )}
+
+        <button onClick={() => void s.voltarParaBiblioteca()} disabled={!!s.carregando} title="Salvar esta empresa e escolher outra">
+          Escolher empresa
+        </button>
 
         <label className="botao-arquivo" data-tour="acrescentar-arquivos">
           <span className="rotulo-longo">Acrescentar arquivos</span>

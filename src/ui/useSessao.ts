@@ -16,11 +16,17 @@ import type { ConfigApuracao } from '../core/apuracao';
 import type { Escrituracao } from '../core/modelo';
 import { aoMudarHistorico, desfazer, historico, limparHistorico, refazer, usoHistorico, type UsoHistorico } from '../core/operacao';
 import { recalcular, type RelatorioRecalculo } from '../core/recalcular';
-import { adicionarArquivo, criarSessao, removerEscrituracao, type Sessao } from '../core/sessao';
+import { adicionarArquivo, criarSessao, abrirEscrituracao, removerEscrituracao, type Sessao } from '../core/sessao';
 import { fraseHistorico } from './apuracaoUi';
 import { criteriosDe, definirCriterio, type EscolhasCriterios, type IdCriterio } from '../core/apuracao';
 import { estadoDe } from '../core/estado';
-import { gravarSessaoLocal, lerSessaoLocal } from './persistencia';
+import {
+  carregarArquivosSalvos,
+  guardarArquivo,
+  guardarSessaoAtiva,
+  listarArquivosSalvos,
+  type ArquivoCatalogo,
+} from './persistencia';
 
 export interface ErroArquivo {
   nomeArquivo: string;
@@ -36,10 +42,15 @@ export interface EstadoSessao {
   mudou: () => void;
   carregando: string | null;
   restaurando: boolean;
+  catalogo: ArquivoCatalogo[];
+  empresaAtiva: string | null;
   erroPersistencia: string | null;
   errosArquivo: ErroArquivo[];
   limparErrosArquivo: () => void;
   carregarArquivos: (arquivos: File[]) => Promise<void>;
+  importarNaBiblioteca: (arquivos: File[]) => Promise<void>;
+  abrirPeriodos: (ids: string[]) => Promise<void>;
+  voltarParaBiblioteca: () => Promise<void>;
   fechar: (id: string) => void;
   desfazerAgora: () => void;
   refazerAgora: () => void;
@@ -82,28 +93,19 @@ export function useSessao(): EstadoSessao {
   const [relatorios, setRelatorios] = useState<RelatorioRecalculo[] | null>(null);
   const [desatualizada, setDesatualizada] = useState(false);
   const [restaurando, setRestaurando] = useState(true);
+  const [catalogo, setCatalogo] = useState<ArquivoCatalogo[]>([]);
+  const [empresaAtiva, setEmpresaAtiva] = useState<string | null>(null);
   const [erroPersistencia, setErroPersistencia] = useState<string | null>(null);
   const recalculouRef = useRef(false);
 
   const mudou = useCallback(() => setVersao((v) => v + 1), []);
 
-  // O histórico do motor é estado de módulo: se o App for remontado (recarga a quente em
-  // desenvolvimento), ele guardaria ações de árvores que não existem mais. Sessão nova começa
-  // com histórico vazio. Fica num efeito (não na renderização) e antes da assinatura abaixo,
-  // para não marcar a apuração como desatualizada ao abrir.
+  // A abertura começa pelo catálogo leve; os arquivos só entram na memória depois da escolha.
   useEffect(() => {
     let ativo = true;
-    void lerSessaoLocal().then((salva) => {
+    void listarArquivosSalvos().then((itens) => {
       if (!ativo) return;
-      if (salva && Array.isArray(salva.escrituracoes) && salva.config) {
-        sessao.config = salva.config;
-        sessao.regras = Array.isArray(salva.regras) ? salva.regras : [];
-        sessao.escrituracoes = salva.escrituracoes;
-        for (const e of sessao.escrituracoes) estadoDe(e);
-        setDesatualizada(salva.apuracaoDesatualizada ?? sessao.escrituracoes.some((e) => e.alterada));
-        setRelatorios(salva.relatorios ?? null);
-        mudou();
-      }
+      setCatalogo(itens);
       setRestaurando(false);
     }).catch((err) => {
       if (!ativo) return;
@@ -114,17 +116,21 @@ export function useSessao(): EstadoSessao {
   }, [sessao, mudou]);
 
   useEffect(() => {
-    if (restaurando) return;
+    if (restaurando || !empresaAtiva) return;
     let ativo = true;
     const timer = window.setTimeout(() => {
-      void gravarSessaoLocal(sessao, desatualizada, relatorios).then(() => {
-        if (ativo) setErroPersistencia(null);
+      void guardarSessaoAtiva(sessao, desatualizada, relatorios).then(async () => {
+        const itens = await listarArquivosSalvos();
+        if (ativo) {
+          setCatalogo(itens);
+          setErroPersistencia(null);
+        }
       }).catch((err) => {
         if (ativo) setErroPersistencia((err as Error)?.message ?? String(err));
       });
     }, 250);
     return () => { ativo = false; window.clearTimeout(timer); };
-  }, [sessao, versao, restaurando, sessao.config, sessao.regras, desatualizada, relatorios]);
+  }, [sessao, versao, restaurando, empresaAtiva, sessao.config, sessao.regras, desatualizada, relatorios]);
 
   useEffect(() => {
     if (usoHistorico().operacoes) limparHistorico();
@@ -151,6 +157,8 @@ export function useSessao(): EstadoSessao {
         await respirar();
         try {
           const bytes = new Uint8Array(await f.arrayBuffer());
+          const lido = abrirEscrituracao(bytes, f.name);
+          if (empresaAtiva && lido.cnpj !== empresaAtiva) throw new Error('Este arquivo é de outra empresa. Volte à lista e abra essa empresa antes de acrescentá-lo.');
           adicionarArquivo(sessao, bytes, f.name);
         } catch (err) {
           erros.push({ nomeArquivo: f.name, mensagem: (err as Error)?.message ?? String(err) });
@@ -162,8 +170,90 @@ export function useSessao(): EstadoSessao {
       if (sessao.escrituracoes.some((e) => e.alterada)) setDesatualizada(true);
       if (erros.length) setErrosArquivo((e) => [...e, ...erros]);
     },
-    [sessao],
+    [sessao, empresaAtiva],
   );
+
+  const importarNaBiblioteca = useCallback(async (arquivos: File[]) => {
+    const erros: ErroArquivo[] = [];
+    const chaves = new Set(catalogo.map((m) => `${m.cnpj}|${m.periodo}`));
+    for (let i = 0; i < arquivos.length; i++) {
+      const f = arquivos[i];
+      setCarregando(`Lendo ${i + 1} de ${arquivos.length}: ${f.name}...`);
+      await respirar();
+      try {
+        const temporaria = criarSessao(sessao.config);
+        adicionarArquivo(temporaria, new Uint8Array(await f.arrayBuffer()), f.name);
+        const e = temporaria.escrituracoes[0];
+        const idPeriodo = `${e.cnpj}|${e.periodo}`;
+        if (chaves.has(idPeriodo)) throw new Error(`Já existe um arquivo de ${e.nome} no período ${e.periodo}.`);
+        chaves.add(idPeriodo);
+        await guardarArquivo(e);
+      } catch (err) {
+        erros.push({ nomeArquivo: f.name, mensagem: (err as Error)?.message ?? String(err) });
+      }
+    }
+    setCarregando(null);
+    try {
+      setCatalogo(await listarArquivosSalvos());
+      setErroPersistencia(null);
+    } catch (err) {
+      setErroPersistencia((err as Error)?.message ?? String(err));
+    }
+    if (erros.length) setErrosArquivo((e) => [...e, ...erros]);
+  }, [catalogo, sessao.config]);
+
+  const abrirPeriodos = useCallback(async (ids: string[]) => {
+    if (!ids.length) return;
+    const selecionados = catalogo.filter((m) => ids.includes(m.id));
+    const cnpjs = new Set(selecionados.map((m) => m.cnpj));
+    if (selecionados.length !== ids.length || cnpjs.size !== 1) {
+      setErroPersistencia('Escolha períodos de uma única empresa. Atualize a lista e tente novamente.');
+      return;
+    }
+    setCarregando('Abrindo os períodos escolhidos...');
+    try {
+      const salva = await carregarArquivosSalvos(ids, sessao.config, sessao.regras);
+      sessao.config = salva.config;
+      sessao.regras = salva.regras;
+      sessao.escrituracoes = salva.escrituracoes;
+      for (const e of sessao.escrituracoes) estadoDe(e);
+      limparHistorico();
+      setHist({ lista: historico(), uso: usoHistorico() });
+      setRelatorios(salva.relatorios);
+      setDesatualizada(salva.apuracaoDesatualizada);
+      recalculouRef.current = salva.relatorios.length > 0;
+      setEmpresaAtiva([...cnpjs][0]);
+      setErroPersistencia(null);
+      mudou();
+    } catch (err) {
+      setErroPersistencia((err as Error)?.message ?? String(err));
+    } finally {
+      setCarregando(null);
+    }
+  }, [catalogo, sessao, mudou]);
+
+  const voltarParaBiblioteca = useCallback(async () => {
+    if (empresaAtiva) {
+      setCarregando('Salvando os períodos desta empresa...');
+      try {
+        await guardarSessaoAtiva(sessao, desatualizada, relatorios);
+        setCatalogo(await listarArquivosSalvos());
+      } catch (err) {
+        setErroPersistencia((err as Error)?.message ?? String(err));
+        setCarregando(null);
+        return;
+      }
+    }
+    limparHistorico();
+    sessao.escrituracoes = [];
+    setRelatorios(null);
+    setDesatualizada(false);
+    recalculouRef.current = false;
+    setEmpresaAtiva(null);
+    setCarregando(null);
+    setErrosArquivo([]);
+    mudou();
+  }, [empresaAtiva, sessao, desatualizada, relatorios, mudou]);
 
   const fechar = useCallback(
     (id: string) => {
@@ -246,9 +336,14 @@ export function useSessao(): EstadoSessao {
     carregando,
     erroPersistencia,
     restaurando,
+    catalogo,
+    empresaAtiva,
     errosArquivo,
     limparErrosArquivo: () => setErrosArquivo([]),
     carregarArquivos,
+    importarNaBiblioteca,
+    abrirPeriodos,
+    voltarParaBiblioteca,
     fechar,
     desfazerAgora,
     refazerAgora,

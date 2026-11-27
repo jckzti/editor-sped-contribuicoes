@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 14;
+export const VERSAO_TOUR = 15;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -46,9 +46,9 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'carregar',
     titulo: '1. Carregar os arquivos',
     texto:
-      'Arraste os .txt da EFD-Contribuições, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Para somar meses depois, use **Acrescentar arquivos**. O recomendado é um ano por vez.',
+      'Adicione os .txt da EFD-Contribuições, escolha uma empresa e marque os períodos que vai trabalhar. Arquivo já transmitido, com assinatura, também serve. Para incluir outro mês, use **Acrescentar arquivos** dentro da empresa.',
     textoSemDados:
-      'Comece arrastando os .txt da EFD-Contribuições para a tela inicial, um por mês (pode ser vários de uma vez). Arquivo já transmitido, com assinatura, também serve. Enquanto isso, o tour segue em modo demonstrativo.',
+      'Comece adicionando os .txt, escolhendo uma empresa e marcando os períodos que vai trabalhar. Arquivo já transmitido, com assinatura, também serve. Enquanto isso, o tour segue em modo demonstrativo.',
     tela: null,
     ancoras: ['carregar-arquivos', 'acrescentar-arquivos'],
     secaoManual: 'carregar',
@@ -254,5 +254,9 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   14: {
     resumo: 'A aba Saldos Credores consulta e edita os registros 1100 e 1500 por mês e tributo.',
     passos: ['saldos-credores'],
+  },
+  15: {
+    resumo: 'Os arquivos ficam organizados por empresa e período; a pessoa escolhe quais meses abrir para trabalhar.',
+    passos: ['carregar'],
   },
 };

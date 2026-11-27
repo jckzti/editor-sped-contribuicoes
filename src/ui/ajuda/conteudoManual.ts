@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 19;
+export const VERSAO_MANUAL = 20;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -165,12 +165,13 @@ export const SECOES: Secao[] = [
     id: 'carregar',
     titulo: 'Carregar arquivos',
     grupo: 'comeco',
-    resumo: 'Arraste os .txt (um por mês); arquivo assinado é aceito; ~9,5 MB de memória por mês, recomendado um ano por vez.',
+    resumo: 'Adicione arquivos, escolha uma empresa e marque os períodos que vai trabalhar; arquivo assinado é aceito.',
     blocos: [
       passos(
-        'Na tela inicial, arraste os arquivos .txt da escrituração (um por mês; pode ser vários de uma vez) ou clique em **Escolher arquivos**.',
-        'Espere a leitura ("Lendo 3 de 12: ..."). A barra de cima passa a mostrar quantos meses, o intervalo e a empresa (ou "N empresas").',
-        'Para somar mais meses depois, use **Acrescentar arquivos** na barra de cima.',
+        'Na tela inicial, clique em **Adicionar arquivos** e selecione um ou mais arquivos .txt da EFD-Contribuições. Eles ficam separados por empresa e período neste navegador.',
+        'Na lista, marque uma empresa e os períodos que vai trabalhar. **Selecionar todos** marca todos os meses daquela empresa; os períodos de outras empresas não entram na sessão.',
+        'Clique em **Abrir períodos**. Para trocar de cliente, use **Escolher empresa** na barra de cima; as edições são salvas antes de voltar à lista.',
+        'Com a empresa aberta, use **Acrescentar arquivos** para incluir mais períodos dela. Um arquivo de outro CNPJ é recusado; volte à lista e abra a outra empresa.',
       ),
       sub('O que é aceito e o que é recusado'),
       lista(
@@ -186,7 +187,7 @@ export const SECOES: Secao[] = [
         'Cada mês ocupa cerca de **9,5 MB de memória**. Doze meses usam uns 115 MB, sem problema. Acima de 24 meses o editor mostra um aviso: o navegador fica lento para filtrar, selecionar e recalcular. **O recomendado é trabalhar um ano por vez.**',
       ),
       p(
-        'Dá para carregar meses de mais de uma empresa: as grades e as regras valem para todos os meses carregados, e o saldo credor é encadeado separadamente por CNPJ.',
+        'Os períodos de empresas diferentes ficam separados. Ao abrir mais de um mês, escolha períodos da mesma empresa para que o encadeamento de saldo credor siga essa sequência.',
       ),
     ],
   },

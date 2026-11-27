@@ -1177,3 +1177,148 @@ fieldset.criterio p {
 .barra-secao > .seletor button {
   white-space: nowrap;
 }
+
+/* ---------- escolher empresa e períodos salvos ---------- */
+.biblioteca {
+  flex: 1;
+  min-height: 0;
+  width: min(100%, 980px);
+  margin: 0 auto;
+  padding: 24px;
+  overflow: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.biblioteca-topo,
+.biblioteca-empresa > header,
+.biblioteca-acoes {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.biblioteca-topo h1,
+.biblioteca-empresa h2 {
+  margin: 0 0 4px;
+}
+
+.biblioteca-topo p {
+  margin: 0;
+}
+
+.biblioteca-importar-area {
+  min-height: 62px;
+  padding: 10px 14px;
+  border: 2px dashed var(--borda-forte);
+  border-radius: 8px;
+  background: var(--painel);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  color: var(--texto-fraco);
+}
+
+.biblioteca-importar-area.sobre {
+  border-color: var(--destaque);
+  background: var(--destaque-fraco);
+}
+
+.biblioteca-importar {
+  display: inline-flex;
+  align-items: center;
+  min-height: 36px;
+  flex: none;
+}
+
+.biblioteca-importar input {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+}
+
+.biblioteca-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.biblioteca-empresa,
+.biblioteca-vazia {
+  background: var(--painel);
+  border: 1px solid var(--borda);
+  border-radius: 8px;
+  padding: 14px;
+}
+
+.biblioteca-empresa > header {
+  align-items: flex-start;
+}
+
+.biblioteca-acoes {
+  justify-content: flex-end;
+}
+
+.biblioteca-periodos {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+  gap: 6px 12px;
+  margin-top: 12px;
+  padding-top: 10px;
+  border-top: 1px solid var(--borda);
+}
+
+.biblioteca-periodo {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  min-height: 30px;
+  cursor: pointer;
+}
+
+.biblioteca-periodo span:first-of-type {
+  min-width: 58px;
+  font-variant-numeric: tabular-nums;
+}
+
+.biblioteca-vazia {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  color: var(--texto-fraco);
+}
+
+.biblioteca-vazia strong {
+  color: var(--texto);
+}
+
+.biblioteca-privacidade {
+  margin-top: auto;
+  text-align: center;
+}
+
+@media (max-width: 680px) {
+  .biblioteca {
+    padding: 14px;
+  }
+
+  .biblioteca-topo,
+  .biblioteca-empresa > header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .biblioteca-acoes {
+    justify-content: flex-start;
+    flex-wrap: wrap;
+  }
+
+  .biblioteca-importar-area {
+    flex-wrap: wrap;
+  }
+}

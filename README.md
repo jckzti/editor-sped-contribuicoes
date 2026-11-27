@@ -10,12 +10,13 @@ não existe servidor nem upload. A sessão continua disponível ao fechar e reab
 
 ## Como usar
 
-1. Arraste os arquivos `.txt` da EFD-Contribuições (um por mês) para a tela inicial.
-2. Nas grades (itens, notas, fretes, energia, outras operações), filtre, selecione e edite.
+1. Adicione os arquivos `.txt` da EFD-Contribuições; eles ficam separados por empresa e período neste navegador.
+2. Escolha uma empresa, marque os períodos que vai trabalhar e clique em **Abrir períodos**.
+3. Nas grades (itens, notas, fretes, energia, outras operações), filtre, selecione e edite.
    Uma edição aplicada vale para todos os meses carregados que atendem ao filtro.
-3. Confira a aba **Apuração**: ela mostra, mês a mês, o antes e o depois de crédito,
+4. Confira a aba **Apuração**: ela mostra, mês a mês, o antes e o depois de crédito,
    débito e valor a recolher.
-4. Baixe os arquivos corrigidos (um `.zip` com todos os meses) e importe no PVA.
+5. Baixe os arquivos corrigidos (um `.zip` com todos os meses abertos) e importe no PVA.
 
 ### Tour guiado e Manual
 
