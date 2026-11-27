@@ -27,6 +27,7 @@ import {
 } from './preferencias';
 import { TelaApuracaoAba, type SubabaApuracao } from './TelaApuracaoAba';
 import { TelaConferencia } from './TelaConferencia';
+import { TelaSaldosCredores } from './TelaSaldosCredores';
 import { estadoDocumentosInicial, TelaDocumentos, type EstadoDocumentos } from './TelaDocumentos';
 import { TelaRegras, type RascunhoRegra } from './TelaRegras';
 import { useSessao } from './useSessao';
@@ -38,6 +39,7 @@ const ABAS = [
   { id: 'cadastros', rotulo: 'Cadastros' },
   { id: 'regras', rotulo: 'Regras' },
   { id: 'apuracao', rotulo: 'Apuração' },
+  { id: 'saldos-credores', rotulo: 'Saldos Credores' },
   { id: 'conferencia', rotulo: 'Conferência' },
   { id: 'manual', rotulo: 'Manual' },
 ] as const;
@@ -480,6 +482,8 @@ export function App() {
               aoFechar={() => { setRotina(null); setSubabaApuracao('bloco-m'); }}
             /> : undefined}
           />
+        ) : aba === 'saldos-credores' ? (
+          <TelaSaldosCredores escrituracoes={escrituracoes} mudou={s.mudou} />
         ) : (
           <TelaConferencia
             sessao={s.sessao}

@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 15;
+export const VERSAO_MANUAL = 16;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -709,6 +709,9 @@ export const SECOES: Secao[] = [
     grupo: 'apuracao',
     resumo: 'Levar o saldo credor adiante ou não, que crédito usar primeiro e o crédito que o original guardava: critérios da apuração.',
     blocos: [
+      sub('Consultar e editar em Saldos Credores'),
+      p('Na aba **Saldos Credores**, escolha o mês da escrituração e o tributo **PIS/Pasep (1100)** ou **Cofins (1500)**. **Saldo Anterior** é o valor do crédito menos o utilizado em meses anteriores. Quando o crédito é do próprio mês, o desconto no período de origem aparece em **Utilizado no mês**.'),
+      p('Use **Editar** para mudar o período, o tipo, o valor do crédito, os valores utilizados e o pedido de ressarcimento. O formulário mostra os saldos antes de aplicar, preserva outras utilizações escrituradas e impede um saldo negativo. A edição pode ser desfeita. Durante a sessão, o editor preserva a edição manual ao recusar o recálculo automático desse mês. Confira o bloco M e os saldos seguintes no PVA.'),
       p(
         'Quando o crédito do mês é maior que a contribuição, sobra **saldo credor**, controlado nos registros 1100 (PIS) e 1500 (COFINS). Três [critérios da apuração](#apuracao-criterios) tratam disso:',
       ),
@@ -870,6 +873,7 @@ export const SECOES: Secao[] = [
         ['APURACAO_MISTO_ALIQUOTA', 'Regime misto com receita tributada sem enquadramento seguro. O aviso informa o registro, o CST e a alíquota que precisam ser conferidos.'],
         ['APURACAO_MISTO_BASE_COMPARTILHADA', 'A divisão original da base no M105/M505 não pode ser reaproveitada após a mudança dos dados de crédito, estorno ou rateio. Confira a divisão no PVA.'],
         ['APURACAO_MISTO_BASE_PRESERVADA', 'A divisão original da base entre regimes foi mantida. O uso do crédito acompanha a contribuição não cumulativa recalculada.'],
+        ['APURACAO_SALDO_EDITADO', 'O recálculo automático do mês foi recusado para preservar uma edição manual do 1100 ou 1500. Confira o bloco M e os saldos seguintes no PVA.'],
         ['APURACAO_CHAVE_REPETIDA', 'Recálculo recusado: o bloco M tem registros que pelo Guia são diferentes, mas que o motor não sabe separar (M410/M810 da mesma natureza com conta ou descrição diferentes; M400/M800 do mesmo CST com contas diferentes; M210/M610 que diferem só na alíquota em reais). O bloco M fica como veio: ajuste no PVA.'],
         ['APURACAO_RATEIO_SEM_RECEITA', 'Crédito comum (CST 53 a 56, 63 a 66) sem receita no 0111 nos tipos a que ele se vincula; o editor não escolhe sozinho e mantém o bloco M. Confira o 0111 ou o CST dos documentos.'],
         ['APURACAO_PRESUMIDO_AMBIGUO', 'O original tem crédito presumido da agroindústria (x06) e de outras hipóteses (x07) e não dá para saber o tipo de um crédito presumido; bloco M mantido.'],
@@ -1019,6 +1023,7 @@ export const COBERTURA: {
     cadastros: { secao: 'cadastros', termo: 'Cadastros' },
     regras: { secao: 'regras', termo: 'Regras' },
     apuracao: { secao: 'apuracao', termo: 'Apuração' },
+    'saldos-credores': { secao: 'apuracao-saldo', termo: 'Saldos Credores' },
     conferencia: { secao: 'conferencia', termo: 'Conferência' },
     manual: { secao: 'sobre-ajuda', termo: 'Manual' },
     'bloco-m': { secao: 'apuracao', termo: 'Bloco M' },
@@ -1079,6 +1084,7 @@ export const COBERTURA: {
       'APURACAO_CFOP_SEM_NAT_BC', 'APURACAO_SEM_NAT_BC', 'APURACAO_QUANTIDADE', 'APURACAO_CST_03', 'APURACAO_CST_05',
       'APURACAO_APROPRIACAO_DIRETA', 'APURACAO_CREDITO_SUCESSAO', 'APURACAO_TIPO_CREDITO', 'APURACAO_COD_CONT', 'APURACAO_RATEIO_SEM_RECEITA', 'APURACAO_PRESUMIDO_AMBIGUO', 'APURACAO_CHAVE_REPETIDA', 'CHAVE_REPETIDA_CONSOLIDADA',
       'APURACAO_MISTO_ALIQUOTA', 'APURACAO_MISTO_BASE_COMPARTILHADA', 'APURACAO_MISTO_BASE_PRESERVADA',
+      'APURACAO_SALDO_EDITADO',
       'APURACAO_ERRO', 'APURACAO_INDISPONIVEL', 'APURACAO_SEM_ORIGINAL', 'APURACAO_NAO_CONFERIDA',
       'ESTORNO_AUSENTE', 'ESTORNO_SEM_CREDITO', 'ESTORNO_AMBIGUO', 'PRESUMIDO_TIPO_SUPOSTO', 'NATUREZA_RECEITA_AMBIGUA', '0111_DESATUALIZADO',
       'SALDO_CREDOR_DIVERGENTE', 'SALDO_CREDOR_NAO_LEVADO', 'CREDITO_RETIDO', 'CREDITO_SO_COM_AJUSTE', 'CREDITO_NEGATIVO', 'CREDITO_ALIQ_DIFERENCIADA_NOVO',
