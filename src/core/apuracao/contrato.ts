@@ -122,6 +122,8 @@ export interface ResumoTributo {
   creditoDescontadoAnteriores: number;
   contribuicaoCumulativa: number;
   aRecolher: number;
+  aRecolherNaoCumulativo: number;
+  aRecolherCumulativo: number;
   /** Saldo credor ao fim do mês (soma dos SLD_CRED). */
   saldoCredor: number;
 }

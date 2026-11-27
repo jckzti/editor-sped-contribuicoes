@@ -6,6 +6,7 @@
 import { paraEscala } from '../dec';
 import { get, listar, type Escrituracao, type Registro } from '../modelo';
 import { PIS, type Tributo } from './tributos';
+import { codigoReceitaMista, regimeMisto } from './misto';
 import { aliqEsc, cent, SITUACOES_FORA } from './util';
 
 export interface OpCredito {
@@ -253,39 +254,39 @@ export function extrairFontes(e: Escrituracao, t: Tributo, cfopNatBc: Record<str
  * exportação = CFOP 7. Serviço prestado (A170 de A100 com IND_OPER 1) entra como mercado
  * interno (o A170 não tem CFOP para identificar exportação de serviço).
  */
-export function receitaPorTipo(e: Escrituracao): { trib: number; nt: number; exp: number } {
-  const out = { trib: 0, nt: 0, exp: 0 };
+export function receitaPorTipo(e: Escrituracao, diferenciadas: ReadonlyMap<bigint, string> = new Map()): { trib: number; nt: number; exp: number; cum: number } {
+  const out = { trib: 0, nt: 0, exp: 0, cum: 0 };
+  const misto = regimeMisto(e);
+  const somar = (r: Registro, v: number, cfop: string) => {
+    const cst = get(r, 'CST_PIS');
+    const codigo = misto ? codigoReceitaMista({ cst, aliq: aliqEsc(get(r, 'ALIQ_PIS')) }, PIS, diferenciadas) : undefined;
+    if (codigo === '51' || codigo === '52') out.cum += v;
+    else if (cfop.startsWith('7')) out.exp += v;
+    else if (!cfop || /^[56]/.test(cfop)) {
+      if (['01', '02', '03', '05'].includes(cst)) out.trib += v;
+      else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += v;
+    }
+  };
   for (const doc of listar(e, 'C100')) {
     if (!docValido(doc)) continue;
     for (const it of doc.filhos) {
       if (it.reg !== 'C170') continue;
       const cfop = get(it, 'CFOP');
-      const cst = get(it, 'CST_PIS');
-      const v = cent(it, 'VL_ITEM');
-      if (cfop.startsWith('7')) out.exp += v;
-      else if (cfop.startsWith('5') || cfop.startsWith('6')) {
-        if (['01', '02', '03', '05'].includes(cst)) out.trib += v;
-        else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += v;
-      }
+      if (/^[567]/.test(cfop)) somar(it, cent(it, 'VL_ITEM'), cfop);
     }
   }
   for (const doc of listar(e, 'A100')) {
     if (!docValido(doc) || get(doc, 'IND_OPER') !== '1') continue;
     for (const it of doc.filhos) {
       if (it.reg !== 'A170') continue;
-      const cst = get(it, 'CST_PIS');
-      const v = cent(it, 'VL_ITEM');
-      if (['01', '02', '03', '05'].includes(cst)) out.trib += v;
-      else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += v;
+      somar(it, cent(it, 'VL_ITEM'), '');
     }
   }
   for (const { reg, valor, cfop } of receitasAnaliticas(e, PIS)) {
-    const cst = get(reg, 'CST_PIS');
-    if (cfop.startsWith('7')) out.exp += valor;
-    else if (/^[56]/.test(cfop)) {
-      if (['01', '02', '03', '05'].includes(cst)) out.trib += valor;
-      else if (['04', '06', '07', '08', '09'].includes(cst)) out.nt += valor;
-    }
+    if (/^[567]/.test(cfop)) somar(reg, valor, cfop);
+  }
+  if (misto) for (const r of listar(e, 'F100')) {
+    if (['01', '02'].includes(get(r, 'CST_PIS'))) somar(r, cent(r, 'VL_OPER'), '');
   }
   return out;
 }

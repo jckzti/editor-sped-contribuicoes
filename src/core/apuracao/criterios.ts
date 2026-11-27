@@ -286,13 +286,13 @@ export function indiciosCriterios(escrituracoes: Escrituracao[]): Record<string,
       }
     }
 
-    // 0111: o original batia com a receita dos itens de nota por tipo?
+    // 0111: o original batia com a receita dos documentos por tipo?
     const com0111 = estados.filter((x) => x.est.original0111);
     if (com0111.length) {
       const bate = (x: (typeof com0111)[number]) => {
         const o = x.est.original0111!;
         const r = x.est.receitaOriginal;
-        return o[0] === r.trib && o[1] === r.nt && o[2] === r.exp;
+        return o[0] === r.trib && o[1] === r.nt && o[2] === r.exp && o[3] === r.cum;
       };
       const iguais = com0111.filter(bate);
       const ex = com0111.find((x) => !bate(x)) ?? com0111[0];
@@ -302,13 +302,13 @@ export function indiciosCriterios(escrituracoes: Escrituracao[]): Record<string,
         iguais.length === com0111.length
           ? {
               valor: 'ajustar-pelo-delta',
-              evidencia: `Nos ${com0111.length} mês(es) carregados, o 0111 original é igual à receita dos itens de nota por tipo: a empresa formava o 0111 a partir dos documentos.`,
+              evidencia: `Nos ${com0111.length} mês(es) carregados, o 0111 original é igual à receita dos documentos por tipo.`,
             }
           : {
               valor: 'manter',
               evidencia:
-                `O 0111 original de ${mesAno(ex.e.periodo)} (tributada R$ ${reais(o[0])}, não tributada R$ ${reais(o[1])}, exportação R$ ${reais(o[2])}) ` +
-                `não é igual à receita dos itens de nota (R$ ${reais(r.trib)}, R$ ${reais(r.nt)}, R$ ${reais(r.exp)}): a empresa informava o 0111 por outra fonte.`,
+                `O 0111 original de ${mesAno(ex.e.periodo)} (tributada R$ ${reais(o[0])}, não tributada R$ ${reais(o[1])}, exportação R$ ${reais(o[2])}, cumulativa R$ ${reais(o[3])}) ` +
+                `difere da receita correspondente nos documentos (R$ ${reais(r.trib)}, R$ ${reais(r.nt)}, R$ ${reais(r.exp)}, R$ ${reais(r.cum)}).`,
             };
     }
 
