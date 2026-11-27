@@ -3,7 +3,7 @@
  * valor a recolher. É onde o contador confere se a edição fez o efeito esperado
  * antes de levar o arquivo para o PVA.
  */
-import { Fragment, useMemo, useState } from 'react';
+import { Fragment, useEffect, useMemo, useRef, useState } from 'react';
 import type { ResumoApuracao, ResumoTributo } from '../core/apuracao/contrato';
 import type { Escrituracao } from '../core/modelo';
 import { exportarExcel } from './exportarExcel';
@@ -48,34 +48,51 @@ function creditoTotal(t: ResumoTributo): number {
 export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
   const [tributo, setTributo] = useState<'pis' | 'cofins'>('pis');
   const [aberto, setAberto] = useState<string | null>(null);
+  const [mesSelecionado, setMesSelecionado] = useState<string | null>(null);
+  const listaMeses = useRef<HTMLDivElement>(null);
+  const [rolagem, setRolagem] = useState({ disponivel: false, fim: false });
+  const temMeses = meses.length > 0;
+
+  useEffect(() => {
+    const lista = listaMeses.current;
+    const tabela = lista?.querySelector('table');
+    if (!lista || !tabela) return;
+    const medir = () => {
+      const disponivel = lista.clientHeight > 0 && lista.scrollHeight > lista.clientHeight + 1;
+      const fim = disponivel && lista.scrollTop + lista.clientHeight >= lista.scrollHeight - 2;
+      setRolagem((atual) => atual.disponivel === disponivel && atual.fim === fim ? atual : { disponivel, fim });
+    };
+    const observador = new ResizeObserver(medir);
+    observador.observe(lista);
+    observador.observe(tabela);
+    lista.addEventListener('scroll', medir, { passive: true });
+    medir();
+    return () => {
+      observador.disconnect();
+      lista.removeEventListener('scroll', medir);
+    };
+  }, [temMeses]);
 
   const ordenados = useMemo(
     () => [...meses].sort((a, b) => a.escrituracao.periodo.localeCompare(b.escrituracao.periodo)),
     [meses],
   );
 
-  const totais = useMemo(() => {
-    const soma = (f: (m: MesApuracao) => number) => ordenados.reduce((s, m) => s + f(m), 0);
-    const t = (m: MesApuracao) => m.atual[tributo];
-    const o = (m: MesApuracao) => m.original?.[tributo] ?? m.atual[tributo];
-    return {
-      creditoAntes: soma((m) => creditoTotal(o(m))),
-      creditoDepois: soma((m) => creditoTotal(t(m))),
-      debitoAntes: soma((m) => o(m).contribuicaoNaoCumulativa + o(m).contribuicaoCumulativa),
-      debitoDepois: soma((m) => t(m).contribuicaoNaoCumulativa + t(m).contribuicaoCumulativa),
-      recolherAntes: soma((m) => o(m).aRecolher),
-      recolherDepois: soma((m) => t(m).aRecolher),
-      saldoDepois: soma((m) => t(m).saldoCredor),
-    };
-  }, [ordenados, tributo]);
+  const selecionado = ordenados.find((m) => m.escrituracao.id === mesSelecionado) ?? ordenados[ordenados.length - 1];
+  if (!selecionado) return <p className="fraco">Nenhum mês carregado.</p>;
 
-  if (!meses.length) return <p className="fraco">Nenhum mês carregado.</p>;
+  const atual = selecionado.atual[tributo];
+  const original = selecionado.original?.[tributo] ?? atual;
+  const multiempresa = ordenados.some((m) => m.escrituracao.cnpj !== selecionado.escrituracao.cnpj);
 
   const aoExportarExcel = () => {
     const cabecalhos = [
       'Mês', 'CNPJ', 'Crédito original', 'Crédito atual', 'Variação do crédito',
       'Contribuição original', 'Contribuição atual', 'Variação da contribuição',
-      'A recolher original', 'A recolher atual', 'Variação a recolher', 'Saldo credor atual', 'Situação',
+        'A recolher original', 'A recolher atual', 'Variação a recolher',
+        'A recolher não cumulativo original', 'A recolher não cumulativo atual', 'Variação não cumulativa',
+        'A recolher cumulativo original', 'A recolher cumulativo atual', 'Variação cumulativa',
+        'Saldo credor atual', 'Situação',
     ];
     const linhas = ordenados.map((m) => {
       const atual = m.atual[tributo];
@@ -87,7 +104,10 @@ export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
       const valores = [
         creditoAntes, creditoDepois, creditoDepois - creditoAntes,
         contribuicaoAntes, contribuicaoDepois, contribuicaoDepois - contribuicaoAntes,
-        original.aRecolher, atual.aRecolher, atual.aRecolher - original.aRecolher, atual.saldoCredor,
+        original.aRecolher, atual.aRecolher, atual.aRecolher - original.aRecolher,
+        original.aRecolherNaoCumulativo, atual.aRecolherNaoCumulativo, atual.aRecolherNaoCumulativo - original.aRecolherNaoCumulativo,
+        original.aRecolherCumulativo, atual.aRecolherCumulativo, atual.aRecolherCumulativo - original.aRecolherCumulativo,
+        atual.saldoCredor,
       ];
       const situacao = [
         m.naoRecalculada ? 'Não recalculado' : '',
@@ -117,31 +137,48 @@ export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
         </span>
       </div>
 
-      <div className="cartoes" data-tour="apuracao-quadro">
-        <div className="cartao">
-          <span className="rotulo">Crédito disponível</span>
-          <strong className="num">{brl(totais.creditoDepois)}</strong>
-          <Delta de={totais.creditoAntes} para={totais.creditoDepois} bomQuando="sobe" />
-        </div>
-        <div className="cartao">
-          <span className="rotulo">Contribuição apurada</span>
-          <strong className="num">{brl(totais.debitoDepois)}</strong>
-          <Delta de={totais.debitoAntes} para={totais.debitoDepois} bomQuando="desce" />
-        </div>
-        <div className="cartao destaque">
-          <span className="rotulo">A recolher</span>
-          <strong className="num">{brl(totais.recolherDepois)}</strong>
-          <Delta de={totais.recolherAntes} para={totais.recolherDepois} bomQuando="desce" />
-        </div>
-        {totais.saldoDepois > 0 && (
+      <div className="resumo-mensal-apuracao" data-tour="apuracao-quadro" aria-live="polite" aria-atomic="true">
+        <strong>Resumo de {mesLegivel(selecionado.escrituracao.periodo)}{multiempresa && ' · ' + selecionado.escrituracao.nome}</strong>
+        <div className="cartoes">
+          <div className="cartao">
+            <span className="rotulo">Crédito disponível</span>
+            <strong className="num">{brl(creditoTotal(atual))}</strong>
+            <Delta de={creditoTotal(original)} para={creditoTotal(atual)} bomQuando="sobe" />
+          </div>
+          <div className="cartao">
+            <span className="rotulo">Contribuição apurada</span>
+            <strong className="num">{brl(atual.contribuicaoNaoCumulativa + atual.contribuicaoCumulativa)}</strong>
+            <Delta de={original.contribuicaoNaoCumulativa + original.contribuicaoCumulativa}
+              para={atual.contribuicaoNaoCumulativa + atual.contribuicaoCumulativa} bomQuando="desce" />
+          </div>
+          <div className="cartao destaque">
+            <span className="rotulo">A recolher não cumulativo</span>
+            <strong className="num">{brl(atual.aRecolherNaoCumulativo)}</strong>
+            <Delta de={original.aRecolherNaoCumulativo} para={atual.aRecolherNaoCumulativo} bomQuando="desce" />
+          </div>
+          <div className="cartao destaque">
+            <span className="rotulo">A recolher cumulativo</span>
+            <strong className="num">{brl(atual.aRecolherCumulativo)}</strong>
+            <Delta de={original.aRecolherCumulativo} para={atual.aRecolherCumulativo} bomQuando="desce" />
+          </div>
           <div className="cartao">
             <span className="rotulo">Saldo credor</span>
-            <strong className="num">{brl(totais.saldoDepois)}</strong>
+            <strong className="num">{brl(atual.saldoCredor)}</strong>
           </div>
-        )}
+        </div>
       </div>
 
-      <div className="tabela-rolagem">
+      <div className="barra-secao apuracao-lista-cabecalho">
+        <strong>Apuração por mês</strong>
+        {rolagem.disponivel && <button aria-controls="apuracao-lista-meses" onClick={() => {
+          const lista = listaMeses.current;
+          if (!lista) return;
+          const alturaCabecalho = lista.querySelector('thead')?.getBoundingClientRect().height ?? 0;
+          lista.scrollTop = rolagem.fim ? 0 : lista.scrollTop + Math.max(1, lista.clientHeight - alturaCabecalho);
+        }}>{rolagem.fim ? 'Voltar ao início ↑' : 'Rolar para baixo ↓'}</button>}
+      </div>
+      <div className="tabela-rolagem apuracao-lista-meses" id="apuracao-lista-meses" ref={listaMeses}
+        role="region" aria-label="Apuração por mês" tabIndex={rolagem.disponivel ? 0 : undefined}>
         <table className="tabela">
           <thead>
             <tr>
@@ -150,8 +187,10 @@ export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
               <th className="num">Variação</th>
               <th className="num">Contribuição</th>
               <th className="num">Variação</th>
-              <th className="num">A recolher</th>
-              <th className="num">Variação</th>
+              <th className="num">A recolher não cumulativo</th>
+              <th className="num" aria-label="Variação do valor não cumulativo a recolher">Variação</th>
+              <th className="num">A recolher cumulativo</th>
+              <th className="num" aria-label="Variação do valor cumulativo a recolher">Variação</th>
               <th className="num">Saldo credor</th>
               <th />
             </tr>
@@ -162,13 +201,20 @@ export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
               const o = m.original?.[tributo] ?? t;
               const id = m.escrituracao.id;
               const exp = aberto === id;
+              const ativo = selecionado.escrituracao.id === id;
+              const periodo = mesLegivel(m.escrituracao.periodo);
               return (
                 <Fragment key={id}>
-                  <tr className={m.escrituracao.alterada ? 'alterada' : undefined}>
+                  <tr className={[m.escrituracao.alterada && 'alterada', ordenados.length > 1 && ativo && 'mes-apuracao-selecionado'].filter(Boolean).join(' ')}>
                     <td>
-                      {mesLegivel(m.escrituracao.periodo)}
+                      {ordenados.length > 1 ? (
+                        <button type="button" aria-pressed={ativo} className={ativo ? 'primario' : undefined}
+                          aria-label={multiempresa ? periodo + ' · ' + m.escrituracao.nome : undefined}
+                          onClick={() => setMesSelecionado(id)}>{periodo}</button>
+                      ) : periodo}
+                      {multiempresa && <span className="fraco"> {m.escrituracao.nome}</span>}
                       {m.naoRecalculada && (
-                        <span className="etiqueta erro" title="O bloco M deste mês ficou como veio no arquivo: o motivo está no quadro vermelho acima">
+                        <span className="etiqueta erro" title="O bloco M deste mês ficou como veio no arquivo. Consulte a subaba Mensagens.">
                           não recalculado
                         </span>
                       )}
@@ -185,9 +231,13 @@ export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
                         bomQuando="desce"
                       />
                     </td>
-                    <td className="num forte">{brl(t.aRecolher)}</td>
+                    <td className="num forte">{brl(t.aRecolherNaoCumulativo)}</td>
                     <td className="num">
-                      <Delta de={o.aRecolher} para={t.aRecolher} bomQuando="desce" />
+                      <Delta de={o.aRecolherNaoCumulativo} para={t.aRecolherNaoCumulativo} bomQuando="desce" />
+                    </td>
+                    <td className="num forte">{brl(t.aRecolherCumulativo)}</td>
+                    <td className="num">
+                      <Delta de={o.aRecolherCumulativo} para={t.aRecolherCumulativo} bomQuando="desce" />
                     </td>
                     <td className="num">{t.saldoCredor ? brl(t.saldoCredor) : <span className="fraco">—</span>}</td>
                     <td>
@@ -198,7 +248,7 @@ export function TelaApuracao({ meses, desatualizada }: TelaApuracaoProps) {
                   </tr>
                   {exp && (
                     <tr className="detalhe">
-                      <td colSpan={9}>
+                      <td colSpan={11}>
                         <div className="detalhe-grade">
                           <div>
                             <h4>Créditos por tipo</h4>

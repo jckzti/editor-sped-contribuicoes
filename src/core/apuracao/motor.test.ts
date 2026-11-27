@@ -145,6 +145,11 @@ describe('regime misto', () => {
       expect(c(total, 'VL_CONT_NC_REC')).toBe(0);
       expect(c(total, 'VL_CONT_CUM_REC')).toBe(cum);
       expect(c(total, 'VL_TOT_CONT_REC')).toBe(cum);
+      expect(resultado.resumo[t.id]).toMatchObject({
+        aRecolherNaoCumulativo: 0,
+        aRecolherCumulativo: cum,
+        aRecolher: cum,
+      });
     }
   });
 

@@ -18,12 +18,14 @@ import { CRITERIO_POR_ID, ROTULO_CURTO } from './criterios';
 type PendenciaCriterios = ReturnType<typeof criteriosPendentes>[number];
 import { brl, cnpjLegivel, inteiro, periodoLegivel, plural } from './formato';
 import { TelaApuracao, type MesApuracao } from './TelaApuracao';
+import { TelaCreditosNatureza } from './TelaCreditosNatureza';
 
 const SUBABAS = [
   { id: 'bloco-m', rotulo: 'Bloco M' },
   { id: 'mensagens', rotulo: 'Mensagens' },
   { id: 'criterios', rotulo: 'Critérios da apuração' },
   { id: 'rateio', rotulo: 'Rateio (0111)' },
+  { id: 'creditos-natureza', rotulo: 'Créditos por Natureza' },
 ] as const;
 export type SubabaApuracao = typeof SUBABAS[number]['id'];
 
@@ -316,6 +318,10 @@ export function TelaApuracaoAba({ sessao, escrituracoes, versao, relatorios, des
       </section>
       <section role="tabpanel" id="apuracao-painel-rateio" aria-labelledby="apuracao-aba-rateio" hidden={subaba !== 'rateio'} data-tour="rateio-0111">
         {subaba === 'rateio' && <TelaRateio escrituracoes={escrituracoes} />}
+      </section>
+      <section className="apuracao" role="tabpanel" id="apuracao-painel-creditos-natureza" aria-labelledby="apuracao-aba-creditos-natureza"
+        hidden={subaba !== 'creditos-natureza'} data-tour="creditos-por-natureza">
+        <TelaCreditosNatureza escrituracoes={escrituracoes} versao={versao} />
       </section>
     </div>
   );
