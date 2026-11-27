@@ -19,7 +19,7 @@ import {
   ROTULO_CURTO,
   type ValorCriterio,
 } from './criterios';
-import { Dialogo } from './Dialogo';
+import type { DialogoProps } from './Dialogo';
 import { cnpjLegivel, periodoLegivel } from './formato';
 
 function agrupar(escrituracoes: Escrituracao[]): { cnpj: string; nome: string; meses: Escrituracao[] }[] {
@@ -39,6 +39,14 @@ export interface CriteriosApuracaoProps {
   motivo?: string;
   aoConfirmar: (escolhas: Record<string, EscolhasCriterios>, lembrar: Set<string>) => void;
   aoFechar: () => void;
+}
+
+function PainelCriterios({ subtitulo, children, rodape }: Pick<DialogoProps, 'subtitulo' | 'children' | 'rodape'>) {
+  return <div className="apuracao">
+    <p className="fraco">{subtitulo}</p>
+    {children}
+    <div className="barra-secao envolve">{rodape}</div>
+  </div>;
 }
 
 export function CriteriosApuracao({ escrituracoes, config, preenchidas, lembradas, motivo, aoConfirmar, aoFechar }: CriteriosApuracaoProps) {
@@ -105,11 +113,8 @@ export function CriteriosApuracao({ escrituracoes, config, preenchidas, lembrada
   };
 
   return (
-    <Dialogo
-      titulo="Critérios da apuração"
+    <PainelCriterios
       subtitulo="Estas escolhas dependem do caso: o editor não tem padrão para elas. Nada vem marcado."
-      aoFechar={aoFechar}
-      tamanho="largo"
       rodape={
         <>
           <button className="primario" disabled={!completas} onClick={() => aoConfirmar(rascunho, lembrar)} title={completas ? '' : `Falta responder ${faltam}`}>
@@ -221,7 +226,7 @@ export function CriteriosApuracao({ escrituracoes, config, preenchidas, lembrada
           </section>
         );
       })}
-    </Dialogo>
+    </PainelCriterios>
   );
 }
 

@@ -33,7 +33,7 @@ export interface ControleTourProps {
   /** Há arquivo carregado (fora disso, o tour roda em modo demonstrativo). */
   temDados: boolean;
   /** Troca a aba do App. */
-  aoIrPara?: (tela: TelaTour) => void;
+  aoIrPara?: (tela: TelaTour, passo: PassoTour) => void;
   /** Abre a aba Manual na seção pedida. */
   aoAbrirManual?: (secao: string) => void;
   /** Pedido externo para abrir o tour (ex.: botão do Manual): mude o número para abrir. */

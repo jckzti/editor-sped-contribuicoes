@@ -11,6 +11,7 @@ import type { Tributo } from './tributos';
 import { aliqEsc, fmtAliq, SITUACOES_FORA } from './util';
 import { codigoReceitaMista, regimeMisto } from './misto';
 import type { EstadoTributo } from './estado';
+import { saldoCredorEditado } from '../saldosCredores';
 
 /** Registros cuja presença impede o recálculo (o motor não sabe apurá-los). */
 const IMPEDITIVOS: Record<string, string> = {
@@ -48,6 +49,11 @@ const COD_CONT_SUPORTADOS = new Set(['01', '02']);
 
 /** Verificação estrutural (independe do tributo). Erros = recusa. */
 export function verificarPerfil(e: Escrituracao): Aviso[] {
+  if (saldoCredorEditado(e)) return [{
+    nivel: 'erro',
+    codigo: 'APURACAO_SALDO_EDITADO',
+    mensagem: 'Apuração não recalculada para preservar a edição manual do 1100 ou 1500. No PVA, confira a consistência do bloco M e dos saldos dos meses seguintes.',
+  }];
   const avisos: Aviso[] = [];
   const presentes = new Set<string>();
   for (const r of percorrer(e.raiz)) {

@@ -25,13 +25,13 @@ import {
   lerRegrasSalvas,
   type Preferencias,
 } from './preferencias';
-import { TelaApuracaoAba } from './TelaApuracaoAba';
+import { TelaApuracaoAba, type SubabaApuracao } from './TelaApuracaoAba';
 import { TelaConferencia } from './TelaConferencia';
+import { TelaSaldosCredores } from './TelaSaldosCredores';
 import { estadoDocumentosInicial, TelaDocumentos, type EstadoDocumentos } from './TelaDocumentos';
 import { TelaRegras, type RascunhoRegra } from './TelaRegras';
 import { useSessao } from './useSessao';
 import { ControleTour } from './ajuda/ControleTour';
-import type { TelaTour } from './ajuda/passosTour';
 import { TelaManual } from './ajuda/TelaManual';
 
 const ABAS = [
@@ -39,6 +39,7 @@ const ABAS = [
   { id: 'cadastros', rotulo: 'Cadastros' },
   { id: 'regras', rotulo: 'Regras' },
   { id: 'apuracao', rotulo: 'Apuração' },
+  { id: 'saldos-credores', rotulo: 'Saldos Credores' },
   { id: 'conferencia', rotulo: 'Conferência' },
   { id: 'manual', rotulo: 'Manual' },
 ] as const;
@@ -73,6 +74,7 @@ export function App() {
   const [estadoDocs, setEstadoDocs] = useState<EstadoDocumentos>(estadoDocumentosInicial);
   const [secaoManual, setSecaoManual] = useState<string | undefined>();
   const [pedidoTour, setPedidoTour] = useState(0);
+  const [subabaApuracao, setSubabaApuracao] = useState<SubabaApuracao>('bloco-m');
   const [rotina, setRotina] = useState<{ motivo?: string; acao?: AcaoPosCriterios; preenchidas?: Record<string, EscolhasCriterios> } | null>(null);
   const [acaoPendente, setAcaoPendente] = useState<AcaoPosCriterios | null>(null);
   const [erroApuracao, setErroApuracao] = useState<string | null>(null);
@@ -143,8 +145,10 @@ export function App() {
         if (lembrados[e.cnpj] && !Object.keys(criteriosDe(config, e.cnpj)).length) preenchidas[e.cnpj] = lembrados[e.cnpj];
       }
       setRotina({ motivo, acao, preenchidas });
+      setSubabaApuracao('criterios');
+      mudarPrefs({ aba: 'apuracao' });
     },
-    [escrituracoes, lembrados, config],
+    [escrituracoes, lembrados, config, mudarPrefs],
   );
 
   /**
@@ -223,6 +227,7 @@ export function App() {
         setErroApuracao(null);
       } catch (err) {
         setErroApuracao((err as Error)?.message ?? String(err));
+        setSubabaApuracao('mensagens');
       }
     } else {
       const ids = new Set(acaoPendente.ids);
@@ -241,7 +246,10 @@ export function App() {
     gravarCriteriosLembrados(novos);
     const acao = rotina?.acao;
     setRotina(null);
-    if (acao) setAcaoPendente(acao);
+    if (acao) {
+      setSubabaApuracao('bloco-m');
+      setAcaoPendente(acao);
+    }
   };
 
   return (
@@ -293,7 +301,7 @@ export function App() {
         {s.apuracaoDesatualizada && (
           <button
             className="etiqueta desatualizada"
-            onClick={() => mudarPrefs({ aba: 'apuracao' })}
+            onClick={() => { setSubabaApuracao('bloco-m'); mudarPrefs({ aba: 'apuracao' }); }}
             title="Houve edição depois do último recálculo: o bloco M ainda não reflete as edições. O botão Baixar recalcula antes de gerar o arquivo."
           >
             apuração desatualizada
@@ -304,7 +312,13 @@ export function App() {
 
         <ControleTour
           temDados={escrituracoes.length > 0}
-          aoIrPara={(t: TelaTour) => mudarPrefs({ aba: t })}
+          aoIrPara={(t, passo) => {
+            if (t === 'apuracao') {
+              const destino = passo.id === 'criterios' || passo.id === 'rateio' || passo.id === 'creditos-natureza' ? passo.id : 'bloco-m';
+              setSubabaApuracao(destino);
+            }
+            mudarPrefs({ aba: t });
+          }}
           aoAbrirManual={(secao) => {
             setSecaoManual(secao);
             mudarPrefs({ aba: 'manual' });
@@ -314,7 +328,11 @@ export function App() {
 
         <div className="abas" role="tablist">
           {ABAS.map((a) => (
-            <button key={a.id} data-tour={`aba-${a.id}`} role="tab" aria-selected={aba === a.id} className={aba === a.id ? 'ativa' : ''} onClick={() => mudarPrefs({ aba: a.id })}>
+            <button key={a.id} data-tour={`aba-${a.id}`} role="tab" aria-selected={aba === a.id} className={aba === a.id ? 'ativa' : ''} onClick={() => {
+              if (aba === 'apuracao' && a.id !== 'apuracao') setRotina(null);
+              if (a.id === 'apuracao' && aba !== 'apuracao') setSubabaApuracao('bloco-m');
+              mudarPrefs({ aba: a.id });
+            }}>
               {a.rotulo}
             </button>
           ))}
@@ -393,27 +411,6 @@ export function App() {
           </div>
         )}
 
-        {erroApuracao && (
-          <div className="aviso erro">
-            {erroApuracao}{' '}
-            <button className="ligacao" onClick={() => setErroApuracao(null)}>
-              ok
-            </button>
-          </div>
-        )}
-
-        {rotina && (
-          <CriteriosApuracao
-            escrituracoes={escrituracoes}
-            config={config}
-            preenchidas={rotina.preenchidas}
-            lembradas={new Set(Object.keys(lembrados))}
-            motivo={rotina.motivo}
-            aoConfirmar={confirmarCriterios}
-            aoFechar={() => setRotina(null)}
-          />
-        )}
-
         {aba === 'manual' ? (
           <TelaManual secaoInicial={secaoManual} aoAbrirTour={() => setPedidoTour((n) => n + 1)} />
         ) : !escrituracoes.length ? (
@@ -468,7 +465,25 @@ export function App() {
             aoRecalcular={recalcularOuPedirCriterios}
             pendencias={pendencias}
             aoAbrirCriterios={() => abrirCriterios()}
+            subaba={subabaApuracao}
+            aoTrocarSubaba={(subaba) => {
+              if (subaba === subabaApuracao && (subaba !== 'criterios' || rotina)) return;
+              if (subaba === 'criterios') abrirCriterios();
+              else { setRotina(null); setSubabaApuracao(subaba); }
+            }}
+            erroExterno={erroApuracao}
+            criterios={rotina ? <CriteriosApuracao
+              escrituracoes={escrituracoes}
+              config={config}
+              preenchidas={rotina.preenchidas}
+              lembradas={new Set(Object.keys(lembrados))}
+              motivo={rotina.motivo}
+              aoConfirmar={confirmarCriterios}
+              aoFechar={() => { setRotina(null); setSubabaApuracao('bloco-m'); }}
+            /> : undefined}
           />
+        ) : aba === 'saldos-credores' ? (
+          <TelaSaldosCredores escrituracoes={escrituracoes} mudou={s.mudou} />
         ) : (
           <TelaConferencia
             sessao={s.sessao}

@@ -18,6 +18,7 @@ import { ANCORAS_PENDENTES } from './integracao';
 import { NOVIDADES, PASSOS_TOUR, VERSAO_TOUR } from './passosTour';
 import {
   abasDoApp,
+  subabasDaApuracao,
   ancoraExiste,
   ancorasNoCodigo,
   chavesConfigApuracao,
@@ -114,8 +115,8 @@ describe('manual: cobre o que o sistema expõe', () => {
     expect(quebrados, 'Links internos do manual para seções que não existem.').toEqual([]);
   });
 
-  it('toda aba do App tem seção no manual', () => {
-    const erros = abasDoApp()
+  it('toda aba do App e subaba da Apuração tem seção no manual', () => {
+    const erros = [...abasDoApp(), ...subabasDaApuracao()]
       .map((a) => conferirMencao(`Aba "${a.rotulo}" (${a.id})`, COBERTURA.abas[a.id]) ?? (norm(COBERTURA.abas[a.id].termo) === norm(a.rotulo) ? null : `Aba ${a.id}: o rótulo na tela é "${a.rotulo}", o manual diz "${COBERTURA.abas[a.id].termo}".`))
       .filter(Boolean);
     expect(erros, 'Atualize o manual (src/ui/ajuda/conteudoManual.ts).').toEqual([]);
