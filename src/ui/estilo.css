@@ -420,6 +420,63 @@ button:focus-visible {
   scrollbar-color: var(--texto-fraco) var(--fundo);
 }
 
+.resumo-mensal-apuracao {
+  display: grid;
+  gap: 8px;
+}
+
+.saldo-credor-campos {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(min(190px, 100%), 1fr));
+  gap: 10px;
+}
+
+.saldo-credor-campos label {
+  display: grid;
+  min-width: 0;
+  gap: 4px;
+}
+
+.saldo-credor-campos input,
+.saldo-credor-campos select,
+[data-tour="saldos-credores"] .barra-secao select {
+  max-width: 100%;
+  min-width: 0;
+}
+
+[data-tour="saldos-credores"] .barra-secao label {
+  max-width: 100%;
+}
+
+[data-tour="saldos-credores"] tfoot {
+  background: var(--destaque-fraco);
+}
+
+#apuracao-painel-creditos-natureza caption {
+  padding: 6px 8px;
+  text-align: left;
+}
+
+#apuracao-painel-creditos-natureza select {
+  max-width: min(36rem, 70vw);
+}
+
+.credito-natureza-cst > * {
+  background: var(--fundo);
+}
+
+.credito-natureza-cst > th {
+  padding-left: 24px;
+}
+
+#apuracao-painel-creditos-natureza tfoot {
+  background: var(--destaque-fraco);
+}
+
+.tabela tbody tr.mes-apuracao-selecionado > td {
+  background: var(--destaque-fraco);
+}
+
 .subabas-apuracao {
   border-bottom: 1px solid var(--borda);
   padding-bottom: 8px;

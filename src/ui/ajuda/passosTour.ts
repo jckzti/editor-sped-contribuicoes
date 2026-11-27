@@ -12,7 +12,7 @@
  */
 
 /** Telas do App onde um passo acontece (o tour troca de aba antes de mostrar o passo). */
-export type TelaTour = 'documentos' | 'regras' | 'apuracao' | 'conferencia' | 'manual';
+export type TelaTour = 'documentos' | 'regras' | 'apuracao' | 'saldos-credores' | 'conferencia' | 'manual';
 
 export interface PassoTour {
   id: string;
@@ -30,7 +30,7 @@ export interface PassoTour {
 }
 
 /** Versão do roteiro. Suba sempre que um passo mudar, entrar ou sair. */
-export const VERSAO_TOUR = 9;
+export const VERSAO_TOUR = 12;
 
 export const PASSOS_TOUR: PassoTour[] = [
   {
@@ -140,7 +140,7 @@ export const PASSOS_TOUR: PassoTour[] = [
     id: 'antes-depois',
     titulo: '10. Ler o antes e o depois',
     texto:
-      'Troque entre PIS/Pasep e Cofins para comparar o crédito, a contribuição e os valores a recolher por regime. Se os meses não couberem na tabela, use **Rolar para baixo**. Clique em **Exportar Excel** para baixar o resumo mensal do tributo selecionado.',
+      'Clique no mês na tabela para ver seus valores nos cartões. Troque entre PIS/Pasep e Cofins para comparar o mesmo mês. Se os meses não couberem na tabela, use **Rolar para baixo**. **Exportar Excel** inclui todos os meses do tributo selecionado.',
     tela: 'apuracao',
     ancoras: ['apuracao-quadro'],
     secaoManual: 'apuracao',
@@ -152,6 +152,22 @@ export const PASSOS_TOUR: PassoTour[] = [
     tela: 'apuracao',
     ancoras: ['rateio-0111'],
     secaoManual: 'apuracao-0111',
+  },
+  {
+    id: 'creditos-natureza',
+    titulo: 'Conferir créditos por natureza',
+    texto: 'Na subaba **Créditos por Natureza**, selecione o mês e o tributo para ver a base, o crédito e os ajustes. Clique no código para abrir o detalhamento por CST.',
+    tela: 'apuracao',
+    ancoras: ['creditos-por-natureza'],
+    secaoManual: 'apuracao',
+  },
+  {
+    id: 'saldos-credores',
+    titulo: 'Consultar e editar saldos credores',
+    texto: 'Em **Saldos Credores**, escolha o mês e o tributo para ver os registros 1100 ou 1500. Use **Editar** para conferir os saldos antes de aplicar. Meses com edição manual devem ser conferidos no PVA.',
+    tela: 'saldos-credores',
+    ancoras: ['saldos-credores', 'aba-saldos-credores'],
+    secaoManual: 'apuracao-saldo',
   },
   {
     id: 'conferencia',
@@ -218,5 +234,17 @@ export const NOVIDADES: Record<number, { resumo: string; passos: string[] }> = {
   9: {
     resumo: 'O Bloco M separa os valores a recolher por regime e permite rolar a tabela de meses com o cabeçalho fixo.',
     passos: ['antes-depois'],
+  },
+  10: {
+    resumo: 'Os cartões do Bloco M mostram o resumo do mês selecionado na tabela.',
+    passos: ['antes-depois'],
+  },
+  11: {
+    resumo: 'A subaba Créditos por Natureza detalha as bases, créditos e ajustes de PIS/Pasep e Cofins por CST.',
+    passos: ['creditos-natureza'],
+  },
+  12: {
+    resumo: 'A aba Saldos Credores consulta e edita os registros 1100 e 1500 por mês e tributo.',
+    passos: ['saldos-credores'],
   },
 };
