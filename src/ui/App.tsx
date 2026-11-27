@@ -104,8 +104,9 @@ export function App() {
       // Sessao.regras é só para salvar a sessão: guarda regras de qualquer tipo de linha
       s.sessao.regras = r as Regra[];
       gravarRegrasSalvas(r);
+      s.mudou();
     },
-    [s.sessao],
+    [s.sessao, s.mudou],
   );
 
   useEffect(() => {
@@ -270,6 +271,7 @@ export function App() {
           <input
             ref={entrada}
             type="file"
+            disabled={s.restaurando}
             multiple
             accept=".txt,text/plain"
             onChange={(e) => {
@@ -350,6 +352,8 @@ export function App() {
       </div>
 
       <div className="conteudo">
+        {s.restaurando && <div className="aviso info estado">Restaurando a sessão salva neste navegador...</div>}
+        {s.erroPersistencia && <div className="aviso alerta estado">A sessão não pôde ser salva neste navegador: {s.erroPersistencia} Seus arquivos continuam disponíveis enquanto esta aba estiver aberta.</div>}
         {s.carregando && <div className="aviso info estado">{s.carregando}</div>}
 
         {s.errosArquivo.length > 0 && (
@@ -414,7 +418,7 @@ export function App() {
         {aba === 'manual' ? (
           <TelaManual secaoInicial={secaoManual} aoAbrirTour={() => setPedidoTour((n) => n + 1)} />
         ) : !escrituracoes.length ? (
-          <Carregar aoEscolher={(arquivos) => void s.carregarArquivos(arquivos)} carregando={s.carregando} />
+          <Carregar aoEscolher={(arquivos) => void s.carregarArquivos(arquivos)} carregando={s.restaurando ? 'Restaurando a sessão salva neste navegador...' : s.carregando} desabilitado={s.restaurando} />
         ) : aba === 'documentos' ? (
           <TelaDocumentos
             key="documentos"

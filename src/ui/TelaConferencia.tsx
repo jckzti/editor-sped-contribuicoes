@@ -96,8 +96,8 @@ export function TelaConferencia({ sessao, escrituracoes, versao, mudou, desatual
     <div className="apuracao">
       <div className="aviso info">
         <strong>A validação que vale é a do PVA.</strong> Esta tela pega o que o PVA costuma recusar e o que normalmente é engano de edição, mas não substitui o
-        programa da Receita: gere o arquivo, importe no PVA, valide e transmita por lá. Nenhum dado de cliente é gravado neste navegador — só as preferências de
-        tela e as regras salvas. Fechar a aba apaga os arquivos carregados.
+        programa da Receita: gere o arquivo, importe no PVA, valide e transmita por lá. Preferências, regras e arquivos carregados e editados ficam guardados
+        somente neste navegador.
       </div>
 
       <div className="barra-secao envolve" data-tour="conferencia-acoes">

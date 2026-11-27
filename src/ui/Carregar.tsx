@@ -11,9 +11,10 @@ export interface CarregarProps {
   carregando?: string | null;
   /** Já há arquivos carregados: a tela vira um painel menor. */
   compacto?: boolean;
+  desabilitado?: boolean;
 }
 
-export function Carregar({ aoEscolher, carregando, compacto }: CarregarProps) {
+export function Carregar({ aoEscolher, carregando, compacto, desabilitado }: CarregarProps) {
   const [sobre, setSobre] = useState(false);
   const input = useRef<HTMLInputElement>(null);
 
@@ -35,7 +36,7 @@ export function Carregar({ aoEscolher, carregando, compacto }: CarregarProps) {
       onDrop={(e) => {
         e.preventDefault();
         setSobre(false);
-        receber(e.dataTransfer.files);
+        if (!desabilitado) receber(e.dataTransfer.files);
       }}
     >
       <input
@@ -44,6 +45,7 @@ export function Carregar({ aoEscolher, carregando, compacto }: CarregarProps) {
         multiple
         accept=".txt,text/plain"
         hidden
+        disabled={desabilitado}
         onChange={(e) => {
           receber(e.target.files);
           e.target.value = '';
@@ -58,13 +60,13 @@ export function Carregar({ aoEscolher, carregando, compacto }: CarregarProps) {
             {compacto ? 'Acrescentar mais meses' : 'Arraste aqui os arquivos .txt da escrituração'}
             {!compacto && <span className="fraco"> (um por mês, pode ser vários de uma vez)</span>}
           </p>
-          <button className="primario" onClick={() => input.current?.click()}>
+          <button className="primario" disabled={desabilitado} onClick={() => input.current?.click()}>
             Escolher arquivos
           </button>
           {!compacto && (
             <p className="fraco privacidade">
-              Os arquivos são lidos pelo próprio navegador. Nada é enviado para servidor nenhum, e
-              fechar esta aba apaga tudo.
+              Os arquivos ficam guardados somente neste navegador para você continuar depois. Nada
+              é enviado para servidor nenhum.
             </p>
           )}
         </>

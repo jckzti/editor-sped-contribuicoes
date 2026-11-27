@@ -5,8 +5,8 @@ Serve para fazer, em lote e em vários meses de uma vez, a edição que hoje é 
 a documento dentro do PVA: alterar a tributação de itens, excluir e incluir itens e notas.
 O arquivo gerado vai para o PVA apenas para validar e transmitir.
 
-**Nada sai da máquina.** Os arquivos são lidos pelo próprio navegador; não existe servidor,
-não há upload, não há banco de dados. Fechar a aba apaga tudo.
+**Nada sai da máquina.** Os arquivos são lidos e guardados localmente pelo navegador (IndexedDB);
+não existe servidor nem upload. A sessão continua disponível ao fechar e reabrir o navegador.
 
 ## Como usar
 

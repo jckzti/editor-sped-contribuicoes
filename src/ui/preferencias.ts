@@ -1,9 +1,8 @@
 /**
- * O que fica guardado no navegador: SÓ preferências de tela, as regras salvas e, a pedido,
- * os critérios da apuração lembrados por empresa.
+ * O que fica guardado no localStorage: preferências de tela, regras salvas e, a pedido,
+ * critérios da apuração lembrados por empresa. Arquivos e edições ficam no IndexedDB.
  *
- * Nenhum dado de cliente (arquivo, nota, valor) é gravado em lugar nenhum: fechar a
- * aba apaga tudo o que foi carregado. A tela de conferência diz isso ao usuário.
+ * Preferências continuam no localStorage; a sessão com arquivos e edições fica no IndexedDB.
  */
 import { exportarRegras, importarRegras, type Regra } from '../core/regras';
 import type { TipoLinhaTodos } from '../core/linhas';

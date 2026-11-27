@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 18;
+export const VERSAO_MANUAL = 19;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -123,7 +123,7 @@ export const SECOES: Secao[] = [
       lista(
         'Não transmite, não assina e não consulta a Receita.',
         'Não escritura do zero: parte sempre de um arquivo da EFD-Contribuições já gerado.',
-        'Não guarda os arquivos em lugar nenhum (ver [Privacidade](#privacidade)).',
+        'Guarda os arquivos e edições somente neste navegador (ver [Privacidade](#privacidade)).',
         'Não substitui a revisão do contador: ele mostra o antes e o depois para você decidir.',
       ),
       sub('O caminho de sempre'),
@@ -142,14 +142,15 @@ export const SECOES: Secao[] = [
     id: 'privacidade',
     titulo: 'Privacidade: o que fica e o que some',
     grupo: 'comeco',
-    resumo: 'Nada sai do navegador; fechar a aba apaga os arquivos. Só preferências, regras e a marca do tour ficam guardadas.',
+    resumo: 'Nada sai do navegador; arquivos e edições ficam guardados neste navegador até serem removidos.',
     blocos: [
       p(
-        'Os arquivos são lidos pelo próprio navegador. Não existe servidor, upload nem banco de dados: nenhum dado do arquivo sai do computador.',
+        'Os arquivos são lidos e guardados no próprio navegador, em um banco de dados local do IndexedDB. Não existe servidor nem upload: nenhum dado do arquivo sai do computador.',
       ),
-      alerta('**Fechar ou recarregar a aba apaga tudo o que foi carregado e editado.** Baixe os arquivos antes de fechar.'),
+      alerta('**Os arquivos carregados e suas edições são restaurados quando você voltar a este navegador.** Para apagar os dados salvos, remova os dados do site nas configurações do navegador. Baixe os arquivos corrigidos para manter uma cópia fora do navegador.'),
       sub('O que fica guardado neste navegador'),
       lista(
+        'A sessão de trabalho: arquivos carregados, edições, configuração da apuração e regras da sessão. A restauração não mantém o histórico de desfazer.',
         'Preferências de tela: a última aba aberta, o tipo de linha escolhido e as colunas visíveis de cada tipo de linha.',
         'As regras salvas (nome, filtro e ação). Se o filtro de uma regra tiver um número de nota ou um CNPJ digitado por você, ele fica guardado na regra.',
         'Os critérios da apuração de uma empresa (CNPJ e escolhas), só quando você marca "Lembrar estas escolhas para esta empresa" (ver [Critérios da apuração](#apuracao-criterios)).',
@@ -822,7 +823,7 @@ export const SECOES: Secao[] = [
         'Para os meses marcados como não recalculados, ajuste a apuração no PVA.',
         'Assine e transmita pelo PVA, como sempre.',
       ),
-      alerta('Baixe antes de fechar a aba: fechar apaga tudo o que foi editado.'),
+      alerta('Baixe os arquivos corrigidos para manter uma cópia fora do navegador. A sessão fica guardada neste navegador; remova os dados do site nas configurações do navegador para apagá-la.'),
     ],
   },
 
