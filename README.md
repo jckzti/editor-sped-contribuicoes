@@ -68,8 +68,9 @@ simples (`npx serve dist`).
   Sessenta meses chegam a ~570 MB, o que funciona em um computador com folga de memória,
   mas deixa o navegador lento. O recomendado é trabalhar um ano por vez.
 - **Perfil de arquivo suportado**: escrituração do regime não cumulativo ou do regime misto
-  com receitas tributadas nas alíquotas básicas do CST 01 e sem base de crédito compartilhada
-  com o regime cumulativo. Inclui documentos
+  com receitas nas alíquotas básicas do CST 01 ou com enquadramento inequívoco de CST 02
+  no bloco M original. A divisão da base de crédito entre regimes pode ser mantida quando
+  os dados de crédito, estorno e rateio aplicável continuam iguais. Inclui documentos
   informados item a item (C100/C170), vendas por NFC-e (C175), fretes (D100), serviços de transporte
   do resumo diário (D200/D201/D205), energia (C500) e outras operações (F100).
   Arquivos com outros registros que afetam a apuração e ainda não são suportados são

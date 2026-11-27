@@ -1,10 +1,10 @@
-﻿import * as XLSX from 'xlsx';
+import * as XLSX from 'xlsx';
 
 export function exportarExcel(
   nomeArquivo: string,
   nomeAba: string,
   cabecalhos: readonly string[],
-  linhas: readonly (readonly string[])[]
+  linhas: readonly (readonly (string | number)[])[]
 ): void {
   const dados = [
     [...cabecalhos],

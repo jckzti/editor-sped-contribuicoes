@@ -25,6 +25,7 @@ import {
 } from './natureza';
 import { consolidarChaveRepetida, recusasChaveRepetida } from './duplicados';
 import { verificarFontes, verificarPerfil } from './perfil';
+import { aliquotasDiferenciadas, dadosCredito, regimeMisto, temBaseCompartilhada } from './misto';
 import { aprenderPresumido, tipoPresumidoDe } from './presumido';
 import { cstComum, gruposDoCst, type Receitas0111 } from './rateio';
 import { lerResumo } from './resumo';
@@ -59,12 +60,15 @@ export function registrarOriginal(e: Escrituracao): void {
   const ncm = mapaNcm(e);
   const tributos = {} as Record<IdTributo, EstadoTributo>;
   const aprendido: NaturezasCnpj = { aprendido: {}, manual: {} };
+  const misto = regimeMisto(e);
   for (const t of TRIBUTOS) {
     const f = extrairFontes(e, t, cfg.cfopNatBc);
     const ap = aprenderEstornos(e, t, f.estornos);
     const codRec: Record<string, string> = {};
     for (const m205 of listar(e, t.M205)) codRec[get(m205, 'NUM_CAMPO')] ??= get(m205, 'COD_REC');
     const est: EstadoTributo = {
+      aliquotasDiferenciadas: misto ? aliquotasDiferenciadas(e, t) : new Map(),
+      dadosCreditoCompartilhado: misto && temBaseCompartilhada(e, t) ? dadosCredito(f) : null,
       docsVinculados: ap.vinculados,
       vinculadosCurto: ap.vinculadosCurto,
       ambiguos: ap.ambiguos,
@@ -110,7 +114,7 @@ export function registrarOriginal(e: Escrituracao): void {
     fatosSaldo: fatosSaldoOriginal(e),
     resumoOriginal: lerResumo(e),
     tributos,
-    receitaOriginal: receitaPorTipo(e),
+    receitaOriginal: receitaPorTipo(e, tributos.pis.aliquotasDiferenciadas),
     original0111: r0111
       ? [
           cent(r0111, 'REC_BRU_NCUM_TRIB_MI'),
@@ -386,7 +390,7 @@ function planejar0111(e: Escrituracao, config: ConfigApuracao, estado: EstadoApu
   const avisos: Aviso[] = [];
   if (!r0111 || !estado.original0111) return { novos: null, avisos };
   const o = estado.original0111;
-  const atual = receitaPorTipo(e);
+  const atual = receitaPorTipo(e, estado.tributos.pis.aliquotasDiferenciadas);
   const d = [atual.trib - estado.receitaOriginal.trib, atual.nt - estado.receitaOriginal.nt, atual.exp - estado.receitaOriginal.exp, atual.cum - estado.receitaOriginal.cum];
   const ajustado: NonNullable<EstadoApuracao['original0111']> = [o[0] + d[0], o[1] + d[1], o[2] + d[2], o[3] + d[3], o[4] + d.reduce((s, v) => s + v, 0)];
   const nomes = ['tributada no mercado interno', 'não tributada no mercado interno', 'de exportação', 'cumulativa'];
@@ -434,6 +438,7 @@ function recusasDoMes(e: Escrituracao, estado: EstadoApuracao, fontes: Record<Id
   for (const t of TRIBUTOS) {
     erros.push(...recusasChaveRepetida(e, t));
     const est = estado.tributos[t.id];
+    if (est.dadosCreditoCompartilhado) continue;
     const basePorCst = new Map<string, number>();
     const presumidoSemTipo = new Map<string, number>();
     for (const op of fontes[t.id].creditos) {
@@ -498,7 +503,7 @@ function recalcularUma(
   if (!erros.length) {
     for (const t of TRIBUTOS) {
       fontes[t.id] = extrairFontes(e, t, config.cfopNatBc);
-      erros.push(...verificarFontes(e, t, fontes[t.id]));
+      erros.push(...verificarFontes(e, t, fontes[t.id], estado.tributos[t.id]));
     }
   }
 
@@ -511,6 +516,23 @@ function recalcularUma(
       ? { 1: cent(r0111, 'REC_BRU_NCUM_TRIB_MI'), 2: cent(r0111, 'REC_BRU_NCUM_NT_MI'), 3: cent(r0111, 'REC_BRU_NCUM_EXP') }
       : { 1: 0, 2: 0, 3: 0 };
   if (!erros.length) erros.push(...recusasDoMes(e, estado, fontes, rec));
+  if (regimeMisto(e) && !erros.length) {
+    const r0110 = listar(e, '0110')[0];
+    const proporcional = get(r0110, 'IND_APRO_CRED') === '2';
+    const receitaCum = plano0111.novos?.[3] ?? (r0111 ? cent(r0111, 'REC_BRU_CUM') : 0);
+    const receitaTotal = plano0111.novos?.[4] ?? (r0111 ? cent(r0111, 'REC_BRU_TOTAL') : 0);
+    for (const t of TRIBUTOS) {
+      const original = estado.tributos[t.id].dadosCreditoCompartilhado;
+      if (!original && !temBaseCompartilhada(e, t)) continue;
+      const atuais = dadosCredito(fontes[t.id]);
+      const mesmosDados = original?.length === atuais.length && atuais.every((v, i) => v === original[i]);
+      const mesmasReceitas = !proporcional || [rec[1], rec[2], rec[3], receitaCum, receitaTotal].every((v, i) => v === estado.original0111?.[i]);
+      if (!mesmosDados || !mesmasReceitas) erros.push({
+        nivel: 'erro', codigo: 'APURACAO_MISTO_BASE_COMPARTILHADA',
+        mensagem: `Apuração não recalculada (${t.nome}): a divisão original do ${t.M105} não pode ser mantida porque os dados de crédito, estorno ou rateio mudaram. Confira a divisão das bases entre os regimes no PVA.`,
+      });
+    }
+  }
 
   if (erros.length) {
     const vistos = new Set<string>();
@@ -529,6 +551,11 @@ function recalcularUma(
     setCent(r0111, 'REC_BRU_TOTAL', plano0111.novos[4]);
   }
   avisos.push(...plano0111.avisos);
+  const basesPreservadas = TRIBUTOS.filter((t) => estado.tributos[t.id].dadosCreditoCompartilhado).map((t) => t.M105);
+  if (basesPreservadas.length) avisos.push({
+    nivel: 'info', codigo: 'APURACAO_MISTO_BASE_PRESERVADA',
+    mensagem: `A divisão original da base de crédito entre regimes foi mantida no ${basesPreservadas.join(' e ')}. O uso dos créditos foi atualizado conforme a contribuição não cumulativa a recolher.`,
+  });
 
   let m001 = listar(e, 'M001')[0];
   if (!m001) {
