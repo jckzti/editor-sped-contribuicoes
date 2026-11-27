@@ -21,7 +21,7 @@ import type { ModoBaseForm } from '../acoes';
 import { CRITERIOS, type IdCriterio } from '../../core/apuracao';
 
 /** Sobe a cada revisão do manual (o carimbo de `carimbo.ts` guarda a última revisada). */
-export const VERSAO_MANUAL = 16;
+export const VERSAO_MANUAL = 18;
 
 export type Bloco =
   | { tipo: 'p'; texto: string }
@@ -449,7 +449,7 @@ export const SECOES: Secao[] = [
     resumo: 'Aba Cadastros, com "Participantes (0150)" e "Produtos e serviços (0200)": campos editáveis, código fixo, cadastro em uso não sai.',
     blocos: [
       p(
-        'O 0150 traz os participantes (fornecedores e clientes) e o 0200 os produtos e serviços usados nos documentos, sob o 0140 de cada estabelecimento. Na aba **Cadastros**, os tipos de linha **Participantes (0150)** e **Produtos e serviços (0200)** mostram esses cadastros de todos os meses, com filtro, ordenação e CSV; no produto, uma coluna diz quantos registros 0205, 0206 e 0208 ele tem.',
+        'O 0150 traz os participantes (fornecedores e clientes) e o 0200 os produtos e serviços usados nos documentos, sob o 0140 de cada estabelecimento. Na aba **Cadastros**, os tipos de linha **Participantes (0150)** e **Produtos e serviços (0200)** mostram esses cadastros de todos os meses, com filtro, ordenação e CSV; no produto, uma coluna diz quantos registros 0205, 0206 e 0208 ele tem. **Exportar Excel** baixa todas as linhas filtradas do tipo atual, com as colunas visíveis.',
       ),
       sub('O que dá para editar'),
       lista(
@@ -511,6 +511,10 @@ export const SECOES: Secao[] = [
     resumo: 'Pacote JSON ou XML de NF-e; XML de entrada entra com tributação pendente (CST 98); a skill converte planilha, XML e PDF.',
     conferirAoIntegrar: 'A skill (SKILL.md, formato.md, validar_pacote.py) ainda não gera os tipos serviço e imobilizado do pacote; quando gerar, tire a frase "A skill ainda não gera..." e confira o trecho.',
     blocos: [
+      sub('Editar e incluir pelo Excel'),
+      p('Em **Documentos** ou **Cadastros**, clique em **Exportar Excel** para obter a planilha do tipo de linha selecionado. Edite os campos permitidos sem alterar os títulos, o identificador ou a revisão do registro. Use **Importar de Excel** no mesmo tipo de linha e na mesma sessão do editor. As linhas removidas da planilha não excluem registros.'),
+      p('Para incluir uma nota, preencha **Novas notas** e informe o mesmo grupo nos itens da aba **Novos itens**. Para acrescentar um item a uma nota existente, deixe o grupo vazio e indique estabelecimento, período e chave da nota ou número, série e CPF/CNPJ do participante. Para incluir um participante ou produto, use **Novos cadastros** no tipo correspondente.'),
+      p('Preencha períodos como AAAA-MM e datas como AAAA-MM-DD nas abas de inclusão. Mantenha como texto os códigos, chaves e documentos com zeros à esquerda ou mais de 15 dígitos. Revise as alterações e avisos antes de aplicar. Se houver erros, corrija a planilha e importe de novo. Exporte novamente antes de continuar editando dados já alterados no editor.'),
       p(
         'Para incluir documentos que não estão no arquivo, use **Importar documentos** na aba Documentos. Aceita o **pacote de importação em JSON** (arrastado, ou colado e conferido com "Conferir o JSON colado") ou **arquivos .xml de NF-e** (vários de uma vez).',
       ),
@@ -550,6 +554,7 @@ export const SECOES: Secao[] = [
     grupo: 'apuracao',
     resumo: 'Recalcular apuração refaz o bloco M e o bloco 1; quadro do antes e depois por mês, PIS e COFINS.',
     blocos: [
+      p('**Exportar Excel** baixa o resumo mensal de PIS/Pasep ou COFINS, conforme o tributo selecionado. A planilha inclui os valores originais e atuais, as variações, o saldo credor e os avisos sobre valores desatualizados ou meses não recalculados.'),
       p(
         'Em **Apuração**, o botão **Recalcular apuração** fica na subaba **Bloco M**, junto do seletor PIS/Pasep e Cofins, dos resultados por mês e da exportação para Excel. Se faltar alguma escolha, o botão abre **Critérios da apuração**. O botão de baixar recalcula antes de gerar o arquivo, se precisar.',
       ),

@@ -150,7 +150,7 @@ export function sincronizarCadastros(e: Escrituracao): Aviso[] {
       const tipo = TIPO_DO_REG[f.reg];
       if (!tipo || tipo === 'unid') continue;
       const cod = f.campos[CAMPO_CODIGO[f.reg]];
-      if (!usado[tipo].has(cod) && (origEstab[tipo].has(cod) || f.estado === 'novo')) {
+      if (!usado[tipo].has(cod) && !f.cadastroAvulso && (origEstab[tipo].has(cod) || f.estado === 'novo')) {
         st.removidosCadastro.set(chaveRemovido(f.reg, cnpj, cod), { registro: f, pai: r0140 });
         remover(e, f);
       }

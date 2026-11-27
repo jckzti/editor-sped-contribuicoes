@@ -8,6 +8,11 @@
   --texto-fraco: #5c6472;
   --destaque: #1f5fbf;
   --destaque-fraco: #e8f0fd;
+  --botao-fundo: #fff1a8;
+  --botao-fundo-forte: #ffda44;
+  --botao-hover: #f2c627;
+  --botao-borda: #967400;
+  --botao-texto: #352900;
   --editado: #fff4d6;
   --editado-borda: #e0a800;
   --novo: #e3f6e8;
@@ -45,17 +50,19 @@ textarea {
   color: inherit;
 }
 
-button {
-  background: var(--painel);
-  border: 1px solid var(--borda-forte);
+button,
+.botao-arquivo {
+  background: var(--botao-fundo);
+  border: 1px solid var(--botao-borda);
   border-radius: 6px;
+  color: var(--botao-texto);
   padding: 5px 12px;
   cursor: pointer;
 }
 
-button:hover:not(:disabled) {
-  background: var(--destaque-fraco);
-  border-color: var(--destaque);
+button:hover:not(:disabled),
+.botao-arquivo:hover {
+  background: var(--botao-hover);
 }
 
 button:disabled {
@@ -63,14 +70,11 @@ button:disabled {
   cursor: default;
 }
 
-button.primario {
-  background: var(--destaque);
-  border-color: var(--destaque);
-  color: #fff;
-}
-
-button.primario:hover:not(:disabled) {
-  background: #1a52a6;
+button.primario,
+.abas button.ativa,
+.seletor button.ativa {
+  background: var(--botao-fundo-forte);
+  font-weight: 600;
 }
 
 button.perigo:hover:not(:disabled) {
@@ -291,17 +295,8 @@ button:focus-visible {
 }
 
 .abas button {
-  border: none;
-  background: none;
   border-radius: 6px 6px 0 0;
   padding: 6px 14px;
-  color: var(--texto-fraco);
-}
-
-.abas button.ativa {
-  background: var(--destaque-fraco);
-  color: var(--destaque);
-  font-weight: 600;
 }
 
 .conteudo {
@@ -497,7 +492,7 @@ button:focus-visible {
 
 .seletor {
   display: inline-flex;
-  border: 1px solid var(--borda-forte);
+  border: 1px solid var(--botao-borda);
   border-radius: 7px;
   overflow: hidden;
 }
@@ -505,18 +500,11 @@ button:focus-visible {
 .seletor button {
   border: none;
   border-radius: 0;
-  background: var(--painel);
   padding: 5px 14px;
 }
 
 .seletor button + button {
-  border-left: 1px solid var(--borda);
-}
-
-.seletor button.ativa {
-  background: var(--destaque);
-  color: #fff;
-  font-weight: 600;
+  border-left: 1px solid var(--botao-borda);
 }
 
 .cartoes {
@@ -651,9 +639,7 @@ button:focus-visible {
 
 button.ligacao {
   border: none;
-  background: none;
   padding: 2px 4px;
-  color: var(--destaque);
   text-decoration: underline;
 }
 
@@ -677,16 +663,6 @@ button.ligacao {
 .botao-arquivo {
   display: inline-flex;
   align-items: center;
-  background: var(--painel);
-  border: 1px solid var(--borda-forte);
-  border-radius: 6px;
-  padding: 5px 12px;
-  cursor: pointer;
-}
-
-.botao-arquivo:hover {
-  background: var(--destaque-fraco);
-  border-color: var(--destaque);
 }
 
 .botao-arquivo input[type='file'] {

@@ -19,7 +19,8 @@ import { ConstrutorFiltros } from './ConstrutorFiltros';
 import { explicacaoTipoVazio, inteiro, ROTULO_TIPO, totalDaColuna } from './formato';
 import { montarFiltros, type FormFiltro } from './filtros';
 import { Grade, type ColunaGrade } from './Grade';
-import { exportarExcel } from './exportarExcel';
+import { exportarGradeExcel, prepararExcel, type PreviaExcel } from './importarExcel';
+import { Dialogo } from './Dialogo';
 import { indicesSelecionados, mesmoConjunto, selecaoVazia, tamanhoSelecao, type SelecaoLinhas } from './selecao';
 import { ImportarDocumentos } from './ImportarDocumentos';
 import { PainelLote } from './PainelLote';
@@ -154,26 +155,20 @@ export function TelaDocumentos({ estado, aoMudarEstado, escrituracoes, versao, m
   const colunasPorId = useMemo(() => new Map(todasColunas.map((c) => [c.id, c])), [todasColunas]);
 
   const quantidadeSelecionada = tamanhoSelecao(selecao, linhas.length);
-const aoExportarExcel = () => {
-  const cabecalhos = visiveis.map((c) => c.rotulo);
-
-  const dados = linhas.map((linha) =>
-    visiveis.map((c) =>
-      textoDaCelula(linha, c.id, alvos.get(c.id))
-    )
-  );
-
-  const periodo = escrituracoes.length === 1
-    ? escrituracoes[0].periodo
-    : 'multiplos-periodos';
-
-  exportarExcel(
-    `documentos-${tipo}-${periodo}`,
-    'Documentos',
-    cabecalhos,
-    dados
-  );
-};
+  const entradaExcel = useRef<HTMLInputElement>(null);
+  const [previaExcel, setPreviaExcel] = useState<{ previa?: PreviaExcel; erro?: string; versao?: number } | null>(null);
+  const nomeAbaExcel = cadastro ? 'Cadastros' : 'Documentos';
+  const aoExportarExcel = () => {
+    const periodo = escrituracoes.length === 1 ? escrituracoes[0].periodo : 'multiplos-periodos';
+    exportarGradeExcel(`${nomeAbaExcel.toLowerCase()}-${tipo}-${periodo}`, nomeAbaExcel, tipo, visiveis, linhas);
+  };
+  const aoImportarExcel = async (arquivo: File) => {
+    try {
+      setPreviaExcel({ previa: prepararExcel(await arquivo.arrayBuffer(), arquivo.name, nomeAbaExcel, tipo, linhasBase, escrituracoes), versao });
+    } catch (erro) {
+      setPreviaExcel({ erro: (erro as Error).message });
+    }
+  };
   const totaisSelecao = useMemo(() => {
     if (!quantidadeSelecionada || quantidadeSelecionada > LIMITE_SOMA_SELECAO) return null;
     const idx = indicesSelecionados(selecao, linhas.length);
@@ -238,12 +233,44 @@ const aoExportarExcel = () => {
             </button>
           </div>
         </details>
-        {!cadastro && (
-  <button onClick={aoExportarExcel} disabled={linhas.length === 0}>
-    Exportar Excel ({inteiro(linhas.length)})
-  </button>
-)}
+        <button onClick={aoExportarExcel}>
+          Exportar Excel ({inteiro(linhas.length)})
+        </button>
+        <button onClick={() => entradaExcel.current?.click()}>Importar de Excel</button>
+        <input type="file" hidden accept=".xlsx" ref={entradaExcel} onChange={(ev) => {
+          const arquivo = ev.currentTarget.files?.[0];
+          ev.currentTarget.value = '';
+          if (arquivo) void aoImportarExcel(arquivo);
+        }} />
       </div>
+
+      {previaExcel && (
+        <Dialogo titulo="Importar de Excel" tamanho="largo" aoFechar={() => setPreviaExcel(null)} rodape={
+          <button className="primario" disabled={!previaExcel.previa?.mudancas.length || !!previaExcel.previa.erros.length} onClick={() => {
+            try {
+              if (previaExcel.versao !== versao) throw new Error('Os dados mudaram desde a prévia. Importe a planilha novamente.');
+              previaExcel.previa?.aplicar();
+              mudou();
+              setPreviaExcel(null);
+            } catch (erro) {
+              setPreviaExcel({ erro: (erro as Error).message });
+            }
+          }}>Aplicar importação</button>
+        }>
+          {previaExcel.erro && <p role="alert">{previaExcel.erro}</p>}
+          {previaExcel.previa && (
+            <>
+              <p>{inteiro(previaExcel.previa.mudancas.length)} alteração(ões) ou inclusão(ões) previstas.</p>
+              {!!previaExcel.previa.erros.length && <p role="alert">Corrija os erros antes de aplicar a importação.</p>}
+              <ul>
+                {previaExcel.previa.erros.map((erro, i) => <li key={`erro-${i}`}>{erro}</li>)}
+                {previaExcel.previa.avisos.map((aviso, i) => <li key={`aviso-${i}`}>{aviso}</li>)}
+                {previaExcel.previa.mudancas.map((mudanca, i) => <li key={`mudanca-${i}`}>{mudanca}</li>)}
+              </ul>
+            </>
+          )}
+        </Dialogo>
+      )}
 
       <ConstrutorFiltros
         tipo={tipo}

@@ -65,6 +65,8 @@ export interface Registro {
   pai: Registro | null;
   /** Ausente = original, sem alteração. */
   estado?: EstadoRegistro;
+  /** Cadastro incluído explicitamente, que pode ser usado por documentos importados mais tarde. */
+  cadastroAvulso?: boolean;
   /**
    * Valores originais dos campos alterados (índice do campo → valor como estava
    * no arquivo), para reverter e para destacar na tela.
